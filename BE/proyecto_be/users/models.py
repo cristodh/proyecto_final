@@ -14,7 +14,7 @@ class Role(models.Model):
     ROLE_CHOICES = (
         ("Contributor","CONTRIBUTOR"),
         ('Admin','ADMIN'),
-        ('ProjectManager','PROJECTMANAGER'),
+        ('CampaignManager','CAMPAIGNMANAGER'),
         ('User','USER')
         )
     role = models.CharField(choices=ROLE_CHOICES,max_length=20)
