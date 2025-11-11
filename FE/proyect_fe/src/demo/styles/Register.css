@@ -1,0 +1,43 @@
+.register-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: var(--font-body);
+}
+
+.role-selection {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.roles {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.form-section {
+  margin-top: 2rem;
+}
+
+.forgot-password {
+  display: block;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: #1E2A38;
+  text-decoration: underline;
+}
+
+.login-link {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.login-link a {
+  color: #32C48D;
+  font-weight: 600;
+  text-decoration: none;
+}

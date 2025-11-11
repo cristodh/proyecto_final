@@ -1,0 +1,22 @@
+.role-card {
+  border: 1px solid #E6E6E6;
+  border-radius: 8px;
+  padding: 1rem;
+  width: 100%;
+  max-width: 300px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  text-align: center;
+  font-family: var(--font-body);
+}
+
+.role-card h3 {
+  color: #1E2A38;
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.role-card p {
+  color: #555;
+  font-size: 0.95rem;
+}

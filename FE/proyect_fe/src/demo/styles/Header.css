@@ -1,0 +1,28 @@
+.header {
+  text-align: center;
+  padding: 2rem;
+  background-color: #ffffff;
+  color: #1E2A38;
+  font-family: var(--font-title);
+}
+
+.header h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.tagline {
+  font-size: 1rem;
+  color: #32C48D;
+}
+
+nav {
+  margin-top: 1rem;
+}
+
+nav a {
+  margin: 0 1rem;
+  text-decoration: none;
+  color: #1E2A38;
+  font-weight: 600;
+}
