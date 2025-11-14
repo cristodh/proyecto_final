@@ -1,0 +1,186 @@
+.login-form {
+  padding: 0;
+  background-color: transparent;
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  font-family: 'Inter', sans-serif;
+  animation: slideInRight 0.8s ease-out;
+}
+
+.login-form h5 {
+  font-family: 'Poppins', sans-serif;
+  color: #1E2A38;
+  margin-bottom: 2rem;
+  font-size: 2rem;
+  font-weight: 600;
+  text-align: center;
+  background: linear-gradient(135deg, #1E2A38, #00C072);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: relative;
+  letter-spacing: -0.02em;
+}
+
+.login-form h5::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(135deg, #00C072, #5BCE8A);
+  border-radius: 2px;
+}
+
+.login-form .MuiTextField-root {
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.login-form .MuiTextField-root .MuiOutlinedInput-root {
+  border-radius: 12px;
+  background: #F7F9FA;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  font-family: 'Inter', sans-serif;
+}
+
+.login-form .MuiTextField-root .MuiOutlinedInput-root:hover {
+  background: #FFFFFF;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+.login-form .MuiTextField-root .MuiOutlinedInput-root.Mui-focused {
+  background: #FFFFFF;
+  border: 2px solid #00C072;
+  box-shadow: 0 8px 25px rgba(0, 192, 114, 0.12);
+  transform: translateY(-1px);
+}
+
+.login-form .MuiTextField-root .MuiInputLabel-root {
+  color: #1E1E1E;
+  font-weight: 400;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+}
+
+.login-form .MuiTextField-root .MuiInputLabel-root.Mui-focused {
+  color: #00C072;
+  font-weight: 500;
+}
+
+.forgot {
+  display: block;
+  margin-top: 0.5rem;
+  margin-bottom: 2rem;
+  font-size: 0.9rem;
+  color: #00C072;
+  text-align: right;
+  text-decoration: none;
+  font-weight: 400;
+  transition: all 0.3s ease;
+  position: relative;
+  font-family: 'Inter', sans-serif;
+}
+
+.forgot:hover {
+  color: #5BCE8A;
+  transform: translateX(-3px);
+}
+
+.forgot::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(135deg, #00C072, #5BCE8A);
+  transition: width 0.3s ease;
+}
+
+.forgot:hover::after {
+  width: 100%;
+}
+
+.login-form .MuiButton-root {
+  background: linear-gradient(135deg, #00C072, #5BCE8A);
+  font-weight: 500;
+  text-transform: none;
+  border-radius: 12px;
+  padding: 0.9rem 2rem;
+  font-size: 1rem;
+  box-shadow: 0 6px 20px rgba(0, 192, 114, 0.2);
+  border: none;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: -0.01em;
+}
+
+.login-form .MuiButton-root::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+  transition: left 0.3s ease;
+}
+
+.login-form .MuiButton-root:hover {
+  background: linear-gradient(135deg, #00A863, #4BAD7A);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(0, 192, 114, 0.3);
+}
+
+.login-form .MuiButton-root:hover::before {
+  left: 100%;
+}
+
+.login-form .MuiButton-root:active {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 15px rgba(0, 192, 114, 0.2);
+}
+
+.login-form .MuiButton-root:disabled {
+  background: linear-gradient(135deg, #F7F9FA, #F7F9FA);
+  color: #1E1E1E;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
+  transform: none;
+}
+
+/* Animación de entrada */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .login-form {
+    padding: 1.5rem;
+  }
+  
+  .login-form h5 {
+    font-size: 1.7rem;
+  }
+}

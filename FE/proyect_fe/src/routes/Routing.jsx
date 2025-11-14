@@ -1,11 +1,13 @@
 import {BrowserRouter as Router, Routes, Route} from 'react-router-dom'
-import Register from '../LoginPage/pages/LoginPage'
+import LoginPage from '../LoginPage/pages/Login/LoginPage'
+import RegisterDonor from '../Register/pages/RegisterPageD/RegisterDonor'
 
 const Routing = ()=>{
     return(
         <Router>
             <Routes>
-                <Route path='/' element={<Register/>}/>
+                <Route path='/loginUser' element={<LoginPage/>}/>
+                <Route path='/register-donor' element={<RegisterDonor/>}/>
             </Routes>
         </Router>
     )
