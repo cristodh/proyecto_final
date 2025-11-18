@@ -1,0 +1,55 @@
+.sidebar-container {
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 14px;
+  padding: 20px;
+  background: white;
+}
+
+.dark .sidebar-container {
+  background: rgba(26, 43, 72, 0.25);
+  border-color: #444;
+}
+
+.sidebar-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #1a2b48;
+  margin-bottom: 14px;
+}
+
+.stats-grid {
+  display: flex;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.stats-card {
+  flex: 1;
+  border: 1px solid #ccc;
+  padding: 12px;
+  border-radius: 10px;
+}
+
+.menu-container {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.menu-btn {
+  justify-content: flex-start;
+  color: #1a2b48 !important;
+  text-transform: none !important;
+  border-radius: 10px !important;
+  padding: 10px 14px !important;
+}
+
+.menu-btn:hover {
+  background: rgba(32, 201, 151, 0.15) !important;
+}
+
+.menu-btn.active {
+  background: rgba(32, 201, 151, 0.25) !important;
+  font-weight: bold !important;
+}

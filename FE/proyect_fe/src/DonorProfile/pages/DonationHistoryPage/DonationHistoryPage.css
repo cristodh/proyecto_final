@@ -1,0 +1,23 @@
+.page-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  padding: 20px;
+}
+
+@media (min-width: 1024px) {
+  .page-container {
+    grid-template-columns: 280px 1fr;
+  }
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 12px;
+  color: #1a2b48;
+}
+
+.dark .page-title {
+  color: #e5e7eb;
+}
