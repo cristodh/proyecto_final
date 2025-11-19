@@ -3,6 +3,7 @@ from rest_framework.generics import ListCreateAPIView # importar ListCreateAPIVi
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import User
 from .models import Role
@@ -38,9 +39,14 @@ class UserLoginView(APIView):
         username = request.data.get('username')
         password = request.data.get('password')
 
-        usuario = authenticate(username=username,password=password)
+        user = authenticate(username=username,password=password) # lo de la izq es la DB lo de la der es la variable
 
-        if usuario is not None:
-            return Response({'message':'Login successful'})
+        if user is not None:
+            token = RefreshToken.for_user(user)
+            return Response({
+                'message':'Login successful',
+                'id': user.id,
+                'token': str(token.access_token)
+                })
         else:
             return Response({'message':'Invalid credentials'},status=401)

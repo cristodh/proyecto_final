@@ -44,14 +44,6 @@ export default function RegisterLoginPage() {
             {tab === 1 && (
               <>
                 <Typography
-                  variant="h6"
-                  fontWeight={700}
-                  textAlign="center"
-                  color="secondary"
-                >
-                  Únete como
-                </Typography>
-                <Typography
                   variant="body2"
                   color="text.secondary"
                   textAlign="center"
@@ -59,10 +51,18 @@ export default function RegisterLoginPage() {
                 >
                   Selecciona tu rol para comenzar.
                 </Typography>
+                <Typography
+                  variant="h6"
+                  fontWeight={700}
+                  textAlign="center"
+                  color="secondary"
+                >
+                  Únete como
+                </Typography>
+
 
                 <RoleSelector />
-
-                <DividerWithText text="o completa tu registro" />
+                
               </>
             )}
 
