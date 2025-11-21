@@ -12,9 +12,9 @@ class User(AbstractUser):
     phone_number = models.IntegerField(null=False)
     date_of_birth = models.DateField(null=False)
     goverment_ID = models.CharField(max_length=20,null=False)
-    gender = models.CharField(max_length=10,null=False)
-    role = models.ForeignKey("Role",on_delete=models.CASCADE)
-    nationality = models.ForeignKey("Nationality",on_delete=models.CASCADE)
+    gender = models.CharField(max_length=50,null=False)
+    role = models.ForeignKey("Role",on_delete=models.CASCADE,default=1)
+    nationality = models.CharField(max_length=50,null=False)
 
     def __str__(self):
         return self.username

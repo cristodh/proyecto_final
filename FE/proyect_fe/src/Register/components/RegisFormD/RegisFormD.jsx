@@ -6,18 +6,16 @@ import {
   MenuItem,
   InputLabel,
   FormControl,
-  Checkbox,
-  FormGroup,
-  FormControlLabel,
   Button,
 } from '@mui/material';
-import { Form } from 'react-router-dom';
 import { postData } from '../../services/fetch';
-
+import { ToastContainer, toast } from 'react-toastify';
+import {useNavigate} from 'react-router-dom';
 export default function RegisFormD() {
+  const regex = /^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=\[\]{};:'",.<>?/\\|`~]).{8,}$/
 
+  const navigate = useNavigate();
   // aqui se almacenan los datos del formulario
-  
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
@@ -28,71 +26,63 @@ export default function RegisFormD() {
     nationality: '',
     address: '',
     gender: '',
-    role: 1,  
     username: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
   });
 
 
-  
+
   //aqui se evita que la pagina se recargue
-const handleSubmit = async(e) => {
-  e.preventDefault();
-
-// Validar que las contraseñas coincidan
-  if (formData.password !== formData.confirmPassword) {
-    alert('Las contraseñas no coinciden');
-    return;
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (formData.first_name.trim() ==='' || formData.last_name.trim() ==='' || formData.email.trim() ==='' || formData.phone_number.trim() ==='' || formData.date_of_birth.trim() ==='' || formData.goverment_ID.trim() ==='' || formData.nationality.trim() ==='' || formData.address.trim() ==='' || formData.gender.trim() ==='' || formData.username.trim() ==='' || formData.password.trim() ==='' || formData.confirmPassword.trim() ==='') {
+      toast.error("Por favor, complete todos los campos.");
+      return;
+    }
+    if(!regex.test(formData.password)){
+      
+      toast.error("La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un carácter especial.");
+      return;
+    }
+    // Validar que las contraseñas coincidan
+    if (formData.password !== formData.confirmPassword) {
+      toast.error("Las contraseñas no coinciden");
+      return;
+    }
     console.log('Datos del formulario:', formData);
-    console.log('Intereses:', interests);
 
-    const response = await postData('user/new_users/',formData);
+    const response = await postData('user/new_users/', formData);
     console.log(response); // recibe la respuesta del backend y a puede usar para mostrar mensajes de exito o error
+    toast.success("Registro exitoso");
+    navigate("/auth-user")
   };
 
-  
 
-        // aqui se almacenan los intereses seleccionados
-  const [checkEducation, setCheckEducation] =useState(true);
-  const [checkHealth, setCheckHealth] =useState(false);
-  const [checkEnvironment, setCheckEnvironment] =useState(false);
-  const [checkCommunityDevelopment, setCheckCommunityDevelopment] =useState(false);
-  const [checkScienceandTechnology, setCheckScienceandTechnology] =useState(false);
-  const [checkArtsandCulture, setCheckArtsandCulture] =useState(false);
-  const [checkAnimalWelfare, setCheckAnimalWelfare] =useState(false);
-  const [checkSportsandRecreation, setCheckSportsandRecreation] =useState(false);
-  const [checkOther, setCheckOther] =useState(false);
-  const [interests, setInterests] = useState([]);
 
-const handleInputChange = (e) => { // maneja los cambios en los campos del formulario
-  const { name, value } = e.target; 
-  setFormData(prevData => ({
-    ...prevData,
-    [name]: value
-  }));
-};
 
-  // aqui se añaden los intereses seleccionados al array de intereses
-  const addInterest = (interest) =>{
-      setInterests([...interests, interest]);
-  }
 
+  const handleInputChange = (e) => { // maneja los cambios en los campos del formulario
+    const { name, value } = e.target;
+    setFormData(prevData => ({
+      ...prevData,
+      [name]: value
+    }));
+  };
 
   // 
   return (
     // formulario de registro de donador
-    <form className="register-form-d" onSubmit={handleSubmit}> {/*el onSubmit evita la recargue cuando se envia el formulario*/} 
+    <form className="register-form-d" onSubmit={handleSubmit}> {/*el onSubmit evita la recargue cuando se envia el formulario*/}
       <div className="form-grid">
-        <TextField label="Nombre" variant="outlined" name='first_name' value={formData.first_name} onChange={handleInputChange}/>
+        <TextField label="Nombre" variant="outlined" name='first_name' value={formData.first_name} onChange={handleInputChange} />
 
-        <TextField label="Apellidos" variant="outlined" name='last_name' value={formData.last_name} onChange={handleInputChange}/>
-        
-        <TextField label="Correo electrónico" variant="outlined" name='email' value={formData.email} onChange={handleInputChange}/>
-        
-        <TextField label="Teléfono" variant="outlined" name='phone_number' value={formData.phone_number} onChange={handleInputChange}/>
-        
+        <TextField label="Apellidos" variant="outlined" name='last_name' value={formData.last_name} onChange={handleInputChange} />
+
+        <TextField label="Correo electrónico" variant="outlined" name='email' value={formData.email} onChange={handleInputChange} />
+
+        <TextField label="Teléfono" variant="outlined" name='phone_number' value={formData.phone_number} onChange={handleInputChange} />
+
         <TextField
           label="Fecha de nacimiento"
           type="date"
@@ -102,197 +92,47 @@ const handleInputChange = (e) => { // maneja los cambios en los campos del formu
           value={formData.date_of_birth}
           onChange={handleInputChange}
         />
-        
-        <TextField label="Cédula de identidad" variant="outlined" name='goverment_ID' value={formData.goverment_ID} onChange={handleInputChange}/>
-        
-        <TextField label="Nacionalidad" variant="outlined" name='nationality' value={formData.nationality} onChange={handleInputChange}/>
-        
-        <TextField label="Dirección" variant="outlined" name='address' value={formData.address} onChange={handleInputChange}/>
+
+        <TextField label="Cédula de identidad" variant="outlined" name='goverment_ID' value={formData.goverment_ID} onChange={handleInputChange} />
+
+        <TextField label="Nacionalidad" variant="outlined" name='nationality' value={formData.nationality} onChange={handleInputChange} />
+
+        <TextField label="Dirección" variant="outlined" name='address' value={formData.address} onChange={handleInputChange} />
         <FormControl fullWidth>
           <InputLabel>Género</InputLabel>
           <Select
-          name= 'gender'
-          value={formData.gender}
-          onChange={handleInputChange}
-          label="Género">
+            name='gender'
+            value={formData.gender}
+            onChange={handleInputChange}
+            label="Género">
             <MenuItem value="Male">Masculino</MenuItem>
             <MenuItem value="Female">Femenino</MenuItem>
             <MenuItem value="Other">Otro</MenuItem>
             <MenuItem value="Prefer not to say">Prefiero no decir</MenuItem>
           </Select>
         </FormControl>
-        
-        <div className="interest-group">
-          <label className="interest-label">Áreas de interés</label>
-          <FormGroup row>
-            <FormControlLabel 
-              control={
-                <Checkbox 
-                  checked={checkEducation} 
-                  onChange={(e) => {setCheckEducation(e.target.checked);
-                    if (e.target.checked) {
-                      addInterest("Education");
-                    } else {
-                      // Remover el interés si se desmarca
-                      setInterests(interests.filter(interest => interest !== "Education"));
-                    }
-                  }}
-                />
-              } 
-              label="Educación" 
-            />
-            <FormControlLabel 
-              control={
-                <Checkbox 
-                  checked={checkHealth} 
-                  onChange={(e) => {
-                    setCheckHealth(e.target.checked);
-                    if (e.target.checked) {
-                      addInterest("Health");
-                    } else {
-                      setInterests(interests.filter(interest => interest !== "Health"));
-                    }
-                  }}
-                />
-              } 
-              label="Salud" 
-            />
-            <FormControlLabel 
-              control={
-                <Checkbox 
-                  checked={checkEnvironment} 
-                  onChange={(e) => {
-                    setCheckEnvironment(e.target.checked);
-                    if (e.target.checked) {
-                      addInterest("Environment");
-                    } else {
-                      setInterests(interests.filter(interest => interest !== "Environment"));
-                    }
-                  }}
-                />
-              } 
-              label="Medio ambiente" 
-            />
-            <FormControlLabel 
-              control={
-                <Checkbox 
-                  checked={checkCommunityDevelopment} 
-                  onChange={(e) => {
-                    setCheckCommunityDevelopment(e.target.checked);
-                    if (e.target.checked) {
-                      addInterest("Community Development");
-                    } else {
-                      setInterests(interests.filter(interest => interest !== "Community Development"));
-                    }
-                  }}
-                />
-              } 
-              label="Desarrollo de la Comunidad" 
-            />
-            <FormControlLabel 
-              control={
-                <Checkbox 
-                  checked={checkScienceandTechnology} 
-                  onChange={(e) => {
-                    setCheckScienceandTechnology(e.target.checked);
-                    if (e.target.checked) {
-                      addInterest("Science and Technology");
-                    } else {
-                      setInterests(interests.filter(interest => interest !== "Science and Technology"));
-                    }
-                  }}
-                />
-              } 
-              label="Ciencia y Tecnología" 
-            />
-            <FormControlLabel 
-              control={
-                <Checkbox 
-                  checked={checkArtsandCulture} 
-                  onChange={(e) => {
-                    setCheckArtsandCulture(e.target.checked);
-                    if (e.target.checked) {
-                      addInterest("Arts and Culture");
-                    } else {
-                      setInterests(interests.filter(interest => interest !== "Arts and Culture"));
-                    }
-                  }}
-                />
-              } 
-              label="Arte y cultura" 
-            />
-            <FormControlLabel 
-              control={
-                <Checkbox 
-                  checked={checkAnimalWelfare} 
-                  onChange={(e) => {
-                    setCheckAnimalWelfare(e.target.checked);
-                    if (e.target.checked) {
-                      addInterest("Animal Welfare");
-                    } else {
-                      setInterests(interests.filter(interest => interest !== "Animal Welfare"));
-                    }
-                  }}
-                />
-              } 
-              label="Protección Animal" 
-            />
-            <FormControlLabel 
-              control={
-                <Checkbox 
-                  checked={checkSportsandRecreation} 
-                  onChange={(e) => {
-                    setCheckSportsandRecreation(e.target.checked);
-                    if (e.target.checked) {
-                      addInterest("Sports and Recreation");
-                    } else {
-                      setInterests(interests.filter(interest => interest !== "Sports and Recreation"));
-                    }
-                  }}
-                />
-              } 
-              label="Deporte y Recreacion" 
-            />
-            <FormControlLabel 
-              control={
-                <Checkbox 
-                  checked={checkOther} 
-                  onChange={(e) => {
-                    setCheckOther(e.target.checked);
-                    if (e.target.checked) {
-                      addInterest("Other");
-                    } else {
-                      setInterests(interests.filter(interest => interest !== "Other"));
-                    }
-                  }}
-                />
-              } 
-              label="Otros" 
-            />
-            {/* <TextField label="Otros" variant="outlined" */}
-          </FormGroup>
-        </div>
-        <TextField 
-          label="Nombre de usuario" 
+        <TextField
+          label="Nombre de usuario"
           variant="outlined"
           name="username"
           value={formData.username}
           onChange={handleInputChange}
         />
-        <TextField 
-          label="Contraseña" 
-          type="password" 
+        <TextField
+          label="Contraseña"
+          type="password"
           variant="outlined"
           name="password"
           value={formData.password}
           onChange={handleInputChange}
         />
-        <TextField 
-          label="Confirmar contraseña" 
-          type="password" 
+        <ToastContainer  closeButton draggable autoClose={1300}/>
+        <TextField
+          label="Confirmar contraseña"
+          type="password"
           variant="outlined"
           name="confirmPassword"
-          value={formData.confirmPassword}  
+          value={formData.confirmPassword}
           onChange={handleInputChange}
         />
       </div>
