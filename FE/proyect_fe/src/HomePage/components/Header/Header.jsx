@@ -10,11 +10,11 @@ import Stack from "@mui/material/Stack";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
 import MenuIcon from "@mui/icons-material/Menu";
-
+import { useNavigate } from "react-router-dom";
 export default function Header() {
   const theme = useTheme();
   const isMdUp = useMediaQuery(theme.breakpoints.up("md"));
-
+  const navigate = useNavigate();
   return (
     <AppBar position="sticky" elevation={0} sx={{
       bgcolor: "background.paper",
@@ -44,8 +44,12 @@ export default function Header() {
         ) : <Box sx={{ flex: 1 }} />}
 
         <Box sx={{ display: "flex", gap: 1 }}>
-          <Button variant="outlined" sx={{ textTransform: "none", minWidth: 100 }}>Iniciar Sesión</Button>
-          <Button variant="contained" sx={{ textTransform: "none", minWidth: 100 }}>Registrarse</Button>
+          <Button
+          onClick={()=>navigate('/auth-user')}
+          variant="outlined" sx={{ textTransform: "none", minWidth: 100 }}>Iniciar Sesión</Button>
+          <Button
+          onClick={()=>navigate('/register-donor')}
+          variant="contained" sx={{ textTransform: "none", minWidth: 100 }}>Registrarse</Button>
           {!isMdUp && (
             <IconButton aria-label="menu" sx={{ ml: 1 }}>
               <MenuIcon />

@@ -32,6 +32,7 @@ export default function AuthForm({ mode }) {
     const response = await postData('user/login/', userObj)
     if (response.message === 'Login successful') {
       setAlert({ open: true, message: 'Login Exitoso', severity: 'success' })
+      localStorage.setItem('id', response.id)
       setTimeout(() => navigate("/donor_profile/donation_history"), 1500)
     } else {
       setAlert({ open: true, message: 'Correo y/o contraseña invalidos', severity: 'error' })

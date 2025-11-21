@@ -14,7 +14,7 @@ const Routing = ()=>{
             <Routes>
                 <Route path='/' element={<HomePage/>}/>
                 <Route path='/about-us' element={<AboutPage/>}/>
-                <Route path='/auth-panel' element={<RegisterLoginPage/>}/>
+                <Route path='/auth-user' element={<RegisterLoginPage/>}/>
                 <Route path='/register-donor' element={<RegisterDonor/>}/>
                 <Route path='/donor_profile/donation_history' element={<DonationHistoryPage/>}/>
                 <Route path='/admin-main' element={<AdminDashboard/>}/>

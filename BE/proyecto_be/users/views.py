@@ -50,3 +50,19 @@ class UserLoginView(APIView):
                 })
         else:
             return Response({'message':'Invalid credentials'},status=401)
+
+# Pista  Se usa el ListCreateAPIView.
+# Pista  Se usa el UserSerializer.
+# Pista hay que modificar el queryset para que traiga solo los usuarios por id desde el localstorage
+
+
+class UserByID(ListCreateAPIView):
+    method = 'get'
+    serializer_class = UserSerializer  # Usa el serializador de usuario
+
+    # Sobrescribimos get_queryset para filtrar por ID
+    def get_queryset(self):
+        # Obtener el ID desde la URL (pk = primary key)
+        user_id = self.kwargs.get("pk")
+        # Filtrar el usuario por ese ID
+        return User.objects.filter(id=user_id)
