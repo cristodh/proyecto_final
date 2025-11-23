@@ -11,6 +11,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { getData } from "../../../Register/services/fetch";
+import { ToastContainer, toast } from "react-toastify";
 
 export default function RecoveryPass() {
 
@@ -20,33 +21,38 @@ export default function RecoveryPass() {
   const [emailUser, setEmailUser] = useState("") // Estado para el texto del correo
   const [availableUser, setAvailableUser] = useState(false) // Si el usuario existe o no
 
-  useEffect(()=>{
+
+  useEffect(() => {
     async function getUser() { // ejecutamos la funcion get 
-       try{
-         const response = await getData('user/new_users/') // apuntamos al endpoint de usuarios
-         const filterUser = response.filter((u) => u.email === emailUser); // filtrarmos los usuarios con el correo que se puso en el input
-         setUser(filterUser); // dentro del estado, se guarda a ese usuario
-          if(filterUser.length>0){ // si hay mas de 0 usuarios, ponemos el estado como verdadero (porque el usuario existe en la db)
-            setAvailableUser(true);
-          } else {
-            setAvailableUser(false); // si no, falso (no existe en la db)
-          }
-       }
-        catch(error){
-          console.error('Error:', error)
-          alert('El usuario no existe') // error de servidor
+      try {
+        if(emailUser.trim() === '') {
+          toast.error("Por favor ingresa un correo electrónico.");
+          return;
         }
+        const response = await getData('user/new_users/') // apuntamos al endpoint de usuarios
+        const filterUser = response.filter((u) => u.email === emailUser); // filtrarmos los usuarios con el correo que se puso en el input
+        setUser(filterUser); // dentro del estado, se guarda a ese usuario
+        if (filterUser.length > 0) { // si hay mas de 0 usuarios, ponemos el estado como verdadero (porque el usuario existe en la db)
+          setAvailableUser(true);
+        } else {
+          setAvailableUser(false); // si no, falso (no existe en la db)
+        }
+      }
+      catch (error) {
+        console.error('Error:', error)
+        alert('El usuario no existe') // error de servidor
+      }
     }
     getUser();
-  },[emailUser])
+  }, [emailUser])
 
   const generateCode = () => {
     return Math.floor(100000 + Math.random() * 900000).toString(); // codigo aleatorio de 6 digitos
   };
-        
+
   const sendEmail = (e) => {
     if (!availableUser) {
-      alert("El usuario no está disponible");
+      toast.error("El usuario no existe.");
       return;
     } // validacion que el usuario exista
     e.preventDefault();
@@ -117,7 +123,6 @@ export default function RecoveryPass() {
               label="Correo Electrónico"
               name="email"
               type="email"
-              required
               value={emailUser}
               onChange={(e) => setEmailUser(e.target.value)}
               fullWidth
@@ -130,9 +135,9 @@ export default function RecoveryPass() {
               fullWidth
               sx={{
                 py: 1.5,
-                bgcolor: "#13ec5b",
+                bgcolor: "#2A9D8F",
                 fontWeight: "bold",
-                "&:hover": { bgcolor: "#0fc94e" },
+                "&:hover": { bgcolor: "#70efe0ff" },
               }}
               disabled={loading}
             >
@@ -141,8 +146,9 @@ export default function RecoveryPass() {
           </Box>
 
           {sent && (
-            <Typography textAlign="center" mt={2} color="green" fontWeight="500">
-              ¡Correo enviado correctamente! ✔️
+            <Typography textAlign="center" mt={2} color="green" fontWeight="540">
+              ¡Correo enviado correctamente! <br />
+              <span>Recuerda revisar la carpeta de spam o correo no deseado.</span>
             </Typography>
           )}
 
@@ -151,12 +157,14 @@ export default function RecoveryPass() {
           </Typography>
 
           <Box textAlign="center" mt={2}>
-            <Link href="#" underline="hover" color="#2A9D8F" fontWeight="500">
+            <Link href="/auth-user" underline="hover" color="#2A9D8F" fontWeight="500">
               Volver a Iniciar Sesión
             </Link>
           </Box>
         </Paper>
       </Container>
+      <ToastContainer closeButton draggable autoClose={1300} />
+
     </Box>
   );
 }
