@@ -2,8 +2,8 @@
 from rest_framework.serializers import ModelSerializer
 from .models import User  # importar el modelo User
 from .models import Role
-from .models import Nationality
 from .models import Key_interests
+from .models import RecoveryCode
 from rest_framework import serializers, validators
 import re
 
@@ -60,13 +60,12 @@ class RoleSerializer(ModelSerializer):
         fields = '__all__'
 
 
-class NationalitySerializer(ModelSerializer):
-    class Meta:
-        model = Nationality
-        fields = "__all__"
-
-
 class Key_interestsSerializer(ModelSerializer):
     class Meta:
         model = Key_interests
+        fields = '__all__'
+
+class RecoveryCodeSerializer(ModelSerializer):
+    class Meta:
+        model = RecoveryCode
         fields = '__all__'

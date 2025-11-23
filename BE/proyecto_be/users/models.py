@@ -49,8 +49,10 @@ class Role(models.Model):
     def __str__(self):
         return self.role
 
-class Nationality(models.Model):
-    nationality = models.CharField(max_length=50)
+class RecoveryCode(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    code = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.nationality
+        return f"Recovery code for {self.user.username}"

@@ -8,7 +8,6 @@ async function postData(endpoint,obj) {
          body: JSON.stringify(obj)
      })
      const data = await response.json()
-     data.ok = response.ok
      return data
    } catch (error) {
         console.error('Error:', error)

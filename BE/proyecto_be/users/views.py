@@ -7,13 +7,13 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import User
 from .models import Role
-from .models import Nationality
 from .models import Key_interests
+from .models import RecoveryCode
 
 from .serializers import UserSerializer
 from .serializers import RoleSerializer
-from .serializers import NationalitySerializer
 from .serializers import Key_interestsSerializer
+from .serializers import RecoveryCodeSerializer
 
 
 # Create your views here.
@@ -25,10 +25,6 @@ class UserListCreateView(ListCreateAPIView):
 class RoleListCreateView(ListCreateAPIView):
     queryset = Role.objects.all() # traer todos los Role (MODELO)
     serializer_class = RoleSerializer # usar el RoleSerializer para traducir la info (TRADUCE EL MODELO A JSON)
-
-class NationalityListCreateView(ListCreateAPIView):
-    queryset = Nationality.objects.all() # traer todos los Nationality (MODELO)
-    serializer_class = NationalitySerializer # usar el NationalitySerializer para traducir la info (TRADUCE EL MODELO A JSON)
 
 class Key_interestsListCreateView(ListCreateAPIView):
     queryset = Key_interests.objects.all() # traer todos los Key_interests (MODELO)
@@ -66,3 +62,26 @@ class UserByID(ListCreateAPIView):
         user_id = self.kwargs.get("pk")
         # Filtrar el usuario por ese ID
         return User.objects.filter(id=user_id)
+    
+class RecoveryCodeAPIView(APIView): 
+    def post(self, request): 
+        user_id = request.data.get('user_id') # ID del usuario al que se le asignará el código
+        code = request.data.get('code') # Código de recuperación a asignar
+        
+        try:
+        
+            user=User.objects.get(id=user_id) # Obtener el usuario por ID
+        except User.DoesNotExist:
+            user = None
+            return Response({'message': 'User not found'}, status=404) # Usuario no encontrado
+        
+        if user:
+            recovery_code = RecoveryCode.objects.create(user=user, code=code) # se guarda el código de recuperación
+            serializer = RecoveryCodeSerializer(recovery_code)  # Serializar el código de recuperación
+            return Response(serializer.data, status=201) # Devolver la respuesta con el código serializado
+        else:
+            return Response({'message': 'User not found'}, status=404) # Usuario no encontrado
+        
+class RecoveryCodeListView(ListCreateAPIView):
+    queryset = RecoveryCode.objects.all()  # Traer todos los RecoveryCode (MODELO)
+    serializer_class = RecoveryCodeSerializer  # Usar el RecoveryCodeSerializer para traducir la info (TRADUCE EL MODELO A JSON)
