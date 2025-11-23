@@ -13,10 +13,11 @@ class UserSerializer(ModelSerializer):
     email = serializers.EmailField(
         validators=[validators.UniqueValidator(queryset=User.objects.all())]
     )
+    role_name = serializers.CharField(source='role.role', read_only=True)
     class Meta:
         model = User
-        fields = ['id', 'username', 'password', 'email', 'first_name', 'last_name', 'address',
-              'phone_number', 'role', 'nationality', 'date_of_birth', 'goverment_ID', 'gender']
+        fields = ['id', 'username', 'password', 'email', 'first_name', 'last_name', 'address','role_name',
+              'phone_number', 'role', 'nationality', 'date_of_birth', 'goverment_ID', 'gender', 'created_at']
 
     def create(self, validated_data):
         # Sacamos la contrasenia de todos los datos
@@ -55,9 +56,10 @@ class UserSerializer(ModelSerializer):
 
 
 class RoleSerializer(ModelSerializer):
+    rol_name = serializers.CharField(source='role')
     class Meta:
         model = Role
-        fields = '__all__'
+        fields = ['id', 'rol_name']
 
 
 class Key_interestsSerializer(ModelSerializer):

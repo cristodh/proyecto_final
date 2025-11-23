@@ -12,7 +12,14 @@ export default function SideNavBar() {
         { label: "Proyectos Seguidos", icon: <FavoriteIcon /> },
         { label: "Configuración", icon: <SettingsIcon /> },
     ];
-
+ const formaterDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("es-CR", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
     return (
         <Box
             sx={{
@@ -37,9 +44,9 @@ export default function SideNavBar() {
                     src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYvHJv4tSgbqJkvVeIgtNSxUkeJfo4teaR3w9SDho3cnLyWOK54JcTwRnt1saiLxmMSQAJCUFr_MpB8_7leYw4G6qft1ZBPhauvA_JMxe40tE8LcXZcR_cqhljEtclIuZHTgl1EQ7qY_q38skHSKnuwW8tpSDIkiYQZ4LZe5YF5SJXzIyaQA9KvOGH0eNBGs9QME5ZYtthAxDBekRhGxkNzDGuEYs2thVbK4jjerUL4lYCz4Pz2mGXz5-aT0y8c3mi1eb6eTPDBPo"
                 />
                 <Box>
-                    <Typography fontWeight="bold">Carlos Mendoza</Typography>
+                    <Typography fontWeight="bold">{localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")).first_name + " " + JSON.parse(localStorage.getItem("user")).last_name : "Invitado"}</Typography>
                     <Typography variant="caption" color="text.secondary">
-                        Miembro desde Octubre 2023
+                        Miembro desde {localStorage.getItem("user") ? formaterDate(JSON.parse(localStorage.getItem("user")).created_at) : "Octubre 2023"}
                     </Typography>
                 </Box>
             </Box>
@@ -56,7 +63,7 @@ export default function SideNavBar() {
                     }}
                 >
                     <Typography variant="h6" fontWeight="bold">
-                        €1,250
+                        ₡0.00
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
                         Total Donado
@@ -73,7 +80,7 @@ export default function SideNavBar() {
                     }}
                 >
                     <Typography variant="h6" fontWeight="bold">
-                        15
+                        0
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
                         Proyectos Apoyados

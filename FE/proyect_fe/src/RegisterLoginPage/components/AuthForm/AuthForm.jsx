@@ -77,6 +77,9 @@ export default function AuthForm({ mode }) {
             mt={2}
             color="primary"
             sx={{ cursor: "pointer", textDecoration: "underline" }}
+            onClick={() => {
+              navigate('/semeolvidolaclaveyporesoquierorecuperarlasesuponequemevaallegaruncorreo')
+            }}
           >
             ¿Olvidaste tu contraseña?
           </Typography>

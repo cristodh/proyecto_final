@@ -2,7 +2,7 @@
 import { Box, Card, Typography } from "@mui/material";
 import VolunteerActivismIcon from "@mui/icons-material/VolunteerActivism";
 import LightbulbIcon from "@mui/icons-material/Lightbulb";
-
+import { useNavigate } from "react-router-dom";
 const roles = [
   {
     label: "Donante",
@@ -17,11 +17,17 @@ const roles = [
 ];
 
 export default function RoleSelector() {
+  const navigate = useNavigate();
   return (
     <Box display="flex" flexDirection={{ xs: "column", sm: "row" }} gap={2} mb={3}>
       {roles.map((role) => (
         <Card
           key={role.label}
+          onClick={() =>
+            navigate(
+              role.label === "Donante" ? "/register-donor" : "/register-project-manager"
+            )
+          }
           variant="outlined"
           sx={{
             flex: 1,

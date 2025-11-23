@@ -16,7 +16,6 @@ from .serializers import Key_interestsSerializer
 from .serializers import RecoveryCodeSerializer
 
 
-# Create your views here.
 
 class UserListCreateView(ListCreateAPIView):
     queryset = User.objects.all() # traer todos los User (MODELO)

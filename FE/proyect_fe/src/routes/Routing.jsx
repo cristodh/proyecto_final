@@ -7,6 +7,7 @@ import AdminDashboard from '../ADMIN/pages/AdminDashboard/AdminDashboard'
 import RegisterLoginPage from '../RegisterLoginPage/pages/RegisterLoginPage/RegisterLoginPage'
 import DonorRegisterPage from '../Register/pages/DonorRegisterPage/DonorRegisterPage'
 import RecoveryPass from '../RegisterLoginPage/components/RecoverPass/RecoveryPass'
+import FundifyNotFoundPage from '../NotFound/pages/NotFoundPage'
 
 
 
@@ -20,8 +21,8 @@ const Routing = ()=>{
                 <Route path='/register-donor' element={<DonorRegisterPage/>}/>
                 <Route path='/donor_profile/donation_history' element={<DonationHistoryPage/>}/>
                 <Route path='/admin-main' element={<AdminDashboard/>}/>
-                <Route path='/recovery-password' element={<RecoveryPass/>}/>
-                <Route path='*' element={<h1>404 Not Found</h1>}/>
+                <Route path='/semeolvidolaclaveyporesoquierorecuperarlasesuponequemevaallegaruncorreo' element={<RecoveryPass/>}/>
+                <Route path='*' element={<FundifyNotFoundPage/>}/>
                 
             </Routes>
         </Router>

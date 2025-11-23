@@ -48,7 +48,7 @@ export default function Header() {
           onClick={()=>navigate('/auth-user')}
           variant="outlined" sx={{ textTransform: "none", minWidth: 100 }}>Iniciar Sesión</Button>
           <Button
-          onClick={()=>navigate('/register-donor')}
+          onClick={()=>navigate('/auth-user')}
           variant="contained" sx={{ textTransform: "none", minWidth: 100 }}>Registrarse</Button>
           {!isMdUp && (
             <IconButton aria-label="menu" sx={{ ml: 1 }}>

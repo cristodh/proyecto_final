@@ -13,8 +13,9 @@ class User(AbstractUser):
     date_of_birth = models.DateField(null=False)
     goverment_ID = models.CharField(max_length=20,null=False)
     gender = models.CharField(max_length=50,null=False)
-    role = models.ForeignKey("Role",on_delete=models.CASCADE,default=1)
+    role = models.ForeignKey("Role",on_delete=models.CASCADE,default=4)
     nationality = models.CharField(max_length=50,null=False)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.username

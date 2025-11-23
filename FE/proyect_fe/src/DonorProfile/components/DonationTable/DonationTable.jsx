@@ -34,7 +34,17 @@ export default function DonationHistoryTable({ rows }) {
                         <TableCell align="right"></TableCell>
                     </TableRow>
                 </TableHead>
-
+                {rows.length === 0 && (
+                    <TableBody>
+                        <TableRow>
+                            <TableCell colSpan={5} align="center">
+                                <Typography variant="body2" color="text.secondary" sx={{ py: 3 }}>
+                                    No hay donaciones registradas.
+                                </Typography>
+                            </TableCell>
+                        </TableRow>
+                    </TableBody>
+                )}
                 <TableBody>
                     {rows.map((row, i) => (
                         <TableRow key={i}>
