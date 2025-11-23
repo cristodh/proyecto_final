@@ -10,13 +10,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emailjs/browser": "^4.4.1",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.3.5",
     "@mui/material": "^7.3.5",
     "axios": "^1.13.2",
+    "emailjs": "^4.0.3",
+    "emailjs-com": "^3.2.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-email": "^5.0.5",
     "react-router-dom": "^7.9.5",
     "react-toastify": "^11.0.5"
   },

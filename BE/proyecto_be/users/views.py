@@ -69,7 +69,6 @@ class RecoveryCodeAPIView(APIView):
         code = request.data.get('code') # Código de recuperación a asignar
         
         try:
-        
             user=User.objects.get(id=user_id) # Obtener el usuario por ID
         except User.DoesNotExist:
             user = None
@@ -85,3 +84,27 @@ class RecoveryCodeAPIView(APIView):
 class RecoveryCodeListView(ListCreateAPIView):
     queryset = RecoveryCode.objects.all()  # Traer todos los RecoveryCode (MODELO)
     serializer_class = RecoveryCodeSerializer  # Usar el RecoveryCodeSerializer para traducir la info (TRADUCE EL MODELO A JSON)
+
+
+# TODO: Implementar el uso del codigo de recuperacion para cambiar la contraseña
+class RecoverPasswordView(APIView):
+    def patch(self,request):
+        email_user = request.data.get('email_user') # le pedimos el correo al usuario
+        new_password = request.data.get('new_password') # la clave nueva que se va a actualizar
+        
+        """
+            Verficamos que el usuario exista.
+            
+            Luego, si el usuario escribio una contraseña se la asignamos
+        """
+        try:
+            user = User.objects.get(email=email_user)
+        except User.DoesNotExist:
+            return Response({'message': 'User not found'}, status=404)
+        
+        if new_password:
+            user.set_password(new_password)
+            user.save() # se confirma el guardado para que se modifique en la base de datos (el save, es una propiedad del user)
+            return Response({'message': 'Password updated successfully'}, status=200)
+        else:
+            return Response({'message': 'New password not provided'}, status=400)
