@@ -1,5 +1,5 @@
 import {BrowserRouter as Router, Routes, Route} from 'react-router-dom'
-import DonationHistoryPage from '../DonorProfile/pages/DonationHistoryPage/DonationHistoryPage'
+// import DonationHistoryPage from '../DonorProfile/pages/DonationHistoryPage/DonationHistoryPage'
 import HomePage from '../HomePage/pages/HomePage/HomePage'
 import ProtectedRoute from './ProtectedRoute'
 import AboutPage from '../AboutUs/pages/AboutPage/AboutPage'
@@ -8,6 +8,9 @@ import RegisterLoginPage from '../RegisterLoginPage/pages/RegisterLoginPage/Regi
 import DonorRegisterPage from '../Register/pages/DonorRegisterPage/DonorRegisterPage'
 import RecoveryPass from '../RegisterLoginPage/components/RecoverPass/RecoveryPass'
 import FundifyNotFoundPage from '../NotFound/pages/NotFoundPage'
+import DonorMain from '../DonorProfile/pages/DonorMain/DonorMain'
+import DonorFollowed from '../DonorProfile/pages/DonorFollowed/DonorFollowed'
+import DonationHistoryPage from '../DonorProfile/pages/DonationHistoryPage/DonationHistoryPage'
 
 
 
@@ -19,7 +22,9 @@ const Routing = ()=>{
                 <Route path='/about-us' element={<AboutPage/>}/>
                 <Route path='/auth-user' element={<RegisterLoginPage/>}/>
                 <Route path='/register-donor' element={<DonorRegisterPage/>}/>
-                <Route path='/donor_profile/donation_history' element={<DonationHistoryPage/>}/>
+                <Route path='/donor_profile/main' element={<DonorMain/>}/>
+                <Route path='/donor_profile/followed' element={<DonorFollowed/>}/>
+                <Route path='/donor_profile/history' element={<DonationHistoryPage/>}/>
                 <Route path='/admin-main' element={<AdminDashboard/>}/>
                 <Route path='/semeolvidolaclaveyporesoquierorecuperarlasesuponequemevaallegaruncorreo' element={<RecoveryPass/>}/>
                 <Route path='*' element={<FundifyNotFoundPage/>}/>

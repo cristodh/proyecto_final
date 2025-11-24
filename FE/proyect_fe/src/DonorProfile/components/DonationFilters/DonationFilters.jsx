@@ -1,50 +1,63 @@
-// components/DonationFilters.jsx
-import { Box, TextField, Button, InputAdornment } from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+// src/components/donations/DonationFilters.jsx
+import React from "react";
+import Box from "@mui/material/Box";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import Grid from "@mui/material/Grid";
 
-export default function DonationFilters() {
-    return (
-        <Box
-            sx={{
-                p: 3,
-                borderRadius: 3,
-                border: "1px solid",
-                borderColor: "divider",
-                bgcolor: "background.paper",
-                display: "flex",
-                flexWrap: "wrap",
-                gap: 2,
-            }}
-        >
+export default function DonationFilters({ filters, setFilters, onApply, onClear }) {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prev) => ({ ...prev, [name]: value }));
+  };
+
+  return (
+    <Box sx={{ bgcolor: "background.paper", border: 1, borderColor: "divider", borderRadius: 2, p: 2, mb: 3 }}>
+      <Grid container spacing={2} alignItems="end">
+        <Grid item xs={12} md={6} lg={7} container spacing={2}>
+          <Grid item xs={12} sm={6}>
             <TextField
-                placeholder="Buscar por proyecto..."
-                fullWidth
-                sx={{ flex: "1 1 250px" }}
-                InputProps={{
-                    startAdornment: (
-                        <InputAdornment position="start">
-                            <SearchIcon color="action" />
-                        </InputAdornment>
-                    ),
-                }}
+              label="Desde"
+              name="from"
+              type="date"
+              InputLabelProps={{ shrink: true }}
+              value={filters.from}
+              onChange={handleChange}
+              fullWidth
+              size="small"
             />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              label="Hasta"
+              name="to"
+              type="date"
+              InputLabelProps={{ shrink: true }}
+              value={filters.to}
+              onChange={handleChange}
+              fullWidth
+              size="small"
+            />
+          </Grid>
+        </Grid>
 
-            <Button
-                variant="outlined"
-                endIcon={<ExpandMoreIcon />}
-                sx={{ height: 40 }}
-            >
-                Estado
-            </Button>
+        <Grid item xs={12} md={6} lg={5}>
+          <TextField
+            label="Buscar proyecto"
+            name="q"
+            value={filters.q}
+            onChange={handleChange}
+            placeholder="Nombre del proyecto..."
+            fullWidth
+            size="small"
+          />
+        </Grid>
 
-            <Button
-                variant="outlined"
-                endIcon={<ExpandMoreIcon />}
-                sx={{ height: 40 }}
-            >
-                Fecha
-            </Button>
-        </Box>
-    );
+        <Grid item xs={12} sx={{ display: "flex", gap: 1 }}>
+          <Button variant="contained" onClick={onApply}>Aplicar Filtros</Button>
+          <Button variant="outlined" onClick={onClear}>Limpiar</Button>
+        </Grid>
+      </Grid>
+    </Box>
+  );
 }

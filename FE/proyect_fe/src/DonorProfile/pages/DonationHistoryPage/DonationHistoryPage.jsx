@@ -1,94 +1,113 @@
-// pages/DonationHistoryPage.jsx
-import { Box, Button, Typography } from "@mui/material";
-import TopNavBar from "../../components/TopNavBar/TopNavBar";
-import SideNavBar from "../../components/SideNavBar/SideNavBar";
+// src/pages/DonationHistoryPage.jsx
+import React from "react";
+import Box from "@mui/material/Box";
+import Container from "@mui/material/Container";
+import Grid from "@mui/material/Grid";
+import Header from "../../components/Header/Header";
+import Sidebar from "../../components/Sidebar/Sidebar";
+import PageHeading from "../../components/PageHeading/PageHeading";
 import DonationFilters from "../../components/DonationFilters/DonationFilters";
-import DonationHistoryTable from "../../components/DonationTable/DonationTable";
-import { useEffect, useState } from "react";
-import axios from "axios"; // Usamos axios para la petición HTTP
-import DownloadIcon from '@mui/icons-material/Download';
+import DonationTable from "../../components/DonationTable/DonationTable";
+import EmptyState from "../../components/EmptyState/EmptyState";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { useTheme } from "@mui/material/styles";
+import Button from "@mui/material/Button";
+
+/**
+ * DonationHistoryPage integrates Header + Sidebar and composes the 4 components.
+ * Contains example data and CSV export helper.
+ */
 export default function DonationHistoryPage() {
-    // 1. Estado para guardar la info del usuario logueado
-    const [user, setUser] = useState(null);
+  const theme = useTheme();
+  const mdUp = useMediaQuery(theme.breakpoints.up("md"));
+  const [sidebarOpen, setSidebarOpen] = React.useState(false);
 
-    const rows = [
-       
-    ];
+  // filters state
+  const [filters, setFilters] = React.useState({ from: "", to: "", q: "" });
 
-    // 2. useEffect para obtener la info del usuario al cargar la página
-    useEffect(() => {
-        // 2.1. Obtener el ID del usuario desde localStorage
-        const userId = localStorage.getItem("id");
-        if (!userId) return; // Si no hay ID, no hacemos nada
+  // sample donations data (replace with API)
+  const [donations, setDonations] = React.useState([
+    { id: "d1", date: "15 de mayo, 2024", project: 'Refugio Animal "Huellitas Felices"', amount: 15000, currency: "₡", status: "Completada" },
+    { id: "d2", date: "02 de abril, 2024", project: 'Comedor Infantil "Sonrisas"', amount: 10000, currency: "₡", status: "Completada" },
+    { id: "d3", date: "21 de febrero, 2024", project: "Educación Digital para Adultos Mayores", amount: 25000, currency: "₡", status: "En Proceso" },
+    { id: "d4", date: "10 de enero, 2024", project: "Limpieza del Río Virilla", amount: 5000, currency: "₡", status: "Cancelada" }
+  ]);
 
-        // 2.2. Hacer la petición al backend para obtener la info del usuario
-        axios.get(`http://localhost:8000/user/user_id/${userId}/`)
-            .then((res) => {
-                // 2.3. Guardar la info en el estado
-                if (res.data && res.data.length > 0) {
-                    setUser(res.data[0]); // El backend devuelve un array
-                    localStorage.setItem("user", JSON.stringify(res.data[0])); // Guardar usuario en localStorage
-                }
-            })
-            .catch((err) => {
-                console.error("Error al obtener usuario:", err);
-            });
-    }, []);
+  // basic filter implementation (client-side)
+  const applyFilters = () => {
+    // In a real app you would query the API with filters.
+    // Here we just filter by project name and (naively) by date strings if provided.
+    // For production convert dates to ISO and compare properly.
+    const q = filters.q.trim().toLowerCase();
+    setDonations((prev) => {
+      // restore original set (we keep initial sample in variable)
+      const all = [
+        { id: "d1", date: "15 de mayo, 2024", project: 'Refugio Animal "Huellitas Felices"', amount: 15000, currency: "₡", status: "Completada" },
+        { id: "d2", date: "02 de abril, 2024", project: 'Comedor Infantil "Sonrisas"', amount: 10000, currency: "₡", status: "Completada" },
+        { id: "d3", date: "21 de febrero, 2024", project: "Educación Digital para Adultos Mayores", amount: 25000, currency: "₡", status: "En Proceso" },
+        { id: "d4", date: "10 de enero, 2024", project: "Limpieza del Río Virilla", amount: 5000, currency: "₡", status: "Cancelada" }
+      ];
+      return all.filter((d) => (q ? d.project.toLowerCase().includes(q) : true));
+    });
+  };
 
-    return (
-        <Box>
-            <TopNavBar />
-            <Box
-                sx={{
-                    display: "flex",
-                    flexDirection: { xs: "column", lg: "row" },
-                    gap: 4,
-                    p: { xs: 2, lg: 4 },
-                }}
-            >
-                <SideNavBar />
-                <Box flex={1} display="flex" flexDirection="column" gap={3}>
-                    {/* Heading */}
-                    <Box display="flex" justifyContent="space-between" flexWrap="wrap" gap={2}>
-                        <Typography variant="h4" fontWeight="black">
-                            Historial de Donaciones
-                        </Typography>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            startIcon={<DownloadIcon />}
-                        >
-                            Exportar Historial
-                        </Button>
-                    </Box>
+  const clearFilters = () => {
+    setFilters({ from: "", to: "", q: "" });
+    // reset donations to original sample
+    setDonations([
+      { id: "d1", date: "15 de mayo, 2024", project: 'Refugio Animal "Huellitas Felices"', amount: 15000, currency: "₡", status: "Completada" },
+      { id: "d2", date: "02 de abril, 2024", project: 'Comedor Infantil "Sonrisas"', amount: 10000, currency: "₡", status: "Completada" },
+      { id: "d3", date: "21 de febrero, 2024", project: "Educación Digital para Adultos Mayores", amount: 25000, currency: "₡", status: "En Proceso" },
+      { id: "d4", date: "10 de enero, 2024", project: "Limpieza del Río Virilla", amount: 5000, currency: "₡", status: "Cancelada" }
+    ]);
+  };
 
-                    {/* 3. Mostrar la info del usuario logueado */}
-                    {user && (
-                        <Box mb={2} p={2} bgcolor="#f5f5f5" borderRadius={2}>
-                            <Typography variant="subtitle1" fontWeight="bold">Usuario logueado:</Typography>
-                            <Typography>Nombre: {user.first_name} {user.last_name}</Typography>
-                            <Typography>Email: {user.email}</Typography>
-                            <Typography>
-                                Rol: {user.role_name
-                                    ? user.role_name === "User"
-                                        ? "Usuario"
-                                        : user.role_name === "CampaignManager"
-                                            ? "Administrador de Campañas"
-                                            : user.role_name === "Admin"
-                                                ? "Administrador"
-                                                : user.role_name === "Contributor"
-                                                    ? "Donante"
-                                                    : "Desconocido"
-                                    : "Desconocido"}
-                            </Typography>
-                        </Box>
-                    )}
+  // CSV export: crafts a CSV and triggers download
+  const exportCSV = () => {
+    if (!donations.length) return;
+    const header = ["Fecha", "Proyecto", "Monto", "Moneda", "Estado"];
+    const rows = donations.map((d) => [d.date, d.project, d.amount, d.currency ?? "", d.status]);
+    const csvContent = [header, ...rows].map(r => r.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `donations_history_${new Date().toISOString().slice(0,10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
 
+  return (
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", bgcolor: "background.default" }}>
+      <Header onToggleSidebar={() => setSidebarOpen((s) => !s)} />
+      
+      <Box sx={{ display: "flex", flex: 1 }}>
+        <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-                    <DonationFilters />
-                    <DonationHistoryTable rows={rows} />
-                </Box>
-            </Box>
+        <Box sx={{ py: 3, flex: 1, ml: { xs: 0, md: "280px" }, px: 3, maxWidth: "100%", overflow: "hidden" }}>
+          <PageHeading onExport={exportCSV} />
+
+          <DonationFilters
+            filters={filters}
+            setFilters={setFilters}
+            onApply={applyFilters}
+            onClear={clearFilters}
+          />
+
+          {donations.length ? (
+            <DonationTable donations={donations} />
+          ) : (
+            <EmptyState />
+          )}
+
+          {/* Example: small actions */}
+          <Box sx={{ mt: 3, display: "flex", gap: 1 }}>
+            <Button variant="outlined" onClick={() => alert("Función de ayuda rápida")}>Ayuda</Button>
+          </Box>
         </Box>
-    );
+      </Box>
+    </Box>
+  );
 }

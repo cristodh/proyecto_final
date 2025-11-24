@@ -1,16 +1,22 @@
-import { Box, Typography, Button } from "@mui/material";
+// src/components/donations/PageHeading.jsx
+import React from "react";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
 import DownloadIcon from "@mui/icons-material/Download";
-import "./PageHeading.css";
 
-export default function PageHeading() {
+export default function PageHeading({ title = "Historial de Donaciones", onExport }) {
   return (
-    <Box className="page-heading">
-      <Typography className="page-title">
-        Historial de Donaciones
-      </Typography>
+    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 2, mb: 3, flexWrap: "wrap" }}>
+      <Typography variant="h4" sx={{ fontWeight: 900 }}>{title}</Typography>
 
-      <Button className="export-btn" startIcon={<DownloadIcon />}>
-        Exportar Historial
+      <Button
+        variant="outlined"
+        startIcon={<DownloadIcon />}
+        onClick={onExport}
+        sx={{ whiteSpace: "nowrap" }}
+      >
+        Exportar como CSV
       </Button>
     </Box>
   );
