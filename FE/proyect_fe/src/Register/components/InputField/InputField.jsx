@@ -21,7 +21,7 @@ export default function InputField({ label, placeholder, type = "text", fullWidt
               borderColor: "#cfe7d7",
             },
             "&:hover .MuiOutlinedInput-notchedOutline": {
-              borderColor: "#179e44",
+              borderColor: "#2A9D8F",
             },
           },
         }}

@@ -10,9 +10,7 @@ import {
   Avatar,
 } from "@mui/material";
 import LinkOffIcon from '@mui/icons-material/LinkOff';
-
-// Image asset (local path provided by you)
-const HERO_IMAGE = "/mnt/data/4e1be120-354d-4990-9bc1-9d93b4f80478.png";
+import logoFundify from "../../imgs/LogoFundifyClose.png";
 
 export default function FundifyNotFoundPage() {
   return (
@@ -36,17 +34,15 @@ export default function FundifyNotFoundPage() {
           justifyContent: 'center'
         }}
       >
-        <Container maxWidth="lg" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Stack direction="row" spacing={2} alignItems="center">
-            <Avatar
-              variant="rounded"
-              sx={{ width: 40, height: 40, bgcolor: 'transparent' }}
-            >
-              {/* SVG from the original page */}
-              <img src={HERO_IMAGE} alt="Fundify logo" style={{ width: 28, height: 28 }} />
-            </Avatar>
-            <Typography variant="h6" sx={{ fontWeight: 800 }}>Fundify</Typography>
-          </Stack>
+        <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <img 
+            src={logoFundify} 
+            alt="Fundify logo" 
+            style={{ 
+              width: "auto", 
+              height: "100px"
+            }} 
+          />
         </Container>
       </Box>
 
@@ -55,7 +51,7 @@ export default function FundifyNotFoundPage() {
         <Paper elevation={0} sx={{ width: '100%', p: { xs: 4, sm: 8 }, borderRadius: 3 }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: 3 }}>
             <Box sx={{ bgcolor: 'transparent', borderRadius: '50%', p: 1 }}>
-              <LinkOffIcon sx={{ fontSize: 80, color: '#289e8e', opacity: 0.9 }} />
+              <LinkOffIcon sx={{ fontSize: 80, color: '#2A9D8F', opacity: 0.9 }} />
             </Box>
 
             <Box sx={{ maxWidth: 520 }}>
@@ -71,8 +67,8 @@ export default function FundifyNotFoundPage() {
               <Button
                 variant="contained"
                 sx={{
-                  bgcolor: '#289e8e',
-                  '&:hover': { bgcolor: '#238779' },
+                  bgcolor: '#2A9D8F',
+                  '&:hover': { bgcolor: '#02695dff' },
                   minWidth: 200,
                   px: 3,
                   py: 1.5,
@@ -86,7 +82,7 @@ export default function FundifyNotFoundPage() {
               <Button
                 variant="outlined"
                 sx={{
-                  borderColor: 'rgba(40,158,142,0.25)',
+                  borderColor: 'rgba(42,157,143,0.25)',
                   color: 'text.primary',
                   minWidth: 200,
                   px: 3,
@@ -107,10 +103,7 @@ export default function FundifyNotFoundPage() {
       <Box component="footer" sx={{ py: 4, px: { xs: 2, sm: 4 } }}>
         <Container maxWidth="lg" sx={{ borderTop: '1px solid', borderColor: (t) => t.palette.divider, pt: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Typography variant="body2" color="text.secondary">© 2024 Fundify. Todos los derechos reservados.</Typography>
-          <Stack direction="row" spacing={3}>
-            <Button size="small">Ayuda</Button>
-            <Button size="small">Contacto</Button>
-          </Stack>
+         
         </Container>
       </Box>
     </Box>

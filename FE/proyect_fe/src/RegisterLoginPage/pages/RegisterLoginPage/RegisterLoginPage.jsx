@@ -1,10 +1,10 @@
 // pages/RegisterLoginPage.jsx
 import { Box, Paper, Tabs, Tab, Typography } from "@mui/material";
 import { useState } from "react";
+import Header from "../../components/Header/Header";
 import TopMessage from "../../components/TopMessage/TopMessage";
 import RoleSelector from "../../components/RoleSelector/RoleSelector";
 import AuthForm from "../../components/AuthForm/AuthForm";
-import DividerWithText from "../../components/DividerWithText/DividerWithText";
 
 export default function RegisterLoginPage() {
   const [tab, setTab] = useState(0);
@@ -12,17 +12,19 @@ export default function RegisterLoginPage() {
   const handleChange = (_, value) => setTab(value);
 
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        backgroundColor: "background.default",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        px: 2,
-        py: 6,
-      }}
-    >
+    <>
+      <Header />
+      <Box
+        sx={{
+          minHeight: "calc(100vh - 64px)", // Resta la altura del header
+          backgroundColor: "background.default",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center", // Vuelve a center para centrado
+          px: 2,
+          py: 2, // Padding reducido pero manteniendo centrado
+        }}
+      >
       <Box sx={{ width: "100%", maxWidth: 450 }}>
         <TopMessage />
 
@@ -66,10 +68,11 @@ export default function RegisterLoginPage() {
               </>
             )}
 
-            <AuthForm mode={tab === 0 ? "login" : "register"} />
+            <AuthForm mode={tab === 0 ? "login" : "register"} onTabChange={setTab} />
           </Box>
         </Paper>
       </Box>
     </Box>
+    </>
   );
 }

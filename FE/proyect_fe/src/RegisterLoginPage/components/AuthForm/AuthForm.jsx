@@ -14,7 +14,7 @@ import { useState } from "react";
 import { postData } from "../../../Register/services/fetch";
 import { useNavigate } from "react-router-dom";
 
-export default function AuthForm({ mode }) {
+export default function AuthForm({ mode, onTabChange }) {
   const [showPass, setShowPass] = useState(false);
   
   const [username,setUsername] = useState('')
@@ -100,13 +100,31 @@ export default function AuthForm({ mode }) {
       {mode === "login" && (
         <Typography variant="body2" textAlign="center">
           ¿No tienes una cuenta?{" "}
-          <strong>Regístrate aquí</strong>
+          <strong 
+            style={{ 
+              cursor: "pointer", 
+              color: "#1976d2",
+              textDecoration: "underline"
+            }}
+            onClick={() => onTabChange && onTabChange(1)}
+          >
+            Regístrate aquí
+          </strong>
         </Typography>
       )}
       {mode === "register" && (
         <Typography variant="body2" textAlign="center">
           ¿Ya tienes una cuenta?{" "}
-          <strong>Inicia sesión aquí</strong>
+          <strong 
+            style={{ 
+              cursor: "pointer", 
+              color: "#1976d2",
+              textDecoration: "underline"
+            }}
+            onClick={() => onTabChange && onTabChange(0)}
+          >
+            Inicia sesión aquí
+          </strong>
         </Typography>
       )}
 

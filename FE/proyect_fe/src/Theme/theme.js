@@ -135,7 +135,7 @@ const theme = createTheme({
   backgroundDark: "#112116",
   textLightPrimary: "#0d1b12",
   textDarkPrimary: "#f6f8f6",
-  textLightSecondary: "#4c9a66",
+  textLightSecondary: "#2A9D8F",
   textDarkSecondary: "#a3b3a9",
   borderLight: "#cfe7d7",
   borderDark: "#34493c",

@@ -1,5 +1,5 @@
 // src/components/Header.jsx
-import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
+import { AppBar, Toolbar, Button, Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import logoFundify from "../../../imgs/LogoFundifyClose.png";
 
@@ -34,7 +34,7 @@ export default function Header() {
         {/* Botón */}
         <Button
           variant="contained"
-          onClick={() => navigate("/auth-user")}
+          onClick={() => navigate("/")}
           sx={{
             background: "#2A9D8F",
             fontWeight: 700,
@@ -42,7 +42,7 @@ export default function Header() {
             textTransform: "none"
           }}
         >
-          Iniciar Sesión
+          Inicio
         </Button>
       </Toolbar>
     </AppBar>

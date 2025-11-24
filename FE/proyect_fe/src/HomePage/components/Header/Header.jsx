@@ -11,6 +11,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useNavigate } from "react-router-dom";
+import logoFundify from "../../../imgs/LogoFundifyClose.png";
 export default function Header() {
   const theme = useTheme();
   const isMdUp = useMediaQuery(theme.breakpoints.up("md"));
@@ -24,15 +25,14 @@ export default function Header() {
     }}>
       <Toolbar sx={{ maxWidth: 1400, mx: "auto", width: "100%", px: 2 }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          {/* SVG logo */}
-          <Box sx={{ width: 36, height: 36, color: "primary.main" }}>
-            <svg viewBox="0 0 48 48" width="100%" height="100%" fill="currentColor">
-              <g>
-                <path d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z"></path>
-              </g>
-            </svg>
-          </Box>
-          <Typography variant="h6" sx={{ fontWeight: 800 }}>Fundify</Typography>
+          <img 
+            src={logoFundify} 
+            alt="Fundify Logo" 
+            style={{ 
+              height: "48px",
+              width: "auto"
+            }} 
+          />
         </Box>
 
         {isMdUp ? (

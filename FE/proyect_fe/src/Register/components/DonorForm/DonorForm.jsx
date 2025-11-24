@@ -111,7 +111,7 @@ export default function DonorForm() {
   return (
     <Box
       sx={{
-        maxWidth: "700px",
+        maxWidth: "600px",
         mx: "auto",
         py: 6,
         px: 3,
@@ -120,7 +120,7 @@ export default function DonorForm() {
     >
       <form onSubmit={handleSubmit}>
         {/* HEADER */}
-        <Box textAlign="center" mb={6}>
+        <Box textAlign="center" mb={5}>
           <Typography
             sx={{
               fontSize: "34px",
@@ -135,7 +135,7 @@ export default function DonorForm() {
           <Typography
             sx={{
               fontSize: "16px",
-              color: "#4c9a66",
+              color: "#2A9D8F",
             }}
           >
             Únete a nuestra comunidad y apoya proyectos que transforman vidas.
@@ -143,9 +143,9 @@ export default function DonorForm() {
         </Box>
 
         {/* FORMULARIO */}
-        <Grid container spacing={3}>
+        <Grid container spacing={3} justifyContent="space-between">
           {/* Nombre */}
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={5.8}>
             <Typography sx={{ pb: 1, fontWeight: 500, color: "#0d1b12" }}>
               Nombre
             </Typography>
@@ -160,7 +160,7 @@ export default function DonorForm() {
           </Grid>
 
           {/* Apellidos */}
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={5.8}>
             <Typography sx={{ pb: 1, fontWeight: 500, color: "#0d1b12" }}>
               Apellidos
             </Typography>
@@ -175,7 +175,7 @@ export default function DonorForm() {
           </Grid>
 
           {/* Correo */}
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={5.8}>
             <Typography sx={{ pb: 1, fontWeight: 500, color: "#0d1b12" }}>
               Correo electrónico
             </Typography>
@@ -190,7 +190,7 @@ export default function DonorForm() {
           </Grid>
 
           {/* Teléfono */}
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={5.8}>
             <Typography sx={{ pb: 1, fontWeight: 500 }}>Teléfono</Typography>
             <TextField
               fullWidth
@@ -203,7 +203,7 @@ export default function DonorForm() {
           </Grid>
 
           {/* Fecha */}
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={5.8}>
             <Typography sx={{ pb: 1, fontWeight: 500 }}>
               Fecha de nacimiento
             </Typography>
@@ -219,7 +219,7 @@ export default function DonorForm() {
           </Grid>
 
           {/* Cédula */}
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={5.8}>
             <Typography sx={{ pb: 1, fontWeight: 500 }}>
               Cédula de identidad
             </Typography>
@@ -234,7 +234,7 @@ export default function DonorForm() {
           </Grid>
 
           {/* Nacionalidad */}
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={5.8}>
             <Typography sx={{ pb: 1, fontWeight: 500 }}>Nacionalidad</Typography>
             <TextField
               fullWidth
@@ -247,7 +247,7 @@ export default function DonorForm() {
           </Grid>
 
           {/* Dirección */}
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={5.8}>
             <Typography sx={{ pb: 1, fontWeight: 500 }}>Dirección</Typography>
             <TextField
               fullWidth
@@ -260,7 +260,7 @@ export default function DonorForm() {
           </Grid>
 
           {/* Género */}
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={5.8}>
             <Typography sx={{ pb: 1, fontWeight: 500 }}>Género</Typography>
             <FormControl fullWidth>
               <Select
@@ -287,7 +287,7 @@ export default function DonorForm() {
           </Grid>
 
           {/* Username */}
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={5.8}>
             <Typography sx={{ pb: 1, fontWeight: 500 }}>
               Nombre de usuario
             </Typography>
@@ -343,7 +343,7 @@ export default function DonorForm() {
             />
           }
           label={
-            <Typography sx={{ fontSize: "14px", color: "#4c9a66" }}>
+            <Typography sx={{ fontSize: "14px", color: "#179e44" }}>
               Acepto los{" "}
               <span style={{ color: "#179e44", fontWeight: 600 }}>
                 Términos de Servicio
@@ -364,12 +364,12 @@ export default function DonorForm() {
           sx={{
             mt: 5,
             height: 56,
-            background: "#179e44",
+            background: "#2A9D8F",
             color: "#ffffff",
             fontWeight: 700,
             borderRadius: "10px",
             textTransform: "none",
-            "&:hover": { background: "#148c3b" },
+            "&:hover": { background: "#02695dff" },
           }}
         >
           Crear mi cuenta
@@ -379,12 +379,20 @@ export default function DonorForm() {
           sx={{
             mt: 4,
             textAlign: "center",
-            color: "#4c9a66",
+            color: "#2A9D8F",
             fontSize: "14px",
           }}
         >
           ¿Ya tienes una cuenta?{" "}
-          <span style={{ color: "#179e44", fontWeight: 700 }}>
+          <span 
+            style={{ 
+              color: "#2A9D8F", 
+              fontWeight: 700,
+              cursor: "pointer",
+              textDecoration: "underline"
+            }}
+            onClick={() => navigate("/auth-user")}
+          >
             Inicia sesión
           </span>
         </Typography>

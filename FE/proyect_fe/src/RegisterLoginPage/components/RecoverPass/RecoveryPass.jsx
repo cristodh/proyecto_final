@@ -137,7 +137,7 @@ export default function RecoveryPass() {
                 py: 1.5,
                 bgcolor: "#2A9D8F",
                 fontWeight: "bold",
-                "&:hover": { bgcolor: "#70efe0ff" },
+                "&:hover": { bgcolor: "#02695dff" },
               }}
               disabled={loading}
             >

@@ -1,7 +1,7 @@
 // components/TopNavBar.jsx
 import { AppBar, Toolbar, Box, IconButton, Typography, Avatar } from "@mui/material";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
-import VolunteerActivismIcon from "@mui/icons-material/VolunteerActivism";
+import logoFundify from "../../../imgs/LogoFundifyClose.png";
 
 export default function TopNavBar() {
     return (
@@ -22,10 +22,14 @@ export default function TopNavBar() {
             <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
                 {/* Logo */}
                 <Box display="flex" alignItems="center" gap={1}>
-                    <VolunteerActivismIcon sx={{ color: "primary.main", fontSize: 32 }} />
-                    <Typography variant="h6" fontWeight="bold">
-                        Fundify
-                    </Typography>
+                    <img 
+                        src={logoFundify} 
+                        alt="Fundify Logo" 
+                        style={{ 
+                            height: "48px",
+                            width: "auto"
+                        }} 
+                    />
                 </Box>
 
                 {/* Middle Nav (Desktop Only) */}
