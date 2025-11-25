@@ -4,6 +4,7 @@ import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import Avatar from "@mui/material/Avatar";
+import userIcon from "../../../imgs/UserIcon.png";
 import Typography from "@mui/material/Typography";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
@@ -41,7 +42,7 @@ export default function Topbar({ onOpenSidebar }) {
         </IconButton>
 
         <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-          <Avatar src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=256&q=60" />
+          <Avatar src={userIcon} />
           <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
             <Typography variant="body1" sx={{ fontWeight: 700 }}>Admin Fundify</Typography>
             <Typography variant="caption" color="text.secondary">Supervisor del Ecosistema</Typography>

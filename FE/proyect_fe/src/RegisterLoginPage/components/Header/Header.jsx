@@ -12,15 +12,16 @@ export default function Header() {
       elevation={0}
       sx={{
         borderBottom: "1px solid #cfe7d7",
-        background: "#f6f8f6",
+        background: (t) => `${t.palette.background.default}cc`,
         color: "#0d1b12",
         px: { xs: 2, md: 6 },
+        backdropFilter: "blur(6px)",
       }}
     >
       <Toolbar disableGutters sx={{ display: "flex", justifyContent: "space-between" }}>
         
         {/* Logo */}
-        <Box display="flex" alignItems="center" gap={1}>
+        <Box display="flex" alignItems="center" gap={1} onClick={() => navigate('/')} sx={{ cursor: "pointer" }}>
           <img 
             src={logoFundify} 
             alt="Fundify Logo" 

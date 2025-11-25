@@ -18,13 +18,13 @@ export default function Header() {
   const navigate = useNavigate();
   return (
     <AppBar position="sticky" elevation={0} sx={{
-      bgcolor: "background.paper",
+      bgcolor: (t) => `${t.palette.background.paper}cc`, // slight transparency
       borderBottom: 1,
       borderColor: "primary.main",
       backdropFilter: "blur(6px)"
     }}>
       <Toolbar sx={{ maxWidth: 1400, mx: "auto", width: "100%", px: 2 }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1, cursor: "pointer" }} onClick={() => navigate('/')}>
           <img 
             src={logoFundify} 
             alt="Fundify Logo" 
@@ -38,8 +38,8 @@ export default function Header() {
         {isMdUp ? (
           <Stack direction="row" spacing={4} sx={{ flex: 1, justifyContent: "center" }}>
             <Button sx={{ textTransform: "none" }}>Explorar Proyectos</Button>
-            <Button sx={{ textTransform: "none" }}>¿Cómo Funciona?</Button>
-            <Button sx={{ textTransform: "none" }}>Crear Campaña</Button>
+            <Button sx={{ textTransform: "none" }} onClick={() => navigate('/about-us')}>Conócenos</Button>
+           
           </Stack>
         ) : <Box sx={{ flex: 1 }} />}
 
@@ -48,7 +48,7 @@ export default function Header() {
           onClick={()=>navigate('/auth-user')}
           variant="outlined" sx={{ textTransform: "none", minWidth: 100 }}>Iniciar Sesión</Button>
           <Button
-          onClick={()=>navigate('/auth-user')}
+          onClick={()=>navigate('/auth-user?tab=register')}
           variant="contained" sx={{ textTransform: "none", minWidth: 100 }}>Registrarse</Button>
           {!isMdUp && (
             <IconButton aria-label="menu" sx={{ ml: 1 }}>

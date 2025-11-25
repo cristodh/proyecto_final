@@ -37,18 +37,77 @@ const theme = createTheme({
   },
 
   typography: {
-    fontFamily: "Inter, sans-serif",
+    fontFamily: '"Inter", system-ui, -apple-system, sans-serif',
 
-    h1: { fontWeight: 900 },
-    h2: { fontWeight: 800 },
-    h3: { fontWeight: 700 },
-    h4: { fontWeight: 700 },
-    h5: { fontWeight: 600 },
-    h6: { fontWeight: 600 },
+    h1: { 
+      fontFamily: '"Poppins", system-ui, -apple-system, sans-serif',
+      fontSize: '2rem',
+      fontWeight: 700,
+      letterSpacing: '-0.02em',
+    },
+    h2: { 
+      fontFamily: '"Poppins", system-ui, -apple-system, sans-serif',
+      fontSize: '1.75rem',
+      fontWeight: 600,
+      letterSpacing: '-0.02em',
+    },
+    h3: { 
+      fontFamily: '"Poppins", system-ui, -apple-system, sans-serif',
+      fontSize: '1.5rem',
+      fontWeight: 600,
+      letterSpacing: '-0.01em',
+    },
+    h4: { 
+      fontFamily: '"Poppins", system-ui, -apple-system, sans-serif',
+      fontSize: '1.25rem',
+      fontWeight: 600,
+      letterSpacing: '-0.01em',
+    },
+    h5: { 
+      fontFamily: '"Poppins", system-ui, -apple-system, sans-serif',
+      fontSize: '1.125rem',
+      fontWeight: 500,
+    },
+    h6: { 
+      fontFamily: '"Poppins", system-ui, -apple-system, sans-serif',
+      fontSize: '1rem',
+      fontWeight: 500,
+    },
+
+    body1: {
+      fontSize: '0.875rem',
+      fontWeight: 400,
+      lineHeight: 1.6,
+    },
+    body2: {
+      fontSize: '0.75rem',
+      fontWeight: 400,
+      lineHeight: 1.5,
+    },
+    
+    subtitle1: {
+      fontFamily: '"Poppins", system-ui, -apple-system, sans-serif',
+      fontSize: '1rem',
+      fontWeight: 500,
+      lineHeight: 1.4,
+    },
+    subtitle2: {
+      fontFamily: '"Poppins", system-ui, -apple-system, sans-serif',
+      fontSize: '0.875rem',
+      fontWeight: 500,
+      lineHeight: 1.4,
+    },
+    caption: {
+      fontSize: '0.75rem',
+      fontWeight: 400,
+      lineHeight: 1.4,
+      color: '#6B7280',
+    },
 
     button: {
+      fontFamily: '"Poppins", system-ui, -apple-system, sans-serif',
       textTransform: "none",
-      fontWeight: 700,
+      fontWeight: 500,
     },
   },
 
@@ -70,13 +129,24 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 12,
-          fontWeight: 700,
+          fontFamily: '"Poppins", system-ui, -apple-system, sans-serif',
+          fontWeight: 500,
           paddingTop: 10,
           paddingBottom: 10,
         },
         containedPrimary: {
           backgroundColor: "#2A9D8F",
           ":hover": { backgroundColor: "#23867a" },
+        },
+      },
+    },
+
+    // Global Typography
+    MuiTypography: {
+      styleOverrides: {
+        root: {
+          WebkitFontSmoothing: 'antialiased',
+          MozOsxFontSmoothing: 'grayscale',
         },
       },
     },

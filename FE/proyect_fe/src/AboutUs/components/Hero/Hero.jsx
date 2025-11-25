@@ -9,18 +9,42 @@ export default function Hero() {
 
   return (
     <Box component="section" sx={{
-      py: { xs: 6, sm: 8 },
+      py: { xs: 8, sm: 10 },
       backgroundImage: `linear-gradient(rgba(13,27,18,0.4), rgba(13,27,18,0.8)), url(${bg})`,
       backgroundSize: "cover",
       backgroundPosition: "center",
-      color: "common.white"
+      color: "common.white",
+      display: "flex",
+      alignItems: "center",
+      minHeight: { xs: "50vh", md: "60vh" }
     }}>
-      <Container maxWidth="md" sx={{ textAlign: "center" }}>
-        <Box sx={{ py: { xs: 4, sm: 6 } }}>
-          <Typography variant="h3" component="h1" sx={{ fontWeight: 900, mb: 2, fontSize: { xs: "1.8rem", md: "2.75rem" } }}>
+      <Container maxWidth="lg" sx={{ textAlign: "center" }}>
+        <Box sx={{ px: { xs: 2, sm: 4 } }}>
+          <Typography 
+            variant="h2" 
+            component="h1" 
+            sx={{ 
+              fontWeight: 700, 
+              mb: 3, 
+              fontSize: { xs: "2rem", sm: "2.5rem", md: "3rem" },
+              lineHeight: 1.2,
+              letterSpacing: "-0.02em"
+            }}
+          >
             Fundify: Nuestra Esencia y Nuestro Puente
           </Typography>
-          <Typography variant="body1" sx={{ mb: 3, opacity: 0.95, maxWidth: 900, mx: "auto" }}>
+          <Typography 
+            variant="h6" 
+            sx={{ 
+              mb: 0, 
+              opacity: 0.95, 
+              maxWidth: 700, 
+              mx: "auto",
+              fontWeight: 400,
+              lineHeight: 1.6,
+              fontSize: { xs: "1.1rem", md: "1.25rem" }
+            }}
+          >
             Somos el puente digital que conecta tus ganas de ayudar con proyectos que transforman realidades locales.
           </Typography>
         </Box>

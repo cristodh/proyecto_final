@@ -33,7 +33,7 @@ export default function AuthForm({ mode, onTabChange }) {
     if (response.message === 'Login successful') {
       setAlert({ open: true, message: 'Login Exitoso', severity: 'success' })
       localStorage.setItem('id', response.id)
-      setTimeout(() => navigate("/donor_profile/donation_history"), 1500)
+      setTimeout(() => navigate("/donor_profile/main"), 1500)
     } else {
       setAlert({ open: true, message: 'Correo y/o contraseña invalidos', severity: 'error' })
     }
@@ -41,13 +41,13 @@ export default function AuthForm({ mode, onTabChange }) {
   }
 
   return (
-    <Box component="form" display="flex" flexDirection="column" gap={3}>
+    <Box component="form" display="flex" flexDirection="column" gap={3} onSubmit={handleLogin}>
 
       {mode === "login" && (
         <Box>
           <TextField
-            label="Correo electrónico"
-            type="email"
+            label="Nombre de usuario"
+            type="text"
             fullWidth
             required
             value={username}
@@ -88,10 +88,10 @@ export default function AuthForm({ mode, onTabChange }) {
 
       {mode === "login" && (
         <Button
+          type="submit"
           variant="contained"
           size="large"
           sx={{ mt: 1 }}
-          onClick={handleLogin}
         >
           Iniciar Sesión
         </Button>

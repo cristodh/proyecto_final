@@ -6,11 +6,14 @@ import FeaturedCarousel from "../../components/FeaturedCarousel/FeaturedCarousel
 import Stats from "../../components/Stats/Stats";
 import Footer from "../../components/Footer/Footer";
 import Box from "@mui/material/Box";
+import HeaderUser from "../../../DonorProfile/components/HeaderUser/HeaderUser";
 
 export default function HomePage() {
   return (
     <Box sx={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-      <Header />
+      {
+        localStorage.getItem("id") ? <HeaderUser /> : <Header /> // Mostrar HeaderUser si el usuario está logueado
+      }
       <Box component="main" sx={{ flex: 1 }}>
         <Hero />
         <FeaturedCarousel />

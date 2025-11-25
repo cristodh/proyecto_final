@@ -10,11 +10,13 @@ import Stack from "@mui/material/Stack";
 import MenuIcon from "@mui/icons-material/Menu";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
+import { useNavigate } from "react-router-dom";
 import logoFundify from "../../../imgs/LogoFundifyClose.png";
 
 export default function Header() {
   const theme = useTheme();
   const mdUp = useMediaQuery(theme.breakpoints.up("md"));
+  const navigate = useNavigate();
 
   return (
     <AppBar position="sticky" elevation={0} sx={{
@@ -25,7 +27,7 @@ export default function Header() {
       color: theme.palette.text.primary
     }}>
       <Toolbar sx={{ maxWidth: 1400, mx: "auto", width: "100%", px: 2 }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1, cursor: "pointer" }} onClick={() => navigate('/')}>
           <img 
             src={logoFundify} 
             alt="Fundify Logo" 

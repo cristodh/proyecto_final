@@ -1,6 +1,7 @@
 // pages/RegisterLoginPage.jsx
 import { Box, Paper, Tabs, Tab, Typography } from "@mui/material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import Header from "../../components/Header/Header";
 import TopMessage from "../../components/TopMessage/TopMessage";
 import RoleSelector from "../../components/RoleSelector/RoleSelector";
@@ -8,6 +9,14 @@ import AuthForm from "../../components/AuthForm/AuthForm";
 
 export default function RegisterLoginPage() {
   const [tab, setTab] = useState(0);
+  const location = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('tab') === 'register') {
+      setTab(1);
+    }
+  }, [location]);
 
   const handleChange = (_, value) => setTab(value);
 

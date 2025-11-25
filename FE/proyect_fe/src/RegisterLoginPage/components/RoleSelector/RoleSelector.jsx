@@ -25,7 +25,7 @@ export default function RoleSelector() {
           key={role.label}
           onClick={() =>
             navigate(
-              role.label === "Donante" ? "/register-donor" : "/register-project-manager"
+              role.label === "Donante" ? "/register-donor" : "/register-manager"
             )
           }
           variant="outlined"

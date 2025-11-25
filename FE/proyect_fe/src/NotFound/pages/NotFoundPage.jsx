@@ -102,7 +102,7 @@ export default function FundifyNotFoundPage() {
       {/* Footer */}
       <Box component="footer" sx={{ py: 4, px: { xs: 2, sm: 4 } }}>
         <Container maxWidth="lg" sx={{ borderTop: '1px solid', borderColor: (t) => t.palette.divider, pt: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Typography variant="body2" color="text.secondary">© 2024 Fundify. Todos los derechos reservados.</Typography>
+          <Typography variant="body2" color="text.secondary">© 2025 Fundify. Todos los derechos reservados.</Typography>
          
         </Container>
       </Box>

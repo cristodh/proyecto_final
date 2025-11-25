@@ -1,7 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap');
+
 :root {
   --green: #32C48D;
   --blue: #1E2A38;
   --gray: #E6E6E6;
-  --font-title: 'Montserrat', sans-serif;
-  --font-body: 'Open Sans', sans-serif;
+  --font-title: 'Poppins', system-ui, -apple-system, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
 }

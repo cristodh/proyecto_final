@@ -34,39 +34,84 @@ const steps = [
 
 export default function HowItWorks() {
   return (
-    <Box component="section" sx={{ py: 6 }}>
+    <Box component="section" sx={{ py: { xs: 6, md: 8 } }}>
       <Container maxWidth="lg">
-        <Box sx={{ textAlign: "center", mb: 4 }}>
-          <Typography variant="h5" sx={{ fontWeight: 800, color: "text.primary" }}>
+        <Box sx={{ textAlign: "center", mb: 6 }}>
+          <Typography 
+            variant="h4" 
+            sx={{ 
+              fontWeight: 600, 
+              color: "text.primary",
+              mb: 2
+            }}
+          >
             Cómo Funciona: El Puente en Acción
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+          <Typography 
+            variant="body1" 
+            color="text.secondary" 
+            sx={{ 
+              maxWidth: 600, 
+              mx: "auto",
+              lineHeight: 1.6
+            }}
+          >
             Desde la idea hasta el impacto, así es como facilitamos la conexión para generar cambios reales en tu comunidad.
           </Typography>
         </Box>
 
-        <Grid container spacing={2}>
+        <Grid container spacing={4}>
           {steps.map((s, i) => (
-            <React.Fragment key={i}>
-              <Grid item xs={12} sm={2} sx={{ display: "flex", justifyContent: "center" }}>
-                <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                  <Box sx={{
-                    bgcolor: "primary.main",
-                    color: "#0d1b12",
-                    p: 1.2,
-                    borderRadius: "50%"
-                  }}>
-                    {s.icon}
-                  </Box>
+            <Grid item xs={12} md={6} key={i}>
+              <Box sx={{ 
+                display: "flex", 
+                alignItems: "flex-start", 
+                gap: 3,
+                p: 3,
+                borderRadius: 2,
+                bgcolor: "background.paper",
+                boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+                transition: "transform 0.2s ease",
+                '&:hover': {
+                  transform: "translateY(-2px)"
+                }
+              }}>
+                <Box sx={{
+                  bgcolor: "primary.main",
+                  color: "white",
+                  p: 1.5,
+                  borderRadius: "50%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  minWidth: 56,
+                  height: 56,
+                  flexShrink: 0
+                }}>
+                  {s.icon}
                 </Box>
-              </Grid>
-              <Grid item xs={12} sm={10}>
-                <Box sx={{ pb: 2 }}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "text.primary" }}>{s.title}</Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>{s.text}</Typography>
+                <Box sx={{ flex: 1 }}>
+                  <Typography 
+                    variant="h6" 
+                    sx={{ 
+                      fontWeight: 600, 
+                      color: "text.primary",
+                      mb: 1.5,
+                      lineHeight: 1.3
+                    }}
+                  >
+                    {s.title}
+                  </Typography>
+                  <Typography 
+                    variant="body2" 
+                    color="text.secondary" 
+                    sx={{ lineHeight: 1.6 }}
+                  >
+                    {s.text}
+                  </Typography>
                 </Box>
-              </Grid>
-            </React.Fragment>
+              </Box>
+            </Grid>
           ))}
         </Grid>
       </Container>

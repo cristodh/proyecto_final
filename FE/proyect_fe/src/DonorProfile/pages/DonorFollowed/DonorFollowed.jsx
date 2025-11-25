@@ -3,10 +3,10 @@ import React from "react";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
-import Header from "../../components/Header/Header";
-import Sidebar from "../../components/Sidebar/Sidebar";
-import ProjectTabs from "../../components/ProjectTabs/ProjectTabs";
-import ProjectsGrid from "../../components/ProjectsGrid/ProjectsGrid";
+import Header from "../../components/HeaderUser/HeaderUser";
+import Sidebar from "../../components/SideBar/Sidebar";
+import ProjectTabs from "../../components/DonorFollowedPage/ProjectTabs/ProjectTabs";
+import ProjectsGrid from "../../components/DonorFollowedPage/ProjectsGrid/ProjectsGrid";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
@@ -90,20 +90,68 @@ export default function DonorFollowed() {
   const projectsToShow = tab === 0 ? allProjects.followed : tab === 1 ? allProjects.published : allProjects.completed;
 
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh", bgcolor: "background.default" }}>
+    <Box sx={{ 
+      display: "flex", 
+      minHeight: "100vh", 
+      background: "linear-gradient(135deg, #fef7ff 0%, #f3e8ff 25%, #f8fafc 50%, #ecfdf5 75%, #f0fdfa 100%)",
+    }}>
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
         <Header onToggleSidebar={() => setSidebarOpen((s) => !s)} />
 
-        <Container maxWidth="lg" sx={{ py: 3 }}>
+        <Box sx={{ flex: 1, ml: { xs: 0, md: "280px" }, pt: 2 }}>
+          {/* Hero Section for Followed Projects */}
+          <Box sx={{
+            background: "linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)",
+            color: "white",
+            py: 4,
+            mb: 3,
+            position: "relative",
+            overflow: "hidden",
+            '&::before': {
+              content: '""',
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              background: "url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><path d=\"M20,20 Q50,5 80,20 Q95,50 80,80 Q50,95 20,80 Q5,50 20,20\" fill=\"rgba(255,255,255,0.05)\"/></svg>') no-repeat",
+              backgroundSize: "400px 400px",
+              backgroundPosition: "right -100px top -100px",
+            }
+          }}>
+            <Container maxWidth="lg">
+              <Box sx={{ position: "relative", zIndex: 1 }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+                  <Box sx={{
+                    width: 60,
+                    height: 60,
+                    borderRadius: "50%",
+                    background: "rgba(255,255,255,0.2)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "1.5rem"
+                  }}>
+                    ❤️
+                  </Box>
+                  <Box>
+                    <Typography variant="h4" sx={{ fontWeight: 900, mb: 0.5, textShadow: "0 2px 4px rgba(0,0,0,0.1)" }}>
+                      Proyectos Seguidos
+                    </Typography>
+                    <Typography variant="subtitle1" sx={{ opacity: 0.9, fontSize: "0.9rem" }}>
+                      Mantente al día con el progreso de los proyectos que más te importan
+                    </Typography>
+                  </Box>
+                </Box>
+              </Box>
+            </Container>
+          </Box>
+          
+          <Container maxWidth="lg" sx={{ py: 3 }}>
           <Grid container spacing={3}>
             <Grid item xs={12} md={8}>
-              <Typography variant="h4" sx={{ fontWeight: 900, mb: 1 }}>Proyectos Seguidos</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                Mantente al día con el progreso y las actualizaciones de los proyectos que te interesan.
-              </Typography>
-
               <ProjectTabs value={tab} onChange={handleTabChange} />
 
               <Box sx={{ mt: 2 }}>
@@ -118,26 +166,9 @@ export default function DonorFollowed() {
                 />
               </Box>
             </Grid>
-
-            <Grid item xs={12} md={4}>
-              {/* Right column: reuse sticky utilities or extra cards */}
-              <Box sx={{ position: mdUp ? "sticky" : "static", top: 96, display: "flex", flexDirection: "column", gap: 2 }}>
-                <Box sx={{ border: 1, borderColor: "divider", borderRadius: 2, p: 2 }}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>Acciones rápidas</Typography>
-                  <Box sx={{ mt: 1, display: "flex", gap: 1, flexWrap: "wrap" }}>
-                    <Button size="small">Explorar más</Button>
-                    <Button size="small">Crear proyecto</Button>
-                  </Box>
-                </Box>
-
-                <Box sx={{ border: 1, borderColor: "divider", borderRadius: 2, p: 2 }}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>Filtro</Typography>
-                  <Typography variant="body2" color="text.secondary">Filtra por estado, organización o fecha.</Typography>
-                </Box>
-              </Box>
-            </Grid>
           </Grid>
         </Container>
+        </Box>
       </Box>
     </Box>
   );

@@ -37,7 +37,7 @@ export default function Footer() {
         </Grid>
 
         <Box sx={{ textAlign: "center", mt: 4 }}>
-          <Typography variant="body2" color="text.secondary">© 2024 Fundify. Todos los derechos reservados.</Typography>
+          <Typography variant="body2" color="text.secondary">© 2025 Fundify. Todos los derechos reservados.</Typography>
         </Box>
       </Container>
     </Box>
