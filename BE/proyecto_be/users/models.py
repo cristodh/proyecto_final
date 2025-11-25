@@ -16,9 +16,13 @@ class User(AbstractUser):
     role = models.ForeignKey("Role",on_delete=models.CASCADE,default=4)
     nationality = models.CharField(max_length=50,null=False)
     created_at = models.DateTimeField(auto_now_add=True)
-
+    active = models.BooleanField(default=True)
+    
     def __str__(self):
         return self.username
+
+
+
 
 class Key_interests(models.Model):
     INTEREST_CHOICES = (
@@ -53,7 +57,6 @@ class Role(models.Model):
 class RecoveryCode(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     code = models.CharField(max_length=6)
-    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Recovery code for {self.user.username}"

@@ -9,6 +9,8 @@ import ProfileSummary from "../../components/DonorConfigPage/ProfileSummary.jsx"
 import ProfileForm from "../../components/DonorConfigPage/ProfileForm";
 import SecurityForm from "../../components/DonorConfigPage/SecurityForm";
 import NotificationPreferences from "../../components/DonorConfigPage/NotificationPreferences";
+import { useEffect,useState } from "react";
+import { getData } from "../../../Register/services/fetch.js";
 
 export const DonorConfig = () => {
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
@@ -17,16 +19,26 @@ export const DonorConfig = () => {
 
   const toggleSidebar = () => setSidebarOpen((s) => !s);
 
+   const [userLogged,setUserLogged]= useState([]) // aqui guardamos la info del usuario loggeado
+  
+  useEffect(()=>{ // el useEffect se usa para cargar la informacion en la pagina al momento de renderizarla y se puede controlar de muchas maneras
+    async function getUser() { 
+      const response = await getData(`user/user_id/${localStorage.getItem('id')}/`) // aqui hacemos la peticion a la BD para obtener la informacion del usuario loggeado que esta en el LocalStorage
+      setUserLogged(response[0]) // aqui guardamos la respuesta en el estado userLogged y ponemos response[0] porque la respuesta es un array con un solo objeto y es el unico que tenemos ya que solo llamamos a un ID
+    }
+      getUser(); // aqui llamamos a la funcion asyncrona que obtiene la informacion del usuario
+  },[]) // esto es parte de la estructura del useEffect para que se ejecute solo una vez al renderizar la pagina
+
   return (
     <Box sx={{ 
       display: "flex", 
       minHeight: "100vh", 
       background: "linear-gradient(135deg, #fffbeb 0%, #fef3c7 25%, #f8fafc 50%, #ecfdf5 75%, #f0fdfa 100%)",
     }}>
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} user={userLogged} />
 
       <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
-        <Header onToggleSidebar={toggleSidebar} />
+        <Header onToggleSidebar={toggleSidebar} user={userLogged} />
 
         <Box sx={{ flex: 1, ml: { xs: 0, md: "280px" }, pt: 2 }}>
           {/* Hero Section for Configuration */}

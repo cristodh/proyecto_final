@@ -17,7 +17,7 @@ import userIcon from "../../../imgs/UserIcon.png";
 import LogoFundify from "../../../imgs/LogoFundifyClose.png";
 import { useNavigate } from "react-router-dom";
 
-export default function HeaderUser({ onToggleSidebar }) {
+export default function HeaderUser({ onToggleSidebar, user}) {
   const navigate = useNavigate();
 
   // Función para cerrar sesión
@@ -26,7 +26,30 @@ export default function HeaderUser({ onToggleSidebar }) {
     localStorage.removeItem('id');
     navigate('/auth-user');
   };
-
+  const formaterDate = (dateString) => {
+    if (!dateString) return 'Fecha no disponible';
+    
+    try {
+      const date = new Date(dateString);
+      
+      if (isNaN(date.getTime())) {
+        return 'Fecha no disponible';
+      }
+      
+      const capitalizeFirstLetter = (str) => {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+      };
+      
+      const day = date.toLocaleDateString("es-CR", { day: "numeric" });
+      const month = date.toLocaleDateString("es-CR", { month: "long" });
+      const year = date.toLocaleDateString("es-CR", { year: "numeric" });
+      
+      return `${day} de ${capitalizeFirstLetter(month)}, ${year}`;
+    } catch (error) {
+      console.error('Error formateando fecha:', error);
+      return 'Fecha no disponible';
+    }
+  };
   return (
     <AppBar 
       position="sticky" 
@@ -130,8 +153,8 @@ export default function HeaderUser({ onToggleSidebar }) {
               }
              }} />
             <Box sx={{ display: { xs: "none", sm: "flex" }, flexDirection: "column", alignItems: "flex-start" }}>
-              <Typography variant="body2" sx={{ fontWeight: 700 }}>Carlos Mendoza</Typography>
-              <Typography variant="caption" color="text.secondary">Miembro desde Oct 2023</Typography>
+              <Typography variant="body2" sx={{ fontWeight: 700 }}>{user.first_name} {user.last_name}</Typography>
+              <Typography variant="caption" color="text.secondary">{user.email}</Typography>
             </Box>
           </Box>
         </Box>

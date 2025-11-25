@@ -12,15 +12,22 @@ import EmptyState from "../../components/DonationHistoryPage.jsx/EmptyState/Empt
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
 import Button from "@mui/material/Button";
+import { useState,useEffect } from "react";
+import { getData } from "../../../Register/services/fetch";
 
-/**
- * DonationHistoryPage integrates Header + Sidebar and composes the 4 components.
- * Contains example data and CSV export helper.
- */
 export default function DonationHistoryPage() {
   const theme = useTheme();
   const mdUp = useMediaQuery(theme.breakpoints.up("md"));
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
+  const [userLogged,setUserLogged]= useState([]) // aqui guardamos la info del usuario loggeado
+  
+  useEffect(()=>{ // el useEffect se usa para cargar la informacion en la pagina al momento de renderizarla y se puede controlar de muchas maneras
+    async function getUser() { 
+      const response = await getData(`user/user_id/${localStorage.getItem('id')}/`) // aqui hacemos la peticion a la BD para obtener la informacion del usuario loggeado que esta en el LocalStorage
+      setUserLogged(response[0]) // aqui guardamos la respuesta en el estado userLogged y ponemos response[0] porque la respuesta es un array con un solo objeto y es el unico que tenemos ya que solo llamamos a un ID
+    }
+      getUser(); // aqui llamamos a la funcion asyncrona que obtiene la informacion del usuario
+  },[]) // esto es parte de la estructura del useEffect para que se ejecute solo una vez al renderizar la pagina
 
   // filters state
   const [filters, setFilters] = React.useState({ from: "", to: "", q: "" });
@@ -35,9 +42,7 @@ export default function DonationHistoryPage() {
 
   // basic filter implementation (client-side)
   const applyFilters = () => {
-    // In a real app you would query the API with filters.
-    // Here we just filter by project name and (naively) by date strings if provided.
-    // For production convert dates to ISO and compare properly.
+
     const q = filters.q.trim().toLowerCase();
     setDonations((prev) => {
       // restore original set (we keep initial sample in variable)
@@ -86,10 +91,10 @@ export default function DonationHistoryPage() {
       minHeight: "100vh", 
       background: "linear-gradient(135deg, #eff6ff 0%, #dbeafe 25%, #f8fafc 50%, #fef2f2 75%, #fee2e2 100%)"
     }}>
-      <Header onToggleSidebar={() => setSidebarOpen((s) => !s)} />
+      <Header onToggleSidebar={() => setSidebarOpen((s) => !s)}  user={userLogged}/>
       
       <Box sx={{ display: "flex", flex: 1 }}>
-        <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <Sidebar  open={sidebarOpen} onClose={() => setSidebarOpen(false)} user={userLogged} />
 
         {/* Hero Section for History */}
         <Box sx={{ flex: 1, ml: { xs: 0, md: "280px" } }}>

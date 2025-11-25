@@ -16,14 +16,14 @@ import { postData } from "../../services/fetch";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
-export default function ManagerForm() {
+export default function ManagerForm({ onComplete }) {
   const navigate = useNavigate();
 
   // Regex de contraseña segura
   const regex =
     /^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=\[\]{};:'",.<>?/\\|`~]).{8,}$/;
 
-  // Estados específicos para gestores de proyectos
+  // Estados para información personal del gestor
   const [formData, setFormData] = useState({
     first_name: "",
     last_name: "",
@@ -34,12 +34,6 @@ export default function ManagerForm() {
     nationality: "",
     address: "",
     gender: "",
-    organization_name: "",
-    organization_type: "",
-    tax_id: "",
-    website: "",
-    experience_years: "",
-    focus_area: "",
     username: "",
     password: "",
     confirmPassword: "",
@@ -61,14 +55,28 @@ export default function ManagerForm() {
   const validateForm = () => {
     const requiredFields = [
       "first_name", "last_name", "email", "phone_number", "date_of_birth",
-      "goverment_ID", "nationality", "address", "gender", "organization_name",
-      "organization_type", "tax_id", "experience_years", "focus_area", 
+      "goverment_ID", "nationality", "address", "gender",
       "username", "password", "confirmPassword"
     ];
 
     for (let field of requiredFields) {
       if (!formData[field].trim()) {
-        toast.error(`Por favor, completa el campo: ${field.replace("_", " ")}`);
+        toast.error(`Por favor, completa el campo: ${field
+            ? field == "first_name" ? "Nombre"
+              : field == "last_name" ? "Apellidos"
+                : field == "email" ? "Correo electrónico"
+                  : field == "address" ? "Dirección"
+                    : field == "phone_number" ? "Número de teléfono"
+                      : field == "nationality" ? "Nacionalidad"
+                        : field == "date_of_birth" ? "Fecha de nacimiento"
+                          : field == "gender" ? "Género"
+                            : field == "goverment_ID" ? "Número de identificación"
+                              : field == "password" ? "Contraseña"
+                                : field == "confirmPassword" ? "Confirmar contraseña"
+                                  : field === "username" ? "Nombre de usuario"
+                                    : null
+            : ""
+          }`);
         return false;
       }
     }
@@ -104,11 +112,13 @@ export default function ManagerForm() {
     // Preparar datos específicos para gestor
     const managerData = {
       ...formData,
-      role: "manager" // Especificar rol de gestor
+      role: 2,
+      active: false,
     };
-
-    const response = await postData("user/new_manager/", managerData);
-
+    
+    const response = await postData("user/new_users/", managerData);
+    console.log(response);
+    
     if (!response.ok) {
       if (response.username) {
         toast.error("El nombre de usuario ya está en uso.");
@@ -123,8 +133,18 @@ export default function ManagerForm() {
       return;
     }
 
-    toast.success("Registro exitoso");
-    setTimeout(() => navigate("/auth-user"), 1200);
+    // Guardar ID del usuario para la configuración de organización
+    if (response.id) {
+      localStorage.setItem('id', response.id);
+      
+    }
+
+    toast.success("Registro exitoso. Ahora configura tu organización.");
+    setTimeout(() => {
+      if (onComplete) {
+        onComplete();
+      }
+    }, 1200);
   };
 
   // ESTILOS para inputs
@@ -336,142 +356,6 @@ export default function ManagerForm() {
           </Grid>
         </Grid>
 
-        {/* INFORMACIÓN ORGANIZACIONAL */}
-        <Typography
-          sx={{
-            fontSize: "18px",
-            fontWeight: 600,
-            color: "#0d1b12",
-            mt: 4,
-            mb: 3,
-          }}
-        >
-          Información Organizacional
-        </Typography>
-
-        <Grid container spacing={3} justifyContent="space-between">
-          {/* Nombre de la organización */}
-          <Grid item xs={12} sm={5.8}>
-            <Typography sx={{ pb: 1, fontWeight: 500, color: "#0d1b12" }}>
-              Nombre de la organización
-            </Typography>
-            <TextField
-              fullWidth
-              placeholder="Nombre de tu organización"
-              name="organization_name"
-              value={formData.organization_name}
-              onChange={handleInputChange}
-              InputProps={{ sx: inputStyle }}
-            />
-          </Grid>
-
-          {/* Tipo de organización */}
-          <Grid item xs={12} sm={5.8}>
-            <Typography sx={{ pb: 1, fontWeight: 500, color: "#0d1b12" }}>
-              Tipo de organización
-            </Typography>
-            <FormControl fullWidth>
-              <Select
-                name="organization_type"
-                value={formData.organization_type}
-                onChange={handleInputChange}
-                sx={inputStyle}
-                displayEmpty
-              >
-                <MenuItem value="" disabled>
-                  Selecciona el tipo
-                </MenuItem>
-                <MenuItem value="ONG">ONG</MenuItem>
-                <MenuItem value="Fundación">Fundación</MenuItem>
-                <MenuItem value="Empresa Social">Empresa Social</MenuItem>
-                <MenuItem value="Cooperativa">Cooperativa</MenuItem>
-                <MenuItem value="Otra">Otra</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-
-          {/* RUC/Tax ID */}
-          <Grid item xs={12} sm={5.8}>
-            <Typography sx={{ pb: 1, fontWeight: 500, color: "#0d1b12" }}>
-              RUC/Tax ID
-            </Typography>
-            <TextField
-              fullWidth
-              placeholder="Número de identificación fiscal"
-              name="tax_id"
-              value={formData.tax_id}
-              onChange={handleInputChange}
-              InputProps={{ sx: inputStyle }}
-            />
-          </Grid>
-
-          {/* Sitio web */}
-          <Grid item xs={12} sm={5.8}>
-            <Typography sx={{ pb: 1, fontWeight: 500, color: "#0d1b12" }}>
-              Sitio web (opcional)
-            </Typography>
-            <TextField
-              fullWidth
-              placeholder="https://tu-organizacion.com"
-              name="website"
-              value={formData.website}
-              onChange={handleInputChange}
-              InputProps={{ sx: inputStyle }}
-            />
-          </Grid>
-
-          {/* Años de experiencia */}
-          <Grid item xs={12} sm={5.8}>
-            <Typography sx={{ pb: 1, fontWeight: 500, color: "#0d1b12" }}>
-              Años de experiencia
-            </Typography>
-            <FormControl fullWidth>
-              <Select
-                name="experience_years"
-                value={formData.experience_years}
-                onChange={handleInputChange}
-                sx={inputStyle}
-                displayEmpty
-              >
-                <MenuItem value="" disabled>
-                  Selecciona los años
-                </MenuItem>
-                <MenuItem value="0-1">0-1 años</MenuItem>
-                <MenuItem value="2-5">2-5 años</MenuItem>
-                <MenuItem value="6-10">6-10 años</MenuItem>
-                <MenuItem value="10+">Más de 10 años</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-
-          {/* Área de enfoque */}
-          <Grid item xs={12} sm={5.8}>
-            <Typography sx={{ pb: 1, fontWeight: 500, color: "#0d1b12" }}>
-              Área de enfoque
-            </Typography>
-            <FormControl fullWidth>
-              <Select
-                name="focus_area"
-                value={formData.focus_area}
-                onChange={handleInputChange}
-                sx={inputStyle}
-                displayEmpty
-              >
-                <MenuItem value="" disabled>
-                  Selecciona el área
-                </MenuItem>
-                <MenuItem value="Educación">Educación</MenuItem>
-                <MenuItem value="Salud">Salud</MenuItem>
-                <MenuItem value="Medio Ambiente">Medio Ambiente</MenuItem>
-                <MenuItem value="Desarrollo Comunitario">Desarrollo Comunitario</MenuItem>
-                <MenuItem value="Tecnología">Tecnología</MenuItem>
-                <MenuItem value="Arte y Cultura">Arte y Cultura</MenuItem>
-                <MenuItem value="Otra">Otra</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-        </Grid>
-
         {/* INFORMACIÓN DE CUENTA */}
         <Typography
           sx={{
@@ -574,7 +458,7 @@ export default function ManagerForm() {
             "&:hover": { background: "#02695dff" },
           }}
         >
-          Crear mi cuenta como gestor
+          Continuar con configuración de organización
         </Button>
 
         <Typography
@@ -586,9 +470,9 @@ export default function ManagerForm() {
           }}
         >
           ¿Ya tienes una cuenta?{" "}
-          <span 
-            style={{ 
-              color: "#2A9D8F", 
+          <span
+            style={{
+              color: "#2A9D8F",
               fontWeight: 700,
               cursor: "pointer",
               textDecoration: "underline"

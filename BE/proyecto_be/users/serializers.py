@@ -17,7 +17,7 @@ class UserSerializer(ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'password', 'email', 'first_name', 'last_name', 'address','role_name',
-              'phone_number', 'role', 'nationality', 'date_of_birth', 'goverment_ID', 'gender', 'created_at']
+              'phone_number', 'role', 'nationality', 'date_of_birth', 'goverment_ID', 'gender', 'date_joined', 'active']
 
     def create(self, validated_data):
         # Sacamos la contrasenia de todos los datos

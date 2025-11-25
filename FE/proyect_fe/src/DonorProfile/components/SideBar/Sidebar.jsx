@@ -20,7 +20,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 const drawerWidth = 280;
 
-export default function Sidebar({ open, onClose }) {
+export default function Sidebar({ open, onClose,user }) { 
   const theme = useTheme();
   const mdUp = useMediaQuery(theme.breakpoints.up("md"));
   const navigate = useNavigate();
@@ -35,6 +35,30 @@ export default function Sidebar({ open, onClose }) {
   const handleNavigation = (path) => {
     navigate(`/donor_profile${path}`);
     if (onClose) onClose(); // Cerrar sidebar en móvil después de navegar
+  };
+const formaterDate = (dateString) => {
+    if (!dateString) return 'Fecha no disponible';
+    
+    try {
+      const date = new Date(dateString);
+      
+      if (isNaN(date.getTime())) {
+        return 'Fecha no disponible';
+      }
+      
+      const capitalizeFirstLetter = (str) => {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+      };
+      
+      const day = date.toLocaleDateString("es-CR", { day: "numeric" });
+      const month = date.toLocaleDateString("es-CR", { month: "long" });
+      const year = date.toLocaleDateString("es-CR", { year: "numeric" });
+      
+      return `${day} de ${capitalizeFirstLetter(month)}, ${year}`;
+    } catch (error) {
+      console.error('Error formateando fecha:', error);
+      return 'Fecha no disponible';
+    }
   };
 
   const content = (
@@ -72,7 +96,7 @@ export default function Sidebar({ open, onClose }) {
               fontSize: "0.95rem",
             }}
           >
-            Carlos Mendoza
+            {user.first_name} {user.last_name}
           </Typography>
           <Typography 
             variant="caption" 
@@ -81,8 +105,8 @@ export default function Sidebar({ open, onClose }) {
               fontWeight: 500,
               fontSize: "0.75rem",
             }}
-          >
-            Miembro desde Oct 2023
+            >
+              Miembro desde {formaterDate(user.date_joined)}
           </Typography>
         </Box>
       </Box>
@@ -113,7 +137,7 @@ export default function Sidebar({ open, onClose }) {
                 mb: 0.5,
               }}
             >
-              €1,250
+              ₡0.00
             </Typography>
             <Typography 
               variant="caption" 

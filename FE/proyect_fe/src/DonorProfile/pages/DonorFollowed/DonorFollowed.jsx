@@ -11,6 +11,8 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
+import { useEffect,useState } from "react";
+import { getData } from "../../../Register/services/fetch";
 
 /**
  * Page integrated in the dashboard layout.
@@ -20,6 +22,16 @@ export default function DonorFollowed() {
   const theme = useTheme();
   const mdUp = useMediaQuery(theme.breakpoints.up("md"));
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
+
+   const [userLogged,setUserLogged]= useState([]) // aqui guardamos la info del usuario loggeado
+  
+  useEffect(()=>{ // el useEffect se usa para cargar la informacion en la pagina al momento de renderizarla y se puede controlar de muchas maneras
+    async function getUser() { 
+      const response = await getData(`user/user_id/${localStorage.getItem('id')}/`) // aqui hacemos la peticion a la BD para obtener la informacion del usuario loggeado que esta en el LocalStorage
+      setUserLogged(response[0]) // aqui guardamos la respuesta en el estado userLogged y ponemos response[0] porque la respuesta es un array con un solo objeto y es el unico que tenemos ya que solo llamamos a un ID
+    }
+      getUser(); // aqui llamamos a la funcion asyncrona que obtiene la informacion del usuario
+  },[]) // esto es parte de la estructura del useEffect para que se ejecute solo una vez al renderizar la pagina
 
   // tab 0 = Seguidos, 1 = Publicados, 2 = Completados
   const [tab, setTab] = React.useState(0);
@@ -95,10 +107,10 @@ export default function DonorFollowed() {
       minHeight: "100vh", 
       background: "linear-gradient(135deg, #fef7ff 0%, #f3e8ff 25%, #f8fafc 50%, #ecfdf5 75%, #f0fdfa 100%)",
     }}>
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} user={userLogged} />
 
       <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
-        <Header onToggleSidebar={() => setSidebarOpen((s) => !s)} />
+        <Header onToggleSidebar={() => setSidebarOpen((s) => !s)} user={userLogged} />
 
         <Box sx={{ flex: 1, ml: { xs: 0, md: "280px" }, pt: 2 }}>
           {/* Hero Section for Followed Projects */}

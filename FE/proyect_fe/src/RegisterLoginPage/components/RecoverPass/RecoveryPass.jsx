@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { getData } from "../../../Register/services/fetch";
 import { ToastContainer, toast } from "react-toastify";
-
+import { postData } from "../../../Register/services/fetch";
 export default function RecoveryPass() {
 
   const [loading, setLoading] = useState(false);
@@ -20,7 +20,7 @@ export default function RecoveryPass() {
   const [user, setUser] = useState([]) // Guardamos los usuarios filtrados
   const [emailUser, setEmailUser] = useState("") // Estado para el texto del correo
   const [availableUser, setAvailableUser] = useState(false) // Si el usuario existe o no
-
+  const [recoveryCode,setRecoveryCode] = useState('') // codigo de recuperacion
 
   useEffect(() => {
     async function getUser() { // ejecutamos la funcion get 
@@ -34,6 +34,7 @@ export default function RecoveryPass() {
         setUser(filterUser); // dentro del estado, se guarda a ese usuario
         if (filterUser.length > 0) { // si hay mas de 0 usuarios, ponemos el estado como verdadero (porque el usuario existe en la db)
           setAvailableUser(true);
+          generateCode()
         } else {
           setAvailableUser(false); // si no, falso (no existe en la db)
         }
@@ -47,19 +48,36 @@ export default function RecoveryPass() {
   }, [emailUser])
 
   const generateCode = () => {
-    return Math.floor(100000 + Math.random() * 900000).toString(); // codigo aleatorio de 6 digitos
+    const newCode = Math.floor(100000 + Math.random() * 900000).toString(); // codigo aleatorio de 6 digitos
+    setRecoveryCode(newCode);
+    return newCode;
   };
+
+  const sendRecoveryCode = async () =>{
+    const objUser = {
+       user: user[0].id,
+       code: recoveryCode
+     }
+     const response = await postData(`user/get_recovery_code/`, objUser)
+      console.log(response)
+  }
 
   const sendEmail = (e) => {
     if (!availableUser) {
       toast.error("El usuario no existe.");
       return;
     } // validacion que el usuario exista
-    e.preventDefault();
-    setLoading(true);
+    if(recoveryCode.length === 0){
+      toast.error("Error generando el código de recuperación. Inténtalo de nuevo.");
+      return;
+    }
+    sendRecoveryCode()
+
+    e.preventDefault()
+    setLoading(true)
 
     const email = e.target.email.value;
-    const code = generateCode();
+    const code = recoveryCode;
 
     const params = {
       email: email,

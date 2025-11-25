@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'users',
     'campaigns',
     'rest_framework_simplejwt',
+    'organizations',
 ]
 AUTH_USER_MODEL = "users.User"
 CORS_ORIGIN_ALLOW_ALL = True

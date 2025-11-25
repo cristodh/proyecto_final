@@ -79,17 +79,19 @@ class RecoveryCodeAPIView(APIView):
             return Response(serializer.data, status=201) # Devolver la respuesta con el código serializado
         else:
             return Response({'message': 'User not found'}, status=404) # Usuario no encontrado
-        
+
+# Guarda el codigo de recuperacion en la bd     
 class RecoveryCodeListView(ListCreateAPIView):
     queryset = RecoveryCode.objects.all()  # Traer todos los RecoveryCode (MODELO)
     serializer_class = RecoveryCodeSerializer  # Usar el RecoveryCodeSerializer para traducir la info (TRADUCE EL MODELO A JSON)
 
 
-# TODO: Implementar el uso del codigo de recuperacion para cambiar la contraseña
+# valida que el codigo de recuperacion pertenezca al usuario y actualiza la contraseña
 class RecoverPasswordView(APIView):
     def patch(self,request):
         email_user = request.data.get('email_user') # le pedimos el correo al usuario
         new_password = request.data.get('new_password') # la clave nueva que se va a actualizar
+        code = request.data.get('code') # el codigo de recuperacion que se le envio al usuario
         
         """
             Verficamos que el usuario exista.
@@ -101,9 +103,20 @@ class RecoverPasswordView(APIView):
         except User.DoesNotExist:
             return Response({'message': 'User not found'}, status=404)
         
-        if new_password:
-            user.set_password(new_password)
-            user.save() # se confirma el guardado para que se modifique en la base de datos (el save, es una propiedad del user)
-            return Response({'message': 'Password updated successfully'}, status=200)
-        else:
-            return Response({'message': 'New password not provided'}, status=400)
+        try:
+            recovery_code = RecoveryCode.objects.get(user=user, code=code)
+            if not recovery_code:
+                return Response({'message': 'Invalid recovery code'}, status=400)
+            if new_password:
+                user.set_password(new_password)
+                user.save() # se confirma el guardado para que se modifique en la base de datos (el save, es una propiedad del user)
+                recovery_code.delete()  # Eliminar el código de recuperación después de usarlo
+                return Response({'message': 'Password updated successfully'}, status=200)
+            else:
+                return Response({'message': 'New password not provided'}, status=400)
+        except RecoveryCode.DoesNotExist:
+            return Response({'message': 'Invalid recovery code'}, status=400)
+        
+#TODO: Implementar la vista para aprobar organizaciones
+class ApproveOrganization(APIView):
+    pass
