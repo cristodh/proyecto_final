@@ -13,6 +13,10 @@ import DonorMain from '../DonorProfile/pages/DonorMain/DonorMain'
 import DonorFollowed from '../DonorProfile/pages/DonorFollowed/DonorFollowed'
 import DonationHistoryPage from '../DonorProfile/pages/DonationHistoryPage/DonationHistoryPage'
 import DonorConfig from '../DonorProfile/pages/DonorConfig/DonorConfig'
+import ManagerMain from '../ManagerProfile/pages/ManagerMain/ManagerMain'
+import ManagerCampaigns from '../ManagerProfile/pages/ManagerCampaigns/ManagerCampaigns'
+import ManagerAnalytics from '../ManagerProfile/pages/ManagerAnalytics/ManagerAnalytics'
+import ManagerConfig from '../ManagerProfile/pages/ManagerConfig/ManagerConfig'
 
 
 
@@ -29,6 +33,10 @@ const Routing = ()=>{
                 <Route path='/donor_profile/followed' element={<DonorFollowed/>}/>
                 <Route path='/donor_profile/history' element={<DonationHistoryPage/>}/>
                 <Route path='/donor_profile/config' element={<DonorConfig/>}/>
+                <Route path='/manager_profile/main' element={<ManagerMain/>}/>
+                <Route path='/manager_profile/campaigns' element={<ManagerCampaigns/>}/>
+                <Route path='/manager_profile/analytics' element={<ManagerAnalytics/>}/>
+                <Route path='/manager_profile/config' element={<ManagerConfig/>}/>
                 <Route path='/admin-main' element={<AdminDashboard/>}/>
                 <Route path='/semeolvidolaclaveyporesoquierorecuperarlasesuponequemevaallegaruncorreo' element={<RecoveryPass/>}/>
                 <Route path='*' element={<FundifyNotFoundPage/>}/>
