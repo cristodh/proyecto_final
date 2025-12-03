@@ -3,11 +3,11 @@ import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
-import Sidebar from "../../components/SideBar/Sidebar";
-import Header from "../../components/HeaderUser/HeaderUser";
-import MetricCard from "../../components/ManagerMainPage/MetricCard/MetricCard";
-import ProjectChart from "../../components/ManagerMainPage/ProjectChart/ProjectChart";
-import OverviewActions from "../../components/ManagerMainPage/OverviewActions/OverviewActions";
+import ManagerSidebar from "../../../components/ManagerSidebar/ManagerSidebar";
+import ManagerHeader from "../../../components/ManagerHeader/ManagerHeader";
+import MetricCard from "../../../components/ManagerMainPage/MetricCard/MetricCard";
+import ProjectChart from "../../../components/ManagerMainPage/ProjectChart/ProjectChart";
+import OverviewActions from "../../../components/ManagerMainPage/OverviewActions/OverviewActions";
 import CampaignIcon from "@mui/icons-material/Campaign";
 import PeopleIcon from "@mui/icons-material/People";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
@@ -15,7 +15,7 @@ import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
 import { backdropClasses } from "@mui/material";
-import { getData } from "../../../Register/services/fetch";
+import { getData } from "../../../../Register/services/fetch";
 
 export default function ManagerMain() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -38,20 +38,19 @@ export default function ManagerMain() {
     <Box sx={{ 
       display: "flex", 
       minHeight: "100vh", 
-      background: "linear-gradient(135deg, #fef7f0 0%, #fff4e6 25%, #fef7f0 50%, #fff8f3 75%, #fef7f0 100%)",
+      background: "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 25%, #f1f5f9 50%, #f8fafc 75%, #f1f5f9 100%)",
     }}>
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} user={userLogged}/>
+      <ManagerSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} user={userLogged}/>
 
       <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
-        <Header onToggleSidebar={toggleSidebar} user={userLogged}/>
+        <ManagerHeader onToggleSidebar={toggleSidebar} user={userLogged}/>
         
-        <Box sx={{ flex: 1, ml: { xs: 0, md: "280px" }, pt: 2 }}>
+        <Box sx={{ flex: 1, ml: { xs: 0, md: "280px" } }}>
           {/* Hero Section with Gradient Background */}
           <Box sx={{
-            background: "linear-gradient(135deg, #FF8C00 0%, #E67C00 100%)",
+            background: "linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%)",
             color: "white",
             py: 3,
-            mb: 2,
             position: "relative",
             overflow: "hidden",
             '&::before': {
@@ -118,9 +117,9 @@ export default function ManagerMain() {
 
                 <Box sx={{ 
                   p: 3, 
-                  border: "1px solid rgba(255,140,0,0.1)", 
+                  border: "1px solid rgba(30,58,138,0.1)", 
                   borderRadius: 3,
-                  background: "linear-gradient(135deg, rgba(255, 140, 0, 0.02) 0%, rgba(255, 140, 0, 0.01) 100%)",
+                  background: "linear-gradient(135deg, rgba(30, 58, 138, 0.02) 0%, rgba(59, 130, 246, 0.01) 100%)",
                   height: 320
                 }}>
                   <ProjectChart data={[

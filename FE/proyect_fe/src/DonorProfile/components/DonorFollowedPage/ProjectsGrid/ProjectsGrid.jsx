@@ -1,6 +1,8 @@
 // src/components/projects/ProjectsGrid.jsx
 import React from "react";
 import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 import ProjectCard from "../ProjectCard/ProjectCard";
 
 /**
@@ -9,20 +11,40 @@ import ProjectCard from "../ProjectCard/ProjectCard";
  */
 export default function ProjectsGrid({ projects = [] , onToggleFavorite = () => {}}) {
   if (!projects.length) {
-    return <p style={{ color: "gray" }}>No hay proyectos para mostrar.</p>;
+    return (
+      <Box sx={{ 
+        textAlign: "center", 
+        py: 4, 
+        color: "text.secondary",
+        minHeight: 200,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center"
+      }}>
+        <Typography variant="body1">No hay proyectos para mostrar.</Typography>
+      </Box>
+    );
   }
 
   return (
-    <Grid container spacing={3}>
-      {projects.map((p) => (
-        <Grid key={p.id} item xs={12} sm={6}>
+    <Box sx={{ minHeight: 400 }}>
+      <Box sx={{
+        display: "grid",
+        gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+        gap: 3,
+        "& > *": {
+          height: "200px"
+        }
+      }}>
+        {projects.map((p) => (
           <ProjectCard
+            key={p.id}
             {...p}
             onToggleFavorite={() => onToggleFavorite(p.id)}
             primaryAction={{ label: p.primaryLabel ?? "Ver Actualizaciones", onClick: () => p.onPrimary?.(p.id) }}
           />
-        </Grid>
-      ))}
-    </Grid>
+        ))}
+      </Box>
+    </Box>
   );
 }

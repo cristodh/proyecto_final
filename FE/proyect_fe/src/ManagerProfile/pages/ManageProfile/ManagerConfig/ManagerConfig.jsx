@@ -13,8 +13,8 @@ import MenuItem from "@mui/material/MenuItem";
 import Switch from "@mui/material/Switch";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Divider from "@mui/material/Divider";
-import Sidebar from "../../components/SideBar/Sidebar";
-import Header from "../../components/HeaderUser/HeaderUser";
+import ManagerSidebar from "../../../components/ManagerSidebar/ManagerSidebar";
+import ManagerHeader from "../../../components/ManagerHeader/ManagerHeader";
 import SaveIcon from "@mui/icons-material/Save";
 import PersonIcon from "@mui/icons-material/Person";
 import NotificationsIcon from "@mui/icons-material/Notifications";
@@ -22,7 +22,7 @@ import SecurityIcon from "@mui/icons-material/Security";
 import BusinessIcon from "@mui/icons-material/Business";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
-import { getData } from "../../../Register/services/fetch";
+import { getData } from "../../../../Register/services/fetch";
 
 export default function ManagerConfig() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -104,12 +104,12 @@ export default function ManagerConfig() {
     <Box sx={{
       display: "flex",
       minHeight: "100vh",
-      background: "linear-gradient(135deg, #fef7f0 0%, #fff4e6 25%, #fef7f0 50%, #fff8f3 75%, #fef7f0 100%)",
+      background: "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 25%, #f1f5f9 50%, #f8fafc 75%, #f1f5f9 100%)",
     }}>
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} user={userLogged} />
+      <ManagerSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} user={userLogged} />
 
       <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
-        <Header onToggleSidebar={toggleSidebar} user={userLogged} />
+        <ManagerHeader onToggleSidebar={toggleSidebar} user={userLogged} />
 
         <Box sx={{ flex: 1, ml: { xs: 0, md: "280px" }, pt: 2 }}>
           <Container maxWidth="lg" sx={{ py: 2 }}>
@@ -131,12 +131,12 @@ export default function ManagerConfig() {
                   sx={{
                     p: 3,
                     borderRadius: 3,
-                    border: "1px solid rgba(255,140,0,0.1)",
-                    background: "linear-gradient(135deg, rgba(255, 140, 0, 0.02) 0%, rgba(255, 140, 0, 0.01) 100%)",
+                    border: "1px solid rgba(30,58,138,0.1)",
+                    background: "linear-gradient(135deg, rgba(30, 58, 138, 0.02) 0%, rgba(30, 58, 138, 0.01) 100%)",
                   }}
                 >
                   <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
-                    <PersonIcon sx={{ color: "#FF8C00", mr: 1 }} />
+                    <PersonIcon sx={{ color: "#3B82F6", mr: 1 }} />
                     <Typography variant="h5" sx={{ fontWeight: 700 }}>
                       Información Personal
                     </Typography>
@@ -195,12 +195,12 @@ export default function ManagerConfig() {
                   sx={{
                     p: 3,
                     borderRadius: 3,
-                    border: "1px solid rgba(255,140,0,0.1)",
-                    background: "linear-gradient(135deg, rgba(255, 140, 0, 0.02) 0%, rgba(255, 140, 0, 0.01) 100%)",
+                    border: "1px solid rgba(30,58,138,0.1)",
+                    background: "linear-gradient(135deg, rgba(30, 58, 138, 0.02) 0%, rgba(30, 58, 138, 0.01) 100%)",
                   }}
                 >
                   <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
-                    <BusinessIcon sx={{ color: "#FF8C00", mr: 1 }} />
+                    <BusinessIcon sx={{ color: "#3B82F6", mr: 1 }} />
                     <Typography variant="h5" sx={{ fontWeight: 700 }}>
                       Organización
                     </Typography>
@@ -238,12 +238,12 @@ export default function ManagerConfig() {
                   sx={{
                     p: 3,
                     borderRadius: 3,
-                    border: "1px solid rgba(255,140,0,0.1)",
-                    background: "linear-gradient(135deg, rgba(255, 140, 0, 0.02) 0%, rgba(255, 140, 0, 0.01) 100%)",
+                    border: "1px solid rgba(30,58,138,0.1)",
+                    background: "linear-gradient(135deg, rgba(30, 58, 138, 0.02) 0%, rgba(30, 58, 138, 0.01) 100%)",
                   }}
                 >
                   <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
-                    <SecurityIcon sx={{ color: "#FF8C00", mr: 1 }} />
+                    <SecurityIcon sx={{ color: "#3B82F6", mr: 1 }} />
                     <Typography variant="h5" sx={{ fontWeight: 700 }}>
                       Preferencias
                     </Typography>
@@ -301,12 +301,12 @@ export default function ManagerConfig() {
                   sx={{
                     p: 3,
                     borderRadius: 3,
-                    border: "1px solid rgba(255,140,0,0.1)",
-                    background: "linear-gradient(135deg, rgba(255, 140, 0, 0.02) 0%, rgba(255, 140, 0, 0.01) 100%)",
+                    border: "1px solid rgba(30,58,138,0.1)",
+                    background: "linear-gradient(135deg, rgba(30, 58, 138, 0.02) 0%, rgba(30, 58, 138, 0.01) 100%)",
                   }}
                 >
                   <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
-                    <NotificationsIcon sx={{ color: "#FF8C00", mr: 1 }} />
+                    <NotificationsIcon sx={{ color: "#3B82F6", mr: 1 }} />
                     <Typography variant="h5" sx={{ fontWeight: 700 }}>
                       Notificaciones
                     </Typography>
@@ -320,10 +320,10 @@ export default function ManagerConfig() {
                           onChange={() => handleNotificationChange('emailDonations')}
                           sx={{
                             '& .MuiSwitch-switchBase.Mui-checked': {
-                              color: '#FF8C00',
+                              color: '#3B82F6',
                             },
                             '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                              backgroundColor: '#FF8C00',
+                              backgroundColor: '#3B82F6',
                             },
                           }}
                         />
@@ -337,10 +337,10 @@ export default function ManagerConfig() {
                           onChange={() => handleNotificationChange('emailUpdates')}
                           sx={{
                             '& .MuiSwitch-switchBase.Mui-checked': {
-                              color: '#FF8C00',
+                              color: '#3B82F6',
                             },
                             '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                              backgroundColor: '#FF8C00',
+                              backgroundColor: '#3B82F6',
                             },
                           }}
                         />
@@ -354,10 +354,10 @@ export default function ManagerConfig() {
                           onChange={() => handleNotificationChange('emailMarketing')}
                           sx={{
                             '& .MuiSwitch-switchBase.Mui-checked': {
-                              color: '#FF8C00',
+                              color: '#3B82F6',
                             },
                             '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                              backgroundColor: '#FF8C00',
+                              backgroundColor: '#3B82F6',
                             },
                           }}
                         />
@@ -371,10 +371,10 @@ export default function ManagerConfig() {
                           onChange={() => handleNotificationChange('pushNotifications')}
                           sx={{
                             '& .MuiSwitch-switchBase.Mui-checked': {
-                              color: '#FF8C00',
+                              color: '#3B82F6',
                             },
                             '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                              backgroundColor: '#FF8C00',
+                              backgroundColor: '#3B82F6',
                             },
                           }}
                         />
@@ -393,7 +393,7 @@ export default function ManagerConfig() {
                     startIcon={<SaveIcon />}
                     onClick={handleSave}
                     sx={{
-                      bgcolor: "#FF8C00",
+                      bgcolor: "#1E3A8A",
                       color: "white",
                       px: 4,
                       py: 1.5,
@@ -401,10 +401,10 @@ export default function ManagerConfig() {
                       textTransform: "none",
                       fontWeight: 600,
                       fontSize: "1rem",
-                      boxShadow: "0 4px 12px rgba(255, 140, 0, 0.3)",
+                      boxShadow: "0 4px 12px rgba(30, 58, 138, 0.3)",
                       '&:hover': {
-                        bgcolor: "#E67C00",
-                        boxShadow: "0 6px 16px rgba(255, 140, 0, 0.4)",
+                        bgcolor: "#3B82F6",
+                        boxShadow: "0 6px 16px rgba(30, 58, 138, 0.4)",
                       }
                     }}
                   >

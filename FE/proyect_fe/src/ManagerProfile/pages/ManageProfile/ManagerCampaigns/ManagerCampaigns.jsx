@@ -8,15 +8,16 @@ import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
 import LinearProgress from "@mui/material/LinearProgress";
 import Dialog from "@mui/material/Dialog";
-import Sidebar from "../../components/SideBar/Sidebar";
-import Header from "../../components/HeaderUser/HeaderUser";
-import AddCampaign from "../../components/NewCampaign/AddCampaign";
+import ManagerSidebar from "../../../components/ManagerSidebar/ManagerSidebar";
+import ManagerHeader from "../../../components/ManagerHeader/ManagerHeader";
+import AddCampaign from "../../../components/NewCampaign/AddCampaign";
+import CampaignDetails from "../../../components/CampaignDetails/CampaignDetails";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
-import { getData } from "../../../Register/services/fetch";
+import { getData } from "../../../../Register/services/fetch";
 
 export default function ManagerCampaigns() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -24,6 +25,8 @@ export default function ManagerCampaigns() {
   const mdUp = useMediaQuery(theme.breakpoints.up("md"));
   const [userLogged, setUserLogged] = useState([]);
   const [addCampaignOpen, setAddCampaignOpen] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [selectedCampaign, setSelectedCampaign] = useState(null);
 
   // Datos de ejemplo para proyectos
   const projects = [
@@ -77,12 +80,22 @@ export default function ManagerCampaigns() {
     setAddCampaignOpen(false);
   };
 
+  const handleViewDetails = (project) => {
+    setSelectedCampaign(project);
+    setDetailsOpen(true);
+  };
+
+  const handleCloseDetails = () => {
+    setDetailsOpen(false);
+    setSelectedCampaign(null);
+  };
+
   const getStatusColor = (status) => {
     switch (status) {
-      case "Activo": return { bg: "rgba(255, 140, 0, 0.1)", color: "#FF8C00" };
+      case "Activo": return { bg: "rgba(30, 58, 138, 0.1)", color: "#1E3A8A" };
       case "Completado": return { bg: "rgba(34, 197, 94, 0.1)", color: "#059669" };
       case "Pausado": return { bg: "rgba(156, 163, 175, 0.1)", color: "#6B7280" };
-      default: return { bg: "rgba(255, 140, 0, 0.1)", color: "#FF8C00" };
+      default: return { bg: "rgba(30, 58, 138, 0.1)", color: "#1E3A8A" };
     }
   };
 
@@ -90,12 +103,12 @@ export default function ManagerCampaigns() {
     <Box sx={{
       display: "flex",
       minHeight: "100vh",
-      background: "linear-gradient(135deg, #fef7f0 0%, #fff4e6 25%, #fef7f0 50%, #fff8f3 75%, #fef7f0 100%)",
+      background: "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 25%, #f1f5f9 50%, #f8fafc 75%, #f1f5f9 100%)",
     }}>
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} user={userLogged} />
+      <ManagerSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} user={userLogged} />
 
       <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
-        <Header onToggleSidebar={toggleSidebar} user={userLogged} />
+        <ManagerHeader onToggleSidebar={toggleSidebar} user={userLogged} />
 
         <Box sx={{ flex: 1, ml: { xs: 0, md: "280px" }, pt: 2 }}>
           <Container maxWidth="lg" sx={{ py: 2 }}>
@@ -114,17 +127,17 @@ export default function ManagerCampaigns() {
                 startIcon={<AddIcon />}
                 onClick={handleCreateProject}
                 sx={{
-                  bgcolor: "#FF8C00",
+                  bgcolor: "#1E3A8A",
                   color: "white",
                   px: 3,
                   py: 1.5,
                   borderRadius: 2,
                   textTransform: "none",
                   fontWeight: 600,
-                  boxShadow: "0 4px 12px rgba(255, 140, 0, 0.3)",
+                  boxShadow: "0 4px 12px rgba(30, 58, 138, 0.3)",
                   '&:hover': {
-                    bgcolor: "#E67C00",
-                    boxShadow: "0 6px 16px rgba(255, 140, 0, 0.4)",
+                    bgcolor: "#3B82F6",
+                    boxShadow: "0 6px 16px rgba(30, 58, 138, 0.4)",
                   }
                 }}
               >
@@ -145,15 +158,15 @@ export default function ManagerCampaigns() {
                       sx={{
                         p: 3,
                         borderRadius: 3,
-                        border: "1px solid rgba(255,140,0,0.1)",
-                        background: "linear-gradient(135deg, rgba(255, 140, 0, 0.02) 0%, rgba(255, 140, 0, 0.01) 100%)",
+                        border: "1px solid rgba(30,58,138,0.1)",
+                        background: "linear-gradient(135deg, rgba(30, 58, 138, 0.02) 0%, rgba(30, 58, 138, 0.01) 100%)",
                         transition: "all 0.3s ease",
                         height: "100%",
                         display: "flex",
                         flexDirection: "column",
                         '&:hover': {
-                          borderColor: "rgba(255,140,0,0.2)",
-                          boxShadow: "0 8px 32px rgba(255,140,0,0.12)",
+                          borderColor: "rgba(30,58,138,0.2)",
+                          boxShadow: "0 8px 32px rgba(30,58,138,0.12)",
                           transform: "translateY(-2px)",
                         }
                       }}
@@ -172,13 +185,30 @@ export default function ManagerCampaigns() {
                         <Box sx={{ display: "flex", gap: 0.5 }}>
                           <Button
                             size="small"
-                            sx={{ minWidth: 0, p: 0.5, color: "#FF8C00" }}
+                            onClick={() => handleViewDetails(project)}
+                            sx={{ 
+                              minWidth: 0, 
+                              p: 0.5, 
+                              color: "#3B82F6",
+                              '&:hover': { 
+                                bgcolor: "rgba(59, 130, 246, 0.1)",
+                                color: "#1E3A8A" 
+                              }
+                            }}
                           >
                             <VisibilityIcon fontSize="small" />
                           </Button>
                           <Button
                             size="small"
-                            sx={{ minWidth: 0, p: 0.5, color: "#FF8C00" }}
+                            sx={{ 
+                              minWidth: 0, 
+                              p: 0.5, 
+                              color: "#3B82F6",
+                              '&:hover': { 
+                                bgcolor: "rgba(59, 130, 246, 0.1)",
+                                color: "#1E3A8A" 
+                              }
+                            }}
                           >
                             <EditIcon fontSize="small" />
                           </Button>
@@ -208,9 +238,9 @@ export default function ManagerCampaigns() {
                           sx={{
                             height: 6,
                             borderRadius: 3,
-                            bgcolor: "rgba(255,140,0,0.1)",
+                            bgcolor: "rgba(30,58,138,0.1)",
                             '& .MuiLinearProgress-bar': {
-                              bgcolor: "#FF8C00",
+                              bgcolor: "#3B82F6",
                               borderRadius: 3,
                             }
                           }}
@@ -253,6 +283,13 @@ export default function ManagerCampaigns() {
         >
           <AddCampaign onClose={handleCloseAddCampaign} />
         </Dialog>
+
+        {/* Modal para ver detalles de campaña */}
+        <CampaignDetails 
+          open={detailsOpen}
+          onClose={handleCloseDetails}
+          campaign={selectedCampaign}
+        />
       </Box>
     </Box>
   );

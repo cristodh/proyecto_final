@@ -27,14 +27,33 @@ export default function ProjectCard({
   const cfg = statusColorMap[status] ?? statusColorMap["En Progreso"];
 
   return (
-    <Card elevation={0} sx={{ border: 1, borderColor: "divider", borderRadius: 2 }}>
-      <CardContent sx={{ p: 2 }}>
-        <Box sx={{ display: "flex", justifyContent: "space-between", gap: 2 }}>
-          <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+    <Card 
+      elevation={0} 
+      sx={{ 
+        border: 1, 
+        borderColor: "divider", 
+        borderRadius: 2,
+        height: 200,
+        display: "flex",
+        flexDirection: "column"
+      }}
+    >
+      <CardContent sx={{ 
+        p: 2, 
+        display: "flex", 
+        flexDirection: "column", 
+        height: "100%",
+        overflow: "hidden",
+        "&:last-child": {
+          paddingBottom: 2
+        }
+      }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", gap: 2, mb: 2, alignItems: "flex-start" }}>
+          <Box sx={{ display: "flex", gap: 2, flex: 1, minWidth: 0, alignItems: "flex-start" }}>
             <Box
               sx={{
-                width: 64,
-                height: 64,
+                width: 56,
+                height: 56,
                 borderRadius: 1.5,
                 backgroundImage: `url(${image})`,
                 backgroundSize: "cover",
@@ -42,43 +61,104 @@ export default function ProjectCard({
                 flexShrink: 0
               }}
             />
-            <Box>
-              <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>{title}</Typography>
-              <Typography variant="body2" color="text.secondary">Por: {org}</Typography>
+            <Box sx={{ flex: 1, minWidth: 0, overflow: "hidden" }}>
+              <Typography 
+                variant="subtitle2" 
+                sx={{ 
+                  fontWeight: 700,
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  display: "-webkit-box",
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: "vertical",
+                  lineHeight: 1.2,
+                  height: "2.4em",
+                  mb: 0.5
+                }}
+              >
+                {title}
+              </Typography>
+              <Typography 
+                variant="caption" 
+                color="text.secondary"
+                sx={{ 
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  display: "block"
+                }}
+              >
+                Por: {org}
+              </Typography>
             </Box>
           </Box>
 
           <Button
             onClick={onToggleFavorite}
             variant="text"
-            sx={{ minWidth: 40, color: "primary.main" }}
+            size="small"
+            sx={{ minWidth: 32, width: 32, height: 32, p: 0.5, color: "primary.main", flexShrink: 0 }}
             aria-label="toggle favorite"
           >
-            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>
+            <span className="material-symbols-outlined" style={{ fontSize: "18px", fontVariationSettings: "'FILL' 1" }}>
               favorite
             </span>
           </Button>
         </Box>
 
-        <Box sx={{ mt: 2, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 2 }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <Box sx={{ 
+          mt: "auto", 
+          display: "flex", 
+          alignItems: "center", 
+          justifyContent: "space-between", 
+          gap: 1,
+          flexWrap: "nowrap"
+        }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, flex: 1, minWidth: 0 }}>
             <Chip
               label={status}
               size="small"
               sx={{
                 bgcolor: `${cfg.bg}22`,
                 color: cfg.bg,
-                fontWeight: 700,
-                borderRadius: 1
+                fontWeight: 600,
+                borderRadius: 1,
+                flexShrink: 0,
+                fontSize: "0.7rem",
+                height: 24
               }}
             />
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1, color: "text.secondary", ml: 1 }}>
-              <span className="material-symbols-outlined">schedule</span>
-              <Typography variant="caption" color="text.secondary">{eta}</Typography>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, minWidth: 0, overflow: "hidden" }}>
+              <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>schedule</span>
+              <Typography 
+                variant="caption" 
+                color="text.secondary"
+                sx={{ 
+                  fontSize: "0.7rem",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap"
+                }}
+              >
+                {eta}
+              </Typography>
             </Box>
           </Box>
 
-          <Button onClick={primaryAction.onClick} variant="contained" size="small">{primaryAction.label}</Button>
+          <Button 
+            onClick={primaryAction.onClick} 
+            variant="contained" 
+            size="small"
+            sx={{ 
+              flexShrink: 0,
+              fontSize: "0.7rem",
+              py: 0.5,
+              px: 1,
+              minWidth: "auto"
+            }}
+          >
+            {primaryAction.label}
+          </Button>
         </Box>
       </CardContent>
     </Card>

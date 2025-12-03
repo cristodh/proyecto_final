@@ -6,13 +6,13 @@ import Typography from "@mui/material/Typography";
 
 export default function MetricCard({ title, value, hint, icon }) {
   const colors = {
-    "Proyectos Activos": { bg: "linear-gradient(135deg, rgba(255, 140, 0, 0.1) 0%, rgba(255, 140, 0, 0.05) 100%)", iconBg: "rgba(255, 140, 0, 0.1)", iconColor: "#FF8C00" },
+    "Proyectos Activos": { bg: "linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(30, 58, 138, 0.05) 100%)", iconBg: "rgba(30, 58, 138, 0.1)", iconColor: "#1E3A8A" },
     "Fondos Recaudados": { bg: "linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%)", iconBg: "rgba(34, 197, 94, 0.1)", iconColor: "#059669" },
-    "Donadores Totales": { bg: "linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(79, 70, 229, 0.05) 100%)", iconBg: "rgba(99, 102, 241, 0.1)", iconColor: "#4F46E5" },
-    "Impacto Generado": { bg: "linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.05) 100%)", iconBg: "rgba(245, 158, 11, 0.1)", iconColor: "#D97706" }
+    "Donadores Totales": { bg: "linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%)", iconBg: "rgba(59, 130, 246, 0.1)", iconColor: "#3B82F6" },
+    "Impacto Generado": { bg: "linear-gradient(135deg, rgba(96, 165, 250, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%)", iconBg: "rgba(96, 165, 250, 0.1)", iconColor: "#60A5FA" }
   };
   
-  const cardColors = colors[title] || { bg: "linear-gradient(135deg, rgba(255, 140, 0, 0.08) 0%, rgba(255, 140, 0, 0.04) 100%)", iconBg: "rgba(255, 140, 0, 0.1)", iconColor: "#FF8C00" };
+  const cardColors = colors[title] || { bg: "linear-gradient(135deg, rgba(30, 58, 138, 0.08) 0%, rgba(30, 58, 138, 0.04) 100%)", iconBg: "rgba(30, 58, 138, 0.1)", iconColor: "#1E3A8A" };
 
   return (
     <Paper 
@@ -20,18 +20,18 @@ export default function MetricCard({ title, value, hint, icon }) {
       sx={{ 
         p: 3, 
         borderRadius: 3, 
-        border: "1px solid rgba(255,140,0,0.05)", 
+        border: "1px solid rgba(30,58,138,0.05)", 
         display: "flex", 
         gap: 2, 
         alignItems: "center",
         bgcolor: "#ffffff",
         background: cardColors.bg,
-        boxShadow: "0 4px 20px rgba(255,140,0,0.06)",
+        boxShadow: "0 4px 20px rgba(30,58,138,0.06)",
         transition: "all 0.3s ease",
         position: "relative",
         overflow: "hidden",
         '&:hover': {
-          boxShadow: "0 8px 32px rgba(255,140,0,0.12)",
+          boxShadow: "0 8px 32px rgba(30,58,138,0.12)",
           transform: "translateY(-2px)",
         },
         '&::before': {

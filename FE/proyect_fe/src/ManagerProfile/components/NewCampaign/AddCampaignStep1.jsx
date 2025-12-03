@@ -8,6 +8,7 @@ export default function AddCampaignStep1({ data, update, next }) {
     category: data.category || "",
     location: data.location || "",
     website: data.website || "",
+    slogan: data.slogan || "",
   });
 
   const [errors, setErrors] = useState({});
@@ -43,6 +44,12 @@ export default function AddCampaignStep1({ data, update, next }) {
       newErrors.location = "La ubicación es obligatoria";
     }
 
+    if (!local.slogan.trim()) {
+      newErrors.slogan = "El lema es obligatorio";
+    } else if (local.slogan.length < 5) {
+      newErrors.slogan = "El lema debe tener al menos 5 caracteres";
+    }
+
     // Validación opcional del sitio web
     if (local.website && local.website.trim()) {
       const urlRegex = /^(https?:\/\/)?(www\.)?[a-zA-Z0-9-]+(\.[a-zA-Z]{2,})(\S*)?$/;
@@ -65,7 +72,14 @@ export default function AddCampaignStep1({ data, update, next }) {
   return (
     <Card variant="outlined" sx={{ p: 3 }}>
       <CardContent>
-        <Typography variant="h5" fontWeight={700} gutterBottom>
+        <Typography variant="h3" fontWeight={800} gutterBottom sx={{ color: "#1a202c", textAlign: "center" }}>
+          Cuéntanos sobre tu idea
+        </Typography>
+        <Typography variant="body1" color="text.secondary" sx={{ mb: 3, textAlign: "center" }}>
+          Este es el primer paso para dar vida a tu proyecto. Completa la información básica para que nuestra comunidad pueda conocer tu iniciativa.
+        </Typography>
+        
+        <Typography variant="h6" fontWeight={600} gutterBottom sx={{ mt: 2 }}>
           Información Básica
         </Typography>
 
@@ -81,11 +95,11 @@ export default function AddCampaignStep1({ data, update, next }) {
             sx={{
               '& .MuiOutlinedInput-root': {
                 '&.Mui-focused fieldset': {
-                  borderColor: '#FF8C00',
+                  borderColor: '#3B82F6',
                 },
               },
               '& .MuiInputLabel-root.Mui-focused': {
-                color: '#FF8C00',
+                color: '#3B82F6',
               },
             }}
           />
@@ -103,11 +117,11 @@ export default function AddCampaignStep1({ data, update, next }) {
             sx={{
               '& .MuiOutlinedInput-root': {
                 '&.Mui-focused fieldset': {
-                  borderColor: '#FF8C00',
+                  borderColor: '#3B82F6',
                 },
               },
               '& .MuiInputLabel-root.Mui-focused': {
-                color: '#FF8C00',
+                color: '#3B82F6',
               },
             }}
           />
@@ -124,11 +138,11 @@ export default function AddCampaignStep1({ data, update, next }) {
             sx={{
               '& .MuiOutlinedInput-root': {
                 '&.Mui-focused fieldset': {
-                  borderColor: '#FF8C00',
+                  borderColor: '#3B82F6',
                 },
               },
               '& .MuiInputLabel-root.Mui-focused': {
-                color: '#FF8C00',
+                color: '#3B82F6',
               },
             }}
           >
@@ -151,11 +165,32 @@ export default function AddCampaignStep1({ data, update, next }) {
             sx={{
               '& .MuiOutlinedInput-root': {
                 '&.Mui-focused fieldset': {
-                  borderColor: '#FF8C00',
+                  borderColor: '#3B82F6',
                 },
               },
               '& .MuiInputLabel-root.Mui-focused': {
-                color: '#FF8C00',
+                color: '#3B82F6',
+              },
+            }}
+          />
+
+          <TextField
+            label="Lema del proyecto"
+            fullWidth
+            placeholder="Juntos construimos un futuro mejor"
+            value={local.slogan}
+            onChange={(e) => handleChange("slogan", e.target.value)}
+            error={!!errors.slogan}
+            helperText={errors.slogan || "Una frase inspiradora que represente tu proyecto"}
+            required
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                '&.Mui-focused fieldset': {
+                  borderColor: '#3B82F6',
+                },
+              },
+              '& .MuiInputLabel-root.Mui-focused': {
+                color: '#3B82F6',
               },
             }}
           />
@@ -171,11 +206,11 @@ export default function AddCampaignStep1({ data, update, next }) {
             sx={{
               '& .MuiOutlinedInput-root': {
                 '&.Mui-focused fieldset': {
-                  borderColor: '#FF8C00',
+                  borderColor: '#3B82F6',
                 },
               },
               '& .MuiInputLabel-root.Mui-focused': {
-                color: '#FF8C00',
+                color: '#3B82F6',
               },
             }}
           />
@@ -187,15 +222,35 @@ export default function AddCampaignStep1({ data, update, next }) {
               sx={{ 
                 textTransform: "none", 
                 fontWeight: 700,
-                bgcolor: "#FF8C00",
+                bgcolor: "#1E3A8A",
                 color: "white",
                 '&:hover': {
-                  bgcolor: "#E67C00",
+                  bgcolor: "#3B82F6",
                 }
               }}
             >
               Siguiente
             </Button>
+          </Box>
+
+          {/* Pie de página con nota de campos obligatorios */}
+          <Box sx={{ 
+            mt: 4, 
+            pt: 3, 
+            borderTop: "1px solid rgba(30, 58, 138, 0.1)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            bgcolor: "rgba(30, 58, 138, 0.02)",
+            borderRadius: 2,
+            p: 2
+          }}>
+            <Typography variant="caption" color="text.secondary" sx={{ 
+              fontStyle: "italic",
+              textAlign: "center"
+            }}>
+              * Los campos marcados con asterisco son obligatorios para continuar
+            </Typography>
           </Box>
         </Box>
       </CardContent>

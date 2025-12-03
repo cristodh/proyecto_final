@@ -1,4 +1,4 @@
-// src/ManagerProfile/components/SideBar/Sidebar.jsx
+// src/ManagerProfile/components/ManagerSidebar/ManagerSidebar.jsx
 import React from "react";
 import Drawer from "@mui/material/Drawer";
 import Box from "@mui/material/Box";
@@ -20,7 +20,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 const drawerWidth = 280;
 
-export default function Sidebar({ open, onClose, user }) { 
+export default function ManagerSidebar({ open, onClose, user }) { 
   const theme = useTheme();
   const mdUp = useMediaQuery(theme.breakpoints.up("md"));
   const navigate = useNavigate();
@@ -68,24 +68,24 @@ export default function Sidebar({ open, onClose, user }) {
       display: "flex", 
       flexDirection: "column", 
       height: "100%", 
-      background: "linear-gradient(180deg, #ffffff 0%, #fef7f0 100%)",
-      borderRight: "1px solid rgba(255,140,0,0.06)",
-      boxShadow: "2px 0 20px rgba(255,140,0,0.05)",
+      background: "linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%)",
+      borderRight: "1px solid rgba(30, 58, 138, 0.06)",
+      boxShadow: "2px 0 20px rgba(30, 58, 138, 0.05)",
     }}>
       <Box sx={{ 
         p: 3, 
         display: "flex", 
         gap: 2, 
         alignItems: "center",
-        backgroundColor: "rgba(255, 140, 0, 0.04)",
-        borderBottom: "1px solid rgba(255, 140, 0, 0.1)",
+        backgroundColor: "rgba(30, 58, 138, 0.04)",
+        borderBottom: "1px solid rgba(30, 58, 138, 0.1)",
       }}>
         <Avatar 
           src={userIcon} 
           sx={{ 
             width: 56, 
             height: 56,
-            boxShadow: "0 4px 16px rgba(255, 140, 0, 0.2)",
+            boxShadow: "0 4px 16px rgba(30, 58, 138, 0.2)",
           }} 
         />
         <Box>
@@ -120,12 +120,12 @@ export default function Sidebar({ open, onClose, user }) {
             flex: 1, 
             borderRadius: 2, 
             p: 2, 
-            background: "linear-gradient(135deg, rgba(255, 140, 0, 0.08) 0%, rgba(255, 140, 0, 0.04) 100%)",
-            border: "1px solid rgba(255, 140, 0, 0.1)",
+            background: "linear-gradient(135deg, rgba(30, 58, 138, 0.08) 0%, rgba(59, 130, 246, 0.04) 100%)",
+            border: "1px solid rgba(30, 58, 138, 0.1)",
             textAlign: "center",
             transition: "all 0.2s ease",
             '&:hover': {
-              background: "linear-gradient(135deg, rgba(255, 140, 0, 0.12) 0%, rgba(255, 140, 0, 0.06) 100%)",
+              background: "linear-gradient(135deg, rgba(30, 58, 138, 0.12) 0%, rgba(59, 130, 246, 0.06) 100%)",
               transform: "translateY(-1px)",
             }
           }}>
@@ -133,7 +133,7 @@ export default function Sidebar({ open, onClose, user }) {
               variant="h6" 
               sx={{ 
                 fontWeight: 700, 
-                color: "#FF8C00",
+                color: "#1E3A8A",
                 fontSize: "1.1rem",
                 mb: 0.5,
               }}
@@ -157,12 +157,12 @@ export default function Sidebar({ open, onClose, user }) {
             flex: 1, 
             borderRadius: 2, 
             p: 2, 
-            background: "linear-gradient(135deg, rgba(255, 140, 0, 0.08) 0%, rgba(255, 140, 0, 0.04) 100%)",
-            border: "1px solid rgba(255, 140, 0, 0.1)",
+            background: "linear-gradient(135deg, rgba(30, 58, 138, 0.08) 0%, rgba(59, 130, 246, 0.04) 100%)",
+            border: "1px solid rgba(30, 58, 138, 0.1)",
             textAlign: "center",
             transition: "all 0.2s ease",
             '&:hover': {
-              background: "linear-gradient(135deg, rgba(255, 140, 0, 0.12) 0%, rgba(255, 140, 0, 0.06) 100%)",
+              background: "linear-gradient(135deg, rgba(30, 58, 138, 0.12) 0%, rgba(59, 130, 246, 0.06) 100%)",
               transform: "translateY(-1px)",
             }
           }}>
@@ -170,7 +170,7 @@ export default function Sidebar({ open, onClose, user }) {
               variant="h6" 
               sx={{ 
                 fontWeight: 700, 
-                color: "#FF8C00",
+                color: "#1E3A8A",
                 fontSize: "1.1rem",
                 mb: 0.5,
               }}
@@ -200,10 +200,10 @@ export default function Sidebar({ open, onClose, user }) {
               borderRadius: 2,
               mb: 1,
               '&.Mui-selected': {
-                backgroundColor: '#FF8C00',
+                backgroundColor: '#1E3A8A',
                 color: '#ffffff',
                 '&:hover': {
-                  backgroundColor: '#E67C00',
+                  backgroundColor: '#3B82F6',
                 },
               },
               '&.Mui-selected .MuiListItemIcon-root': {
@@ -213,11 +213,11 @@ export default function Sidebar({ open, onClose, user }) {
                 color: '#64748b',
                 transition: 'all 0.2s ease',
                 '&:hover': {
-                  backgroundColor: 'rgba(255, 140, 0, 0.08)',
-                  color: '#FF8C00',
+                  backgroundColor: 'rgba(30, 58, 138, 0.08)',
+                  color: '#1E3A8A',
                 },
                 '&:hover .MuiListItemIcon-root': {
-                  color: '#FF8C00',
+                  color: '#1E3A8A',
                 },
               },
             }}
@@ -241,10 +241,10 @@ export default function Sidebar({ open, onClose, user }) {
               borderRadius: 2,
               mb: 1,
               '&.Mui-selected': {
-                backgroundColor: '#FF8C00',
+                backgroundColor: '#1E3A8A',
                 color: '#ffffff',
                 '&:hover': {
-                  backgroundColor: '#E67C00',
+                  backgroundColor: '#3B82F6',
                 },
               },
               '&.Mui-selected .MuiListItemIcon-root': {
@@ -254,11 +254,11 @@ export default function Sidebar({ open, onClose, user }) {
                 color: '#64748b',
                 transition: 'all 0.2s ease',
                 '&:hover': {
-                  backgroundColor: 'rgba(255, 140, 0, 0.08)',
-                  color: '#FF8C00',
+                  backgroundColor: 'rgba(30, 58, 138, 0.08)',
+                  color: '#1E3A8A',
                 },
                 '&:hover .MuiListItemIcon-root': {
-                  color: '#FF8C00',
+                  color: '#1E3A8A',
                 },
               },
             }}
@@ -282,10 +282,10 @@ export default function Sidebar({ open, onClose, user }) {
               borderRadius: 2,
               mb: 1,
               '&.Mui-selected': {
-                backgroundColor: '#FF8C00',
+                backgroundColor: '#1E3A8A',
                 color: '#ffffff',
                 '&:hover': {
-                  backgroundColor: '#E67C00',
+                  backgroundColor: '#3B82F6',
                 },
               },
               '&.Mui-selected .MuiListItemIcon-root': {
@@ -295,11 +295,11 @@ export default function Sidebar({ open, onClose, user }) {
                 color: '#64748b',
                 transition: 'all 0.2s ease',
                 '&:hover': {
-                  backgroundColor: 'rgba(255, 140, 0, 0.08)',
-                  color: '#FF8C00',
+                  backgroundColor: 'rgba(30, 58, 138, 0.08)',
+                  color: '#1E3A8A',
                 },
                 '&:hover .MuiListItemIcon-root': {
-                  color: '#FF8C00',
+                  color: '#1E3A8A',
                 },
               },
             }}
@@ -323,10 +323,10 @@ export default function Sidebar({ open, onClose, user }) {
               borderRadius: 2,
               mb: 1,
               '&.Mui-selected': {
-                backgroundColor: '#FF8C00',
+                backgroundColor: '#1E3A8A',
                 color: '#ffffff',
                 '&:hover': {
-                  backgroundColor: '#E67C00',
+                  backgroundColor: '#3B82F6',
                 },
               },
               '&.Mui-selected .MuiListItemIcon-root': {
@@ -336,11 +336,11 @@ export default function Sidebar({ open, onClose, user }) {
                 color: '#64748b',
                 transition: 'all 0.2s ease',
                 '&:hover': {
-                  backgroundColor: 'rgba(255, 140, 0, 0.08)',
-                  color: '#FF8C00',
+                  backgroundColor: 'rgba(30, 58, 138, 0.08)',
+                  color: '#1E3A8A',
                 },
                 '&:hover .MuiListItemIcon-root': {
-                  color: '#FF8C00',
+                  color: '#1E3A8A',
                 },
               },
             }}
@@ -363,7 +363,7 @@ export default function Sidebar({ open, onClose, user }) {
         p: 3, 
         mt: 'auto',
         borderTop: '1px solid rgba(0,0,0,0.06)',
-        backgroundColor: 'rgba(255, 140, 0, 0.02)',
+        backgroundColor: 'rgba(30, 58, 138, 0.02)',
       }}>
         <Typography 
           variant="caption" 

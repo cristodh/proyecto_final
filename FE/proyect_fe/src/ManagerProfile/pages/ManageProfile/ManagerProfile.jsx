@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { Box } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
 
-import Header from "../../components/ManagerHeader";
-import ManagerSidebar from "../../components/ManagerSidebar";
+import ManagerHeader from "../../components/ManagerHeader/ManagerHeader";
+import ManagerSidebar from "../../components/ManagerSidebar/ManagerSidebar";
 
 // Vistas
 import ManagerSummary from "../../components/ManagerSummary/ManagerSummary";
@@ -47,10 +47,10 @@ export default function ManagerProfile() {
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "grey.50" }}>
       {/* Header */}
-      <Header />
+      <ManagerHeader />
 
       {/* Layout Principal */}
-      <Box sx={{ display: "flex", mt: 2 }}>
+      <Box sx={{ display: "flex" }}>
         {/* Sidebar */}
         <ManagerSidebar view={view} setView={setView} />
 

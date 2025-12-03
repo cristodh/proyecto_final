@@ -1,4 +1,4 @@
-// src/ManagerProfile/components/HeaderUser/HeaderUser.jsx
+// src/ManagerProfile/components/ManagerHeader/ManagerHeader.jsx
 import React from "react";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
@@ -10,14 +10,13 @@ import Button from "@mui/material/Button";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MenuIcon from "@mui/icons-material/Menu";
 import HomeIcon from "@mui/icons-material/Home";
-import ExploreIcon from "@mui/icons-material/Explore";
 import LogoutIcon from "@mui/icons-material/Logout";
 import Avatar from "@mui/material/Avatar";
 import userIcon from "../../../imgs/UserIcon.png";
 import LogoFundify from "../../../imgs/LogoFundifyClose.png";
 import { useNavigate } from "react-router-dom";
 
-export default function HeaderUser({ onToggleSidebar, user}) {
+export default function ManagerHeader({ onToggleSidebar, user}) {
   const navigate = useNavigate();
 
   // Función para cerrar sesión
@@ -56,10 +55,10 @@ export default function HeaderUser({ onToggleSidebar, user}) {
       color="transparent" 
       elevation={0} 
       sx={{ 
-        borderBottom: "1px solid rgba(255,140,0,0.08)", 
+        borderBottom: "1px solid rgba(30,58,138,0.08)",
         bgcolor: (t) => `${t.palette.background.default}cc`,
         backdropFilter: "blur(20px)",
-        boxShadow: "0 2px 20px rgba(255,140,0,0.04)",
+        boxShadow: "0 2px 20px rgba(30,58,138,0.04)",
       }}
     >
       <Toolbar sx={{ 
@@ -100,25 +99,6 @@ export default function HeaderUser({ onToggleSidebar, user}) {
             Inicio
           </Button>
           <Button 
-            startIcon={<ExploreIcon />} 
-            onClick={() => navigate('/explorar-proyectos')} 
-            sx={{ 
-              textTransform: "none",
-              color: "#64748b",
-              fontWeight: 500,
-              px: 2,
-              py: 1,
-              borderRadius: 2,
-              transition: "all 0.2s ease",
-              '&:hover': {
-                color: "#FF8C00",
-                bgcolor: "rgba(255, 140, 0, 0.08)",
-              }
-            }}
-          >
-            Explorar Proyectos
-          </Button>
-          <Button 
             startIcon={<LogoutIcon />} 
             onClick={handleLogout} 
             sx={{ 
@@ -148,7 +128,7 @@ export default function HeaderUser({ onToggleSidebar, user}) {
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <Avatar alt="user-icon" src={userIcon} onClick={() => navigate('/manager_profile/main')} sx={{ cursor: "pointer" ,'&:hover': {
-              boxShadow: "0 0 0 2px #FF8C00",
+              boxShadow: "0 0 0 2px #1E3A8A",
               transform: "scale(1.05)",
               }
              }} />

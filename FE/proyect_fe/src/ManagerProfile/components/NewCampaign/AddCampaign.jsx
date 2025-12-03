@@ -30,6 +30,14 @@ export default function AddCampaign({ onClose }) {
     coverImage: null,
     gallery: [],
     story: "",
+    // Nuevos campos
+    projectSections: [], // Array de {name: "", goal: ""}
+    startDate: "",
+    endDate: "",
+    permissions: "",
+    contactPhone: "",
+    contactEmail: "",
+    slogan: "",
   });
 
   // ---------------------------
@@ -105,8 +113,8 @@ export default function AddCampaign({ onClose }) {
         justifyContent: "space-between", 
         alignItems: "center",
         p: 3,
-        borderBottom: "1px solid rgba(255, 140, 0, 0.1)",
-        bgcolor: "rgba(255, 140, 0, 0.02)"
+        borderBottom: "1px solid rgba(30, 58, 138, 0.1)",
+        bgcolor: "rgba(30, 58, 138, 0.02)"
       }}>
         <Typography variant="h5" sx={{ fontWeight: 700, color: "#1a202c" }}>
           Crear Nuevo Proyecto
@@ -119,8 +127,8 @@ export default function AddCampaign({ onClose }) {
               p: 1, 
               color: "#64748b",
               '&:hover': {
-                bgcolor: "rgba(255, 140, 0, 0.08)",
-                color: "#FF8C00"
+                bgcolor: "rgba(30, 58, 138, 0.08)",
+                color: "#3B82F6"
               }
             }}
           >
@@ -135,10 +143,10 @@ export default function AddCampaign({ onClose }) {
           alternativeLabel
           sx={{
             '& .MuiStepIcon-root.Mui-active': {
-              color: '#FF8C00',
+              color: '#3B82F6',
             },
             '& .MuiStepIcon-root.Mui-completed': {
-              color: '#FF8C00',
+              color: '#1E3A8A',
             },
             mb: 3
           }}

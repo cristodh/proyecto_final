@@ -4,16 +4,16 @@ import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
-import Sidebar from "../../components/SideBar/Sidebar";
-import Header from "../../components/HeaderUser/HeaderUser";
-import MetricCard from "../../components/ManagerMainPage/MetricCard/MetricCard";
+import ManagerSidebar from "../../../components/ManagerSidebar/ManagerSidebar";
+import ManagerHeader from "../../../components/ManagerHeader/ManagerHeader";
+import MetricCard from "../../../components/ManagerMainPage/MetricCard/MetricCard";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import PeopleIcon from "@mui/icons-material/People";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
-import { getData } from "../../../Register/services/fetch";
+import { getData } from "../../../../Register/services/fetch";
 import { 
   LineChart, 
   Line, 
@@ -56,11 +56,11 @@ export default function ManagerAnalytics() {
   ];
 
   const categoryData = [
-    { name: "Educación", value: 35, color: "#FF8C00" },
-    { name: "Salud", value: 25, color: "#FF6B35" },
-    { name: "Medio Ambiente", value: 20, color: "#F7931E" },
-    { name: "Tecnología", value: 12, color: "#FFB76B" },
-    { name: "Cultura", value: 8, color: "#FFCC9C" }
+    { name: "Educación", value: 35, color: "#1E3A8A" },
+    { name: "Salud", value: 25, color: "#3B82F6" },
+    { name: "Medio Ambiente", value: 20, color: "#60A5FA" },
+    { name: "Tecnología", value: 12, color: "#93C5FD" },
+    { name: "Cultura", value: 8, color: "#DBEAFE" }
   ];
 
   useEffect(() => {
@@ -77,12 +77,12 @@ export default function ManagerAnalytics() {
     <Box sx={{
       display: "flex",
       minHeight: "100vh",
-      background: "linear-gradient(135deg, #fef7f0 0%, #fff4e6 25%, #fef7f0 50%, #fff8f3 75%, #fef7f0 100%)",
+      background: "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 25%, #f1f5f9 50%, #f8fafc 75%, #f1f5f9 100%)",
     }}>
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} user={userLogged} />
+      <ManagerSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} user={userLogged} />
 
       <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
-        <Header onToggleSidebar={toggleSidebar} user={userLogged} />
+        <ManagerHeader onToggleSidebar={toggleSidebar} user={userLogged} />
 
         <Box sx={{ flex: 1, ml: { xs: 0, md: "280px" }, pt: 2 }}>
           <Container maxWidth="lg" sx={{ py: 2 }}>
@@ -173,27 +173,27 @@ export default function ManagerAnalytics() {
                         ]}
                         contentStyle={{
                           backgroundColor: 'white',
-                          border: '1px solid #FF8C00',
+                          border: '1px solid #3B82F6',
                           borderRadius: '8px',
-                          boxShadow: '0 4px 6px rgba(255,140,0,0.2)'
+                          boxShadow: '0 4px 6px rgba(59,130,246,0.2)'
                         }}
                       />
                       <Legend />
                       <Line 
                         type="monotone" 
                         dataKey="recaudado" 
-                        stroke="#FF8C00" 
+                        stroke="#3B82F6" 
                         strokeWidth={3}
-                        dot={{ fill: '#FF8C00', strokeWidth: 2, r: 4 }}
+                        dot={{ fill: '#3B82F6', strokeWidth: 2, r: 4 }}
                         name="Recaudado"
                       />
                       <Line 
                         type="monotone" 
                         dataKey="meta" 
-                        stroke="#E67C00" 
+                        stroke="#1E3A8A" 
                         strokeDasharray="5 5"
                         strokeWidth={2}
-                        dot={{ fill: '#E67C00', strokeWidth: 2, r: 3 }}
+                        dot={{ fill: '#1E3A8A', strokeWidth: 2, r: 3 }}
                         name="Meta"
                       />
                     </LineChart>
@@ -238,7 +238,7 @@ export default function ManagerAnalytics() {
                         formatter={(value) => [`${value}%`, 'Porcentaje']}
                         contentStyle={{
                           backgroundColor: 'white',
-                          border: '1px solid #FF8C00',
+                          border: '1px solid #3B82F6',
                           borderRadius: '8px'
                         }}
                       />
@@ -281,15 +281,15 @@ export default function ManagerAnalytics() {
                       <Tooltip 
                         contentStyle={{
                           backgroundColor: 'white',
-                          border: '1px solid #FF8C00',
+                          border: '1px solid #3B82F6',
                           borderRadius: '8px',
-                          boxShadow: '0 4px 6px rgba(255,140,0,0.2)'
+                          boxShadow: '0 4px 6px rgba(59,130,246,0.2)'
                         }}
                       />
                       <Legend />
-                      <Bar dataKey="nuevos" fill="#FF8C00" name="Nuevos Donadores" radius={[2, 2, 0, 0]} />
-                      <Bar dataKey="activos" fill="#E67C00" name="Donadores Activos" radius={[2, 2, 0, 0]} />
-                      <Bar dataKey="retenidos" fill="#CC6600" name="Donadores Retenidos" radius={[2, 2, 0, 0]} />
+                      <Bar dataKey="nuevos" fill="#3B82F6" name="Nuevos Donadores" radius={[2, 2, 0, 0]} />
+                      <Bar dataKey="activos" fill="#1E3A8A" name="Donadores Activos" radius={[2, 2, 0, 0]} />
+                      <Bar dataKey="retenidos" fill="#60A5FA" name="Donadores Retenidos" radius={[2, 2, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </Paper>
@@ -302,8 +302,8 @@ export default function ManagerAnalytics() {
                   sx={{
                     p: 3,
                     borderRadius: 3,
-                    border: "1px solid rgba(255,140,0,0.1)",
-                    background: "linear-gradient(135deg, rgba(255, 140, 0, 0.02) 0%, rgba(255, 140, 0, 0.01) 100%)",
+                    border: "1px solid rgba(30,58,138,0.1)",
+                    background: "linear-gradient(135deg, rgba(30, 58, 138, 0.02) 0%, rgba(30, 58, 138, 0.01) 100%)",
                   }}
                 >
                   <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }}>
@@ -313,7 +313,7 @@ export default function ManagerAnalytics() {
                   <Grid container spacing={3}>
                     <Grid item xs={12} md={4}>
                       <Box sx={{ textAlign: "center", p: 2 }}>
-                        <Typography variant="h4" sx={{ color: "#FF8C00", fontWeight: 700 }}>
+                        <Typography variant="h4" sx={{ color: "#3B82F6", fontWeight: 700 }}>
                           85%
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
@@ -333,7 +333,7 @@ export default function ManagerAnalytics() {
                     </Grid>
                     <Grid item xs={12} md={4}>
                       <Box sx={{ textAlign: "center", p: 2 }}>
-                        <Typography variant="h4" sx={{ color: "#4F46E5", fontWeight: 700 }}>
+                        <Typography variant="h4" sx={{ color: "#1E3A8A", fontWeight: 700 }}>
                           92%
                         </Typography>
                         <Typography variant="body2" color="text.secondary">

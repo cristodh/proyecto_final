@@ -117,14 +117,14 @@ export default function AddCampaignStep4({ data, onBack, onSubmit, goToStep }) {
                   <Typography
                     variant="body2"
                     fontWeight={600}
-                    sx={{ color: "#FF8C00" }}
+                    sx={{ color: "#3B82F6" }}
                   >
                     Paso 4 de 4
                   </Typography>
                   <Typography
                     variant="body2"
                     fontWeight={600}
-                    sx={{ color: "#FF8C00" }}
+                    sx={{ color: "#3B82F6" }}
                   >
                     100%
                   </Typography>
@@ -144,7 +144,7 @@ export default function AddCampaignStep4({ data, onBack, onSubmit, goToStep }) {
                       width: "100%",
                       height: "100%",
                       borderRadius: 5,
-                      bgcolor: "#FF8C00",
+                      bgcolor: "#3B82F6",
                     }}
                   />
                 </Box>
@@ -204,10 +204,10 @@ export default function AddCampaignStep4({ data, onBack, onSubmit, goToStep }) {
                   minWidth: 150,
                   textTransform: "none",
                   fontWeight: 700,
-                  borderColor: "#FF8C00",
-                  color: "#FF8C00",
+                  borderColor: "#3B82F6",
+                  color: "#3B82F6",
                   '&:hover': {
-                    borderColor: "#E67C00",
+                    borderColor: "#1E3A8A",
                     bgcolor: "rgba(255, 140, 0, 0.08)"
                   }
                 }}
@@ -220,14 +220,14 @@ export default function AddCampaignStep4({ data, onBack, onSubmit, goToStep }) {
                 variant="contained"
                 sx={{
                   minWidth: 180,
-                  bgcolor: allRequiredValid ? "#FF8C00" : "#ccc",
+                  bgcolor: allRequiredValid ? "#3B82F6" : "#ccc",
                   color: "white",
                   textTransform: "none",
                   fontWeight: 700,
                   fontSize: "0.95rem",
                   py: 1.2,
                   "&:hover": { 
-                    bgcolor: allRequiredValid ? "#E67C00" : "#ccc"
+                    bgcolor: allRequiredValid ? "#1E3A8A" : "#ccc"
                   },
                   "&:disabled": {
                     bgcolor: "#ccc",

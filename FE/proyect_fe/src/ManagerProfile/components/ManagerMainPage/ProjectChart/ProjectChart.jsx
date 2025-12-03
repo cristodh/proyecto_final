@@ -4,7 +4,7 @@ import Box from "@mui/material/Box";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 /**
- * Professional bar chart component using Recharts library with orange theme
+ * Professional bar chart component using Recharts library with blue corporate theme
  * Accepts `data` array of {label, value} objects
  */
 export default function ProjectChart({ data = [
@@ -42,15 +42,15 @@ export default function ProjectChart({ data = [
           <Tooltip
             contentStyle={{
               backgroundColor: 'white',
-              border: '1px solid #FF8C00',
+              border: '1px solid #3B82F6',
               borderRadius: '8px',
-              boxShadow: '0 4px 6px rgba(255,140,0,0.2)'
+              boxShadow: '0 4px 6px rgba(59,130,246,0.2)'
             }}
-            cursor={{ fill: 'rgba(255,140,0,0.1)' }}
+            cursor={{ fill: 'rgba(59,130,246,0.1)' }}
           />
           <Bar 
             dataKey="value" 
-            fill="#FF8C00"
+            fill="#3B82F6"
             radius={[4, 4, 0, 0]}
           >
           </Bar>

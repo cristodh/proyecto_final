@@ -13,10 +13,10 @@ import DonorMain from '../DonorProfile/pages/DonorMain/DonorMain'
 import DonorFollowed from '../DonorProfile/pages/DonorFollowed/DonorFollowed'
 import DonationHistoryPage from '../DonorProfile/pages/DonationHistoryPage/DonationHistoryPage'
 import DonorConfig from '../DonorProfile/pages/DonorConfig/DonorConfig'
-import ManagerMain from '../ManagerProfile/pages/ManagerMain/ManagerMain'
-import ManagerCampaigns from '../ManagerProfile/pages/ManagerCampaigns/ManagerCampaigns'
-import ManagerAnalytics from '../ManagerProfile/pages/ManagerAnalytics/ManagerAnalytics'
-import ManagerConfig from '../ManagerProfile/pages/ManagerConfig/ManagerConfig'
+import ManagerMain from '../ManagerProfile/pages/ManageProfile/ManagerMain/ManagerMain.jsx'
+import ManagerCampaigns from '../ManagerProfile/pages/ManageProfile/ManagerCampaigns/ManagerCampaigns.jsx'
+import ManagerAnalytics from '../ManagerProfile/pages/ManageProfile/ManagerAnalytics/ManagerAnalytics.jsx'
+import ManagerConfig from '../ManagerProfile/pages/ManageProfile/ManagerConfig/ManagerConfig.jsx'
 
 
 

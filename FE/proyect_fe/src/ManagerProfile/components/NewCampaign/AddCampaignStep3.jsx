@@ -118,7 +118,7 @@ export default function AddCampaignStep3({ data, update, next, back }) {
               sx={{
                 '& .MuiOutlinedInput-root': {
                   '&.Mui-focused fieldset': {
-                    borderColor: '#FF8C00',
+                    borderColor: '#3B82F6',
                   },
                 },
               }}
@@ -149,7 +149,7 @@ export default function AddCampaignStep3({ data, update, next, back }) {
               sx={{
                 '& .MuiOutlinedInput-root': {
                   '&.Mui-focused fieldset': {
-                    borderColor: '#FF8C00',
+                    borderColor: '#3B82F6',
                   },
                 },
               }}
@@ -181,7 +181,7 @@ export default function AddCampaignStep3({ data, update, next, back }) {
               sx={{
                 '& .MuiOutlinedInput-root': {
                   '&.Mui-focused fieldset': {
-                    borderColor: '#FF8C00',
+                    borderColor: '#3B82F6',
                   },
                 },
               }}
@@ -204,10 +204,10 @@ export default function AddCampaignStep3({ data, update, next, back }) {
               variant="outlined" 
               onClick={back}
               sx={{
-                borderColor: "#FF8C00",
-                color: "#FF8C00",
+                borderColor: "#3B82F6",
+                color: "#3B82F6",
                 '&:hover': {
-                  borderColor: "#E67C00",
+                  borderColor: "#1E3A8A",
                   bgcolor: "rgba(255, 140, 0, 0.08)"
                 }
               }}
@@ -221,10 +221,10 @@ export default function AddCampaignStep3({ data, update, next, back }) {
               sx={{ 
                 textTransform: "none", 
                 fontWeight: 700,
-                bgcolor: "#FF8C00",
+                bgcolor: "#3B82F6",
                 color: "white",
                 '&:hover': {
-                  bgcolor: "#E67C00",
+                  bgcolor: "#1E3A8A",
                 }
               }}
             >
