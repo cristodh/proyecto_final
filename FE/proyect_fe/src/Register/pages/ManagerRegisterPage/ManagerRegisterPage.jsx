@@ -1,7 +1,7 @@
 // src/pages/ManagerRegisterPage.jsx
 import { Box } from "@mui/material";
 import { useState } from "react";
-import Header from "../../components/Header/Header";
+import Header from "../../../components/MainHeader/MainHeader";
 import ManagerForm from "../../components/ManagerForm/ManagerForm";
 import OrganizationForm from "../../components/OrganizationForm/OrganizationForm";
 

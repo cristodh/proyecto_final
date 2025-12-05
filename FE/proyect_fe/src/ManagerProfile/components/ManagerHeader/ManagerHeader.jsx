@@ -56,7 +56,7 @@ export default function ManagerHeader({ onToggleSidebar, user}) {
       elevation={0} 
       sx={{ 
         borderBottom: "1px solid rgba(30,58,138,0.08)",
-        bgcolor: (t) => `${t.palette.background.default}cc`,
+        bgcolor: "rgba(240, 249, 255, 0.8)",
         backdropFilter: "blur(20px)",
         boxShadow: "0 2px 20px rgba(30,58,138,0.04)",
       }}

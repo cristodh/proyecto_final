@@ -1,6 +1,6 @@
 // src/pages/RegisterPage.jsx
 import { Box } from "@mui/material";
-import Header from "../../components/Header/Header";
+import Header from "../../../components/MainHeader/MainHeader";
 import DonorForm from "../../components/DonorForm/DonorForm";
 
 export default function RegisterPage() {

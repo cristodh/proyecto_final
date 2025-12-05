@@ -11,9 +11,9 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useNavigate } from "react-router-dom";
-import logoFundify from "../../../imgs/LogoFundifyClose.png";
+import logoFundify from "../../imgs/LogoFundifyClose.png";
 
-export default function Header() {
+export default function MainHeader() {
   const theme = useTheme();
   const isMdUp = useMediaQuery(theme.breakpoints.up("md"));
   const navigate = useNavigate();

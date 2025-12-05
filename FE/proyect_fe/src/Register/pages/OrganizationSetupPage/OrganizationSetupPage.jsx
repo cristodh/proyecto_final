@@ -1,6 +1,6 @@
 // src/pages/OrganizationSetupPage.jsx
 import { Box } from "@mui/material";
-import Header from "../../components/Header/Header";
+import Header from "../../../components/MainHeader/MainHeader";
 import OrganizationForm from "../../components/OrganizationForm/OrganizationForm";
 
 export default function OrganizationSetupPage() {

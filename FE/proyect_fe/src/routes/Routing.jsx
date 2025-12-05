@@ -17,6 +17,7 @@ import ManagerMain from '../ManagerProfile/pages/ManageProfile/ManagerMain/Manag
 import ManagerCampaigns from '../ManagerProfile/pages/ManageProfile/ManagerCampaigns/ManagerCampaigns.jsx'
 import ManagerAnalytics from '../ManagerProfile/pages/ManageProfile/ManagerAnalytics/ManagerAnalytics.jsx'
 import ManagerConfig from '../ManagerProfile/pages/ManageProfile/ManagerConfig/ManagerConfig.jsx'
+import ExploreProjectsPage from '../ProjectExplorer/pages/ExploreProjectsPage.jsx'
 
 
 
@@ -26,6 +27,7 @@ const Routing = ()=>{
             <Routes>
                 <Route path='/' element={<HomePage/>}/>
                 <Route path='/about-us' element={<AboutPage/>}/>
+                <Route path='/explore-projects' element={<ExploreProjectsPage/>}/>
                 <Route path='/auth-user' element={<RegisterLoginPage/>}/>
                 <Route path='/register-donor' element={<DonorRegisterPage/>}/>
                 <Route path='/register-manager' element={<ManagerRegisterPage/>}/>

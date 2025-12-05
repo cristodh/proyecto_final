@@ -99,7 +99,7 @@ export default function DonorMain() {
   // Logros del donador
   const [achievements] = useState([
     { name: "Primer Donador", description: "Primera donación realizada", earned: true },
-    { name: "Corazón Generoso", description: "10+ proyectos apoyados", earned: true },
+    { name: "Corazón Generoso", description: "10+ proyectos apoyados", earned: true }, 
     { name: "Impacto Verde", description: "Apoyo a proyectos ambientales", earned: true },
     { name: "Filántropo", description: "₡100,000+ donados", earned: false }
   ]);

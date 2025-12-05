@@ -22,7 +22,7 @@ export default function Topbar({ onOpenSidebar }) {
       py: 1.5,
       borderBottom: 1,
       borderColor: "custom.borderLight",
-      bgcolor: "background.default",
+      bgcolor: "rgba(240, 249, 255, 0.8)",
       position: "sticky",
       top: 0,
       zIndex: 9

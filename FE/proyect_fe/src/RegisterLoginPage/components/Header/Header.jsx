@@ -12,7 +12,7 @@ export default function Header() {
       elevation={0}
       sx={{
         borderBottom: "1px solid #cfe7d7",
-        background: (t) => `${t.palette.background.default}cc`,
+        background: "rgba(240, 249, 255, 0.8)",
         color: "#0d1b12",
         px: { xs: 2, md: 6 },
         backdropFilter: "blur(6px)",

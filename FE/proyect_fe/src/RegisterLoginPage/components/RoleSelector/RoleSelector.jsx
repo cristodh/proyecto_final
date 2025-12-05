@@ -12,7 +12,7 @@ const roles = [
   {
     label: "Gestor de Proyectos",
     desc: "Crea iniciativas y conecta con financiamiento.",
-    icon: <LightbulbIcon sx={{ fontSize: 40, color: "accent.main" }} />,
+    icon: <LightbulbIcon sx={{ fontSize: 40, color: "#1E3A8A" }} />,
   },
 ];
 

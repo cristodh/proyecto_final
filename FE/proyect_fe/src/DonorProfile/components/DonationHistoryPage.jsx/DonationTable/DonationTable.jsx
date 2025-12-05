@@ -39,7 +39,7 @@ export default function DonationTable({ donations = [] }) {
       <TableContainer component={Paper} sx={{ border: 1, borderColor: "divider", borderRadius: 2 }}>
         <Table>
           <TableHead>
-            <TableRow sx={{ backgroundColor: "background.default" }}>
+            <TableRow sx={{ backgroundColor: "#f0f9ff" }}>
               <TableCell>Fecha</TableCell>
               <TableCell>Proyecto</TableCell>
               <TableCell align="right">Monto</TableCell>

@@ -20,7 +20,7 @@ export default function Header() {
 
   return (
     <AppBar position="sticky" elevation={0} sx={{
-      bgcolor: (t) => `${t.palette.background.default}cc`, // slight transparency
+      bgcolor: "rgba(240, 249, 255, 0.8)", // slight transparency
       borderBottom: 1,
       borderColor: theme.palette.custom?.borderLight || "#cfe7d7",
       backdropFilter: "blur(6px)",

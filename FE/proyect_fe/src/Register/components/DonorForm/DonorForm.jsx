@@ -135,7 +135,7 @@ export default function DonorForm() {
           <Typography
             sx={{
               fontSize: "16px",
-              color: "#2A9D8F",
+              color: "# ",
             }}
           >
             Únete a nuestra comunidad y apoya proyectos que transforman vidas.

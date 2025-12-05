@@ -65,7 +65,7 @@ export default function AdminDashboard() {
 
   return (
     
-    <Box sx={{ display: "flex", minHeight: "100vh", bgcolor: "background.default" }}>
+    <Box sx={{ display: "flex", minHeight: "100vh", background: "linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 25%, #f8fafc 50%, #f1f5f9 75%, #f0f9ff 100%)" }}>
       <Sidebar mobileOpen={mobileOpen} onMobileClose={handleCloseSidebar} />
 
       <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>

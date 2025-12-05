@@ -8,7 +8,7 @@ import Link from "@mui/material/Link";
 
 export default function Footer() {
   return (
-    <Box component="footer" sx={{ bgcolor: "background.default", borderTop: 1, borderColor: "divider", py: 6 }}>
+    <Box component="footer" sx={{ background: "linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 25%, #f8fafc 50%, #f1f5f9 75%, #f0f9ff 100%)", borderTop: 1, borderColor: "divider", py: 6 }}>
       <Container maxWidth="lg">
         <Grid container spacing={4}>
           <Grid item xs={6} md={3}>
@@ -16,22 +16,12 @@ export default function Footer() {
             <Box sx={{ mt: 1 }}>
               <Link display="block" href="#">Sobre Nosotros</Link>
               <Link display="block" href="#">Contacto</Link>
-              <Link display="block" href="#">FAQs</Link>
             </Box>
           </Grid>
           <Grid item xs={6} md={3}>
             <Typography variant="overline">Legal</Typography>
             <Box sx={{ mt: 1 }}>
               <Link display="block" href="#">Términos y Condiciones</Link>
-              <Link display="block" href="#">Política de Privacidad</Link>
-            </Box>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <Typography variant="overline">Síguenos</Typography>
-            <Box sx={{ mt: 1, display: "flex", gap: 2 }}>
-              <Link href="#" aria-label="Facebook">Facebook</Link>
-              <Link href="#" aria-label="Twitter">Twitter</Link>
-              <Link href="#" aria-label="Instagram">Instagram</Link>
             </Box>
           </Grid>
         </Grid>

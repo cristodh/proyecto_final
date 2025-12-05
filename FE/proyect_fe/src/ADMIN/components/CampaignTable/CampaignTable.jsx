@@ -25,7 +25,7 @@ export default function CampaignTable() {
       <TableContainer sx={{ maxHeight: 420 }}>
         <Table stickyHeader>
           <TableHead>
-            <TableRow sx={{ backgroundColor: "background.default" }}>
+            <TableRow sx={{ backgroundColor: "#f0f9ff" }}>
               <TableCell>Nombre del Proyecto</TableCell>
               <TableCell>Gestor del Proyecto</TableCell>
               <TableCell>Progreso</TableCell>

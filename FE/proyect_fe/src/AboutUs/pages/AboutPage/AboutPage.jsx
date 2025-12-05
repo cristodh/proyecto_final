@@ -10,7 +10,7 @@ import Container from "@mui/material/Container";
 
 export default function AboutPage() {
   return (
-    <Box sx={{ minHeight: "100vh", display: "flex", flexDirection: "column", bgcolor: "background.default" }}>
+    <Box sx={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 25%, #f8fafc 50%, #f1f5f9 75%, #f0f9ff 100%)" }}>
       <Header />
       <Box component="main" sx={{ flex: 1, py: { xs: 2, md: 4 } }}>
         <Hero />

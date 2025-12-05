@@ -1,6 +1,6 @@
 // src/pages/HomePage.jsx
 import React from "react";
-import Header from "../../components/Header/Header";
+import Header from "../../../components/MainHeader/MainHeader";
 import Hero from "../../components/Hero/Hero";
 import FeaturedCarousel from "../../components/FeaturedCarousel/FeaturedCarousel";
 import Stats from "../../components/Stats/Stats";

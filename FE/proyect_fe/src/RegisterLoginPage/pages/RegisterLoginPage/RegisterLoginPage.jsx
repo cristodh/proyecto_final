@@ -26,7 +26,7 @@ export default function RegisterLoginPage() {
       <Box
         sx={{
           minHeight: "calc(100vh - 64px)", // Resta la altura del header
-          backgroundColor: "background.default",
+          background: "linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 25%, #f8fafc 50%, #f1f5f9 75%, #f0f9ff 100%)",
           display: "flex",
           justifyContent: "center",
           alignItems: "center", // Vuelve a center para centrado
@@ -66,7 +66,7 @@ export default function RegisterLoginPage() {
                   variant="h6"
                   fontWeight={700}
                   textAlign="center"
-                  color="secondary"
+                  color="black"
                 >
                   Únete como
                 </Typography>
