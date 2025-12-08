@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import Visibility from "@mui/icons-material/Visibility";
 import { useState } from "react";
-import { postData } from "../../../Register/services/fetch";
+import { postData } from "../../../services/fetch";
 import { useNavigate } from "react-router-dom";
 
 export default function AuthForm({ mode, onTabChange }) {
@@ -33,6 +33,7 @@ export default function AuthForm({ mode, onTabChange }) {
     if (response.message === 'Login successful') {
       setAlert({ open: true, message: 'Login Exitoso', severity: 'success' })
       localStorage.setItem('id', response.id)
+      localStorage.setItem('token',response.token)
       setTimeout(() => navigate("/donor_profile/main"), 1500)
     } else {
       setAlert({ open: true, message: 'Correo y/o contraseña invalidos', severity: 'error' })

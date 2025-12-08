@@ -23,7 +23,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import PendingIcon from "@mui/icons-material/Pending";
 import { useState,useEffect } from "react";
-import { getData } from "../../../Register/services/fetch";
+import { getData, tokenGetData } from "../../../services/fetch";
 
 export default function DonationHistoryPage() {
   const theme = useTheme();
@@ -34,7 +34,7 @@ export default function DonationHistoryPage() {
   useEffect(() => { // el useEffect se usa para cargar la informacion en la pagina al momento de renderizarla y se puede controlar de muchas maneras
     async function getUser() { 
       try {
-        const response = await getData(`user/user_id/${localStorage.getItem('id')}/`) // aqui hacemos la peticion a la BD para obtener la informacion del usuario loggeado que esta en el LocalStorage
+        const response = await tokenGetData(`user/user_id/${localStorage.getItem('id')}/`) // aqui hacemos la peticion a la BD para obtener la informacion del usuario loggeado que esta en el LocalStorage
         if (response && response[0]) {
           setUserLogged(response[0]) // aqui guardamos la respuesta en el estado userLogged y ponemos response[0] porque la respuesta es un array con un solo objeto y es el unico que tenemos ya que solo llamamos a un ID
         } else {

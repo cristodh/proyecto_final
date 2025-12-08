@@ -2,6 +2,7 @@ import {BrowserRouter as Router, Routes, Route} from 'react-router-dom'
 // import DonationHistoryPage from '../DonorProfile/pages/DonationHistoryPage/DonationHistoryPage'
 import HomePage from '../HomePage/pages/HomePage/HomePage'
 import ProtectedRoute from './ProtectedRoute'
+import AdminProtectedRoute from './AdminProtectedRoute'
 import AboutPage from '../AboutUs/pages/AboutPage/AboutPage'
 import AdminDashboard from '../ADMIN/pages/AdminDashboard/AdminDashboard'
 import RegisterLoginPage from '../RegisterLoginPage/pages/RegisterLoginPage/RegisterLoginPage'
@@ -39,7 +40,8 @@ const Routing = ()=>{
                 <Route path='/manager_profile/campaigns' element={<ManagerCampaigns/>}/>
                 <Route path='/manager_profile/analytics' element={<ManagerAnalytics/>}/>
                 <Route path='/manager_profile/config' element={<ManagerConfig/>}/>
-                <Route path='/admin-main' element={<AdminDashboard/>}/>
+                <Route path='/admin/dashboard' element={<AdminProtectedRoute><AdminDashboard/></AdminProtectedRoute>}/>
+                <Route path='/admin-main' element={<AdminProtectedRoute><AdminDashboard/></AdminProtectedRoute>}/>
                 <Route path='/semeolvidolaclaveyporesoquierorecuperarlasesuponequemevaallegaruncorreo' element={<RecoveryPass/>}/>
                 <Route path='*' element={<FundifyNotFoundPage/>}/>
                 

@@ -8,7 +8,7 @@ import Footer from "../../components/Footer/Footer";
 import Box from "@mui/material/Box";
 import HeaderUser from "../../../DonorProfile/components/HeaderUser/HeaderUser";
 import { useState,useEffect } from "react";
-import { getData } from "../../../Register/services/fetch";
+import { getData } from "../../../services/fetch";
 
 
 

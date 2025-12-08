@@ -13,7 +13,7 @@ import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
-import { getData } from "../../../../Register/services/fetch";
+import { getData } from "../../../../services/fetch";
 import { 
   LineChart, 
   Line, 

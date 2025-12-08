@@ -15,7 +15,7 @@ import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
 import { backdropClasses } from "@mui/material";
-import { getData } from "../../../../Register/services/fetch";
+import { getData } from "../../../../services/fetch";
 
 export default function ManagerMain() {
   const [sidebarOpen, setSidebarOpen] = useState(false);

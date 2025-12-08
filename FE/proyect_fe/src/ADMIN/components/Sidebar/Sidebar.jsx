@@ -19,9 +19,15 @@ import { useTheme } from "@mui/material/styles";
 
 const drawerWidth = 260;
 
-export default function Sidebar({ mobileOpen, onMobileClose, activeKey = "dashboard" }) {
+export default function Sidebar({ mobileOpen, onMobileClose, activeKey = "dashboard", onSectionChange }) {
   const theme = useTheme();
   const mdUp = useMediaQuery(theme.breakpoints.up("md"));
+
+  const handleItemClick = (sectionKey) => {
+    if (onSectionChange) {
+      onSectionChange(sectionKey);
+    }
+  };
 
   const content = (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column", pt: 2 }}>
@@ -35,11 +41,36 @@ export default function Sidebar({ mobileOpen, onMobileClose, activeKey = "dashbo
       </Box>
 
       <List sx={{ px: 1 }}>
-        <SidebarItem icon={<DashboardIcon />} label="Panel Principal" active={activeKey === "dashboard"} />
-        <SidebarItem icon={<CampaignIcon />} label="Campañas" active={activeKey === "campaigns"} />
-        <SidebarItem icon={<GavelIcon />} label="Moderación" active={activeKey === "moderation"} />
-        <SidebarItem icon={<MonitoringIcon />} label="Reportes de Impacto" active={activeKey === "reports"} />
-        <SidebarItem icon={<GroupIcon />} label="Gestión de Usuarios" active={activeKey === "users"} />
+        <SidebarItem 
+          icon={<DashboardIcon />} 
+          label="Panel Principal" 
+          active={activeKey === "dashboard"}
+          onClick={() => handleItemClick("dashboard")}
+        />
+        <SidebarItem 
+          icon={<CampaignIcon />} 
+          label="Campañas" 
+          active={activeKey === "campaigns"}
+          onClick={() => handleItemClick("campaigns")}
+        />
+        <SidebarItem 
+          icon={<GavelIcon />} 
+          label="Moderación" 
+          active={activeKey === "moderation"}
+          onClick={() => handleItemClick("moderation")}
+        />
+        <SidebarItem 
+          icon={<MonitoringIcon />} 
+          label="Reportes de Impacto" 
+          active={activeKey === "reports"}
+          onClick={() => handleItemClick("reports")}
+        />
+        <SidebarItem 
+          icon={<GroupIcon />} 
+          label="Gestión de Usuarios" 
+          active={activeKey === "users"}
+          onClick={() => handleItemClick("users")}
+        />
       </List>
 
       <Box sx={{ mt: "auto", px: 1, pb: 2 }}>

@@ -10,9 +10,8 @@ import {
   Link,
   CircularProgress,
 } from "@mui/material";
-import { getData } from "../../../Register/services/fetch";
+import { getData, postData } from "../../../services/fetch";
 import { ToastContainer, toast } from "react-toastify";
-import { postData } from "../../../Register/services/fetch";
 export default function RecoveryPass() {
 
   const [loading, setLoading] = useState(false);

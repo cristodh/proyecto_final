@@ -34,7 +34,7 @@ import ProfileForm from "../../components/DonorConfigPage/ProfileForm";
 import SecurityForm from "../../components/DonorConfigPage/SecurityForm";
 import NotificationPreferences from "../../components/DonorConfigPage/NotificationPreferences";
 import { useEffect,useState } from "react";
-import { getData } from "../../../Register/services/fetch.js";
+import { getData, tokenGetData } from "../../../services/fetch";
 
 export const DonorConfig = () => {
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
@@ -48,7 +48,7 @@ export const DonorConfig = () => {
   useEffect(() => { 
     async function getUser() { 
       try {
-        const response = await getData(`user/user_id/${localStorage.getItem('id')}/`);
+        const response = await tokenGetData(`user/user_id/${localStorage.getItem('id')}/`);
         setUserLogged(response[0]);
       } catch (error) {
         console.error('Error loading user data:', error);

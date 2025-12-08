@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import IsAuthenticated,IsAdminUser # los permisos para validar si el usuario esta autenticado (inicio sesion)
 
 from .models import User
 from .models import Role
@@ -26,6 +27,7 @@ class RoleListCreateView(ListCreateAPIView):
     serializer_class = RoleSerializer # usar el RoleSerializer para traducir la info (TRADUCE EL MODELO A JSON)
 
 class Key_interestsListCreateView(ListCreateAPIView):
+    permission_classes = [IsAdminUser]  # Requiere autenticación para acceder a esta vista
     queryset = Key_interests.objects.all() # traer todos los Key_interests (MODELO)
     serializer_class = Key_interestsSerializer # usar el Key_interestsSerializer para traducir la info (TRADUCE EL MODELO A JSON)
 
@@ -46,15 +48,56 @@ class UserLoginView(APIView):
         else:
             return Response({'message':'Invalid credentials'},status=401)
 
-# Pista  Se usa el ListCreateAPIView.
-# Pista  Se usa el UserSerializer.
-# Pista hay que modificar el queryset para que traiga solo los usuarios por id desde el localstorage
+# Login para administradores
+class AdminLoginView(APIView):
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+
+        user = authenticate(username=username, password=password)
+
+        if user is not None:
+            # Verificar si el usuario es administrador
+            # El usuario debe tener un rol de admin o estar en is_staff/is_superuser
+            if user.is_staff or user.is_superuser or (hasattr(user, 'role') and user.role and 'admin' in str(user.role).lower()):
+                token = RefreshToken.for_user(user)
+                return Response({
+                    'message': 'Admin login successful',
+                    'id': user.id,
+                    'token': str(token.access_token),
+                    'is_admin': True
+                })
+            else:
+                return Response({'message': 'User is not an administrator'}, status=403)
+        else:
+            return Response({'message': 'Invalid credentials'}, status=401)
+
+# Vista para obtener datos del admin autenticado
+# class GetAdminView(APIView):
+#     permission_classes = [IsAuthenticated]
+    
+#     def get(self, request):
+#         """Obtener datos del admin autenticado usando el token"""
+#         user = request.user
+        
+#         # Verificar que sea admin
+#         if not (user.is_staff or user.is_superuser or (hasattr(user, 'role') and user.role and 'admin' in str(user.role).lower())):
+#             return Response({'message': 'User is not an administrator'}, status=403)
+        
+#         serializer = UserSerializer(user)
+#         return Response({
+#             'message': 'Admin data retrieved successfully',
+#             'admin': serializer.data,
+#             'is_admin': True
+#         }, status=200)
 
 
 class UserByID(ListCreateAPIView):
     method = 'get'
     serializer_class = UserSerializer  # Usa el serializador de usuario
 
+    permission_classes = [IsAuthenticated] # obligamos que para el uso de la vista, el usuario tenga que estar autenticado
+    
     # Sobrescribimos get_queryset para filtrar por ID
     def get_queryset(self):
         # Obtener el ID desde la URL (pk = primary key)
@@ -116,7 +159,88 @@ class RecoverPasswordView(APIView):
                 return Response({'message': 'New password not provided'}, status=400)
         except RecoveryCode.DoesNotExist:
             return Response({'message': 'Invalid recovery code'}, status=400)
+
+# Vista para actualizar y eliminar usuarios
+class UserUpdateDeleteView(APIView):
+    permission_classes = [IsAuthenticated]  # Requiere autenticación
+    
+    def put(self, request):
+        """Actualizar un usuario existente"""
+        user_id = request.data.get('id')
         
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({'message': 'User not found'}, status=404)
+        
+        # Actualizar campos permitidos
+        if 'role' in request.data:
+            try:
+                role = Role.objects.get(role=request.data['role'])
+                user.role = role
+            except Role.DoesNotExist:
+                return Response({'message': 'Role not found'}, status=404)
+        
+        if 'active' in request.data:
+            user.active = request.data['active']
+        
+        if 'first_name' in request.data:
+            user.first_name = request.data['first_name']
+        
+        if 'last_name' in request.data:
+            user.last_name = request.data['last_name']
+        
+        if 'email' in request.data:
+            user.email = request.data['email']
+        
+        user.save()
+        serializer = UserSerializer(user)
+        return Response({'message': 'User updated successfully', 'user': serializer.data}, status=200)
+    
+    def delete(self, request):
+        """Eliminar un usuario"""
+        user_id = request.query_params.get('id')
+        
+        if not user_id:
+            return Response({'message': 'User ID is required'}, status=400)
+        
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({'message': 'User not found'}, status=404)
+        
+        user.delete()
+        return Response({'message': 'User deleted successfully'}, status=200)
+
 #TODO: Implementar la vista para aprobar organizaciones
 class ApproveOrganization(APIView):
     pass
+
+
+class CreateAdminUser(APIView):
+    permission_classes = [IsAdminUser]  # Solo administradores pueden crear otros administradorees
+    def post(self,request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+        email = request.data.get('email')
+
+
+        User.objects.create_superuser(
+            username=username,
+            password=password,
+            email=email,
+            phone_number='0000000000',
+            date_of_birth='2000-01-01',
+            first_name='Admin',
+            last_name='User',
+            address='Admin Address',
+            goverment_ID='ADMIN0000',
+            gender='Other',
+            role=Role.objects.filter(id=5).first(),
+        )
+
+        return Response({'message':'Admin user created successfully'},status=201)
+
+
+        
+

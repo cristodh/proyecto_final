@@ -17,7 +17,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
-import { getData } from "../../../../Register/services/fetch";
+import { getData } from "../../../../services/fetch";
 
 export default function ManagerCampaigns() {
   const [sidebarOpen, setSidebarOpen] = useState(false);

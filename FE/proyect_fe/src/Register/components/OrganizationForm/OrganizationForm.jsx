@@ -10,7 +10,7 @@ import {
   FormControl,
 } from "@mui/material";
 
-import { postData } from "../../services/fetch";
+import { postData } from "../../../services/fetch";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
@@ -21,10 +21,20 @@ export default function OrganizationForm() {
   const [organizationData, setOrganizationData] = useState({
     organization_name: "",
     organization_type: "",
-    tax_id: "",
+    organization_type_other: "", // Campo adicional para cuando selecciona "Otra"
+    tax_id: "", // Cédula Jurídica en Costa Rica
     website: "",
     experience_years: "",
     focus_area: "",
+    legal_representative: "", // Representante legal
+    legal_rep_id: "", // Cédula del representante
+    phone: "", // Teléfono de contacto
+    email: "", // Email oficial de la organización
+    address: "", // Dirección física
+    province: "", // Provincia en Costa Rica
+    canton: "", // Cantón
+    district: "", // Distrito
+    description: "", // Descripción de la organización
   });
 
   // Manejador de inputs
@@ -41,14 +51,35 @@ export default function OrganizationForm() {
   const validateForm = () => {
     const requiredFields = [
       "organization_name", "organization_type", "tax_id", 
-      "experience_years", "focus_area"
+      "experience_years", "focus_area", "legal_representative",
+      "legal_rep_id", "phone", "email", "address", "province",
+      "canton", "district"
     ];
 
     for (let field of requiredFields) {
       if (!organizationData[field].trim()) {
-        toast.error(`Por favor, completa el campo: ${field.replace("_", " ")}`);
+        toast.error(`Por favor, completa el campo: ${field.replace(/_/g, " ")}`);
         return false;
       }
+    }
+
+    // Validar que si selecciona "Otra", especifique el tipo
+    if (organizationData.organization_type === "Otra" && !organizationData.organization_type_other.trim()) {
+      toast.error("Por favor, especifica el tipo de organización");
+      return false;
+    }
+
+    // Validar formato de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(organizationData.email)) {
+      toast.error("Por favor, ingresa un email válido");
+      return false;
+    }
+
+    // Validar formato de cédula jurídica (10 dígitos en Costa Rica)
+    if (organizationData.tax_id.length !== 10) {
+      toast.error("La cédula jurídica debe tener 10 dígitos");
+      return false;
     }
 
     return true;
@@ -64,29 +95,47 @@ export default function OrganizationForm() {
 
     try {
       // Obtener el ID del usuario desde localStorage
-      const userId = localStorage.getItem('id');
+      const userId = localStorage.getItem('userId');
       
       if (!userId) {
         toast.error("Error de sesión. Por favor, vuelve a iniciar sesión.");
         navigate('/auth-user');
+        localStorage.clear()
         return;
       }
+      console.log(organizationData);
+      
 
       // Preparar datos para envío a la tabla organizations
       const finalData = {
-        ...organizationData,
-        manager_id: userId,
-      };
+        organization_name: organizationData.organization_name,
+        organization_type: organizationData.organization_type === "Otra" ? organizationData.organization_type_other : organizationData.organization_type,
+        website: organizationData.website || "N/A",
+        focus_area: organizationData.focus_area,
+        manager: localStorage.getItem('userId'),
+        address: organizationData.address,
+        canton: organizationData.canton,
+        description: organizationData.description || "N/A",
+        district: organizationData.district,
+        email: organizationData.email,
+        experience_years: organizationData.experience_years,
+        legal_rep_id: organizationData.legal_rep_id,
+        legal_representative: organizationData.legal_representative,
+        organization_type_other: organizationData.organization_type_other,
+        phone: organizationData.phone,
+        province:organizationData.province,
+        tax_id: organizationData.tax_id
+       };
 
-      const response = await postData("organizations/", finalData);
+      const response = await postData("organization/create_organization/", finalData);
 
-      if (!response.ok) {
-        toast.error("Error al registrar la organización. Inténtalo de nuevo.");
-        return;
-      }
+       if (!response.ok) {
+         toast.error("Error al registrar la organización. Inténtalo de nuevo.");
+         return;
+       }
 
       toast.success("¡Organización registrada exitosamente!");
-      setTimeout(() => navigate("/auth-user"), 1500); // Redirigir al login
+       setTimeout(() => navigate("/auth-user"), 1500); // Redirigir al login
 
     } catch (error) {
       console.error('Error:', error);
@@ -189,14 +238,31 @@ export default function OrganizationForm() {
             </FormControl>
           </Grid>
 
+          {/* Campo adicional cuando selecciona "Otra" */}
+          {organizationData.organization_type === "Otra" && (
+            <Grid item xs={12} sm={5.8}>
+              <Typography sx={{ pb: 1, fontWeight: 500, color: "#0d1b12" }}>
+                Especifica el tipo de organización
+              </Typography>
+              <TextField
+                fullWidth
+                placeholder="Ej: Asociación sin fines de lucro"
+                name="organization_type_other"
+                value={organizationData.organization_type_other}
+                onChange={handleInputChange}
+                InputProps={{ sx: inputStyle }}
+              />
+            </Grid>
+          )}
+
           {/* RUC/Tax ID */}
           <Grid item xs={12} sm={5.8}>
             <Typography sx={{ pb: 1, fontWeight: 500, color: "#0d1b12" }}>
-              RUC/Tax ID
+              Cédula Jurídica
             </Typography>
             <TextField
               fullWidth
-              placeholder="Número de identificación fiscal"
+              placeholder="Número de cédula jurídica"
               name="tax_id"
               value={organizationData.tax_id}
               onChange={handleInputChange}
@@ -222,7 +288,7 @@ export default function OrganizationForm() {
           {/* Años de experiencia */}
           <Grid item xs={12} sm={5.8}>
             <Typography sx={{ pb: 1, fontWeight: 500, color: "#0d1b12" }}>
-              Años de experiencia
+              Años de fundación
             </Typography>
             <FormControl fullWidth>
               <Select
@@ -268,6 +334,156 @@ export default function OrganizationForm() {
                 <MenuItem value="Otra">Otra</MenuItem>
               </Select>
             </FormControl>
+          </Grid>
+
+          {/* Representante Legal */}
+          <Grid item xs={12} sm={5.8}>
+            <Typography sx={{ pb: 1, fontWeight: 500, color: "#0d1b12" }}>
+              Representante Legal
+            </Typography>
+            <TextField
+              fullWidth
+              placeholder="Nombre completo del representante"
+              name="legal_representative"
+              value={organizationData.legal_representative}
+              onChange={handleInputChange}
+              InputProps={{ sx: inputStyle }}
+            />
+          </Grid>
+
+          {/* Cédula del Representante */}
+          <Grid item xs={12} sm={5.8}>
+            <Typography sx={{ pb: 1, fontWeight: 500, color: "#0d1b12" }}>
+              Cédula del Representante
+            </Typography>
+            <TextField
+              fullWidth
+              placeholder="Número de cédula"
+              name="legal_rep_id"
+              value={organizationData.legal_rep_id}
+              onChange={handleInputChange}
+              InputProps={{ sx: inputStyle }}
+            />
+          </Grid>
+
+          {/* Teléfono */}
+          <Grid item xs={12} sm={5.8}>
+            <Typography sx={{ pb: 1, fontWeight: 500, color: "#0d1b12" }}>
+              Teléfono de Contacto
+            </Typography>
+            <TextField
+              fullWidth
+              placeholder="8888-8888"
+              name="phone"
+              value={organizationData.phone}
+              onChange={handleInputChange}
+              InputProps={{ sx: inputStyle }}
+            />
+          </Grid>
+
+          {/* Email */}
+          <Grid item xs={12} sm={5.8}>
+            <Typography sx={{ pb: 1, fontWeight: 500, color: "#0d1b12" }}>
+              Email Oficial
+            </Typography>
+            <TextField
+              fullWidth
+              placeholder="contacto@organizacion.cr"
+              name="email"
+              type="email"
+              value={organizationData.email}
+              onChange={handleInputChange}
+              InputProps={{ sx: inputStyle }}
+            />
+          </Grid>
+
+          {/* Provincia */}
+          <Grid item xs={12} sm={5.8}>
+            <Typography sx={{ pb: 1, fontWeight: 500, color: "#0d1b12" }}>
+              Provincia
+            </Typography>
+            <FormControl fullWidth>
+              <Select
+                name="province"
+                value={organizationData.province}
+                onChange={handleInputChange}
+                sx={inputStyle}
+                displayEmpty
+              >
+                <MenuItem value="" disabled>Selecciona la provincia</MenuItem>
+                <MenuItem value="San José">San José</MenuItem>
+                <MenuItem value="Alajuela">Alajuela</MenuItem>
+                <MenuItem value="Cartago">Cartago</MenuItem>
+                <MenuItem value="Heredia">Heredia</MenuItem>
+                <MenuItem value="Guanacaste">Guanacaste</MenuItem>
+                <MenuItem value="Puntarenas">Puntarenas</MenuItem>
+                <MenuItem value="Limón">Limón</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+
+          {/* Cantón */}
+          <Grid item xs={12} sm={5.8}>
+            <Typography sx={{ pb: 1, fontWeight: 500, color: "#0d1b12" }}>
+              Cantón
+            </Typography>
+            <TextField
+              fullWidth
+              placeholder="Ej: San José, Escazú, etc."
+              name="canton"
+              value={organizationData.canton}
+              onChange={handleInputChange}
+              InputProps={{ sx: inputStyle }}
+            />
+          </Grid>
+
+          {/* Distrito */}
+          <Grid item xs={12} sm={5.8}>
+            <Typography sx={{ pb: 1, fontWeight: 500, color: "#0d1b12" }}>
+              Distrito
+            </Typography>
+            <TextField
+              fullWidth
+              placeholder="Ej: Carmen, Merced, etc."
+              name="district"
+              value={organizationData.district}
+              onChange={handleInputChange}
+              InputProps={{ sx: inputStyle }}
+            />
+          </Grid>
+
+          {/* Dirección física */}
+          <Grid item xs={12}>
+            <Typography sx={{ pb: 1, fontWeight: 500, color: "#0d1b12" }}>
+              Dirección Física
+            </Typography>
+            <TextField
+              fullWidth
+              multiline
+              rows={2}
+              placeholder="Dirección exacta de la organización"
+              name="address"
+              value={organizationData.address}
+              onChange={handleInputChange}
+              InputProps={{ sx: inputStyle }}
+            />
+          </Grid>
+
+          {/* Descripción */}
+          <Grid item xs={12}>
+            <Typography sx={{ pb: 1, fontWeight: 500, color: "#0d1b12" }}>
+              Descripción de la Organización (opcional)
+            </Typography>
+            <TextField
+              fullWidth
+              multiline
+              rows={4}
+              placeholder="Describe brevemente la misión y visión de tu organización..."
+              name="description"
+              value={organizationData.description}
+              onChange={handleInputChange}
+              InputProps={{ sx: inputStyle }}
+            />
           </Grid>
         </Grid>
 

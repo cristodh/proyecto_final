@@ -22,7 +22,7 @@ import SecurityIcon from "@mui/icons-material/Security";
 import BusinessIcon from "@mui/icons-material/Business";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
-import { getData } from "../../../../Register/services/fetch";
+import { getData } from "../../../../services/fetch";
 
 export default function ManagerConfig() {
   const [sidebarOpen, setSidebarOpen] = useState(false);

@@ -12,7 +12,7 @@ import {
   FormControlLabel,
 } from "@mui/material";
 
-import { postData } from "../../services/fetch";
+import { postData } from "../../../services/fetch";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
@@ -37,6 +37,7 @@ export default function ManagerForm({ onComplete }) {
     username: "",
     password: "",
     confirmPassword: "",
+    role: 3
   });
 
   const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -112,7 +113,7 @@ export default function ManagerForm({ onComplete }) {
     // Preparar datos específicos para gestor
     const managerData = {
       ...formData,
-      role: 2,
+      role: 3,
       active: false,
     };
     
@@ -135,7 +136,7 @@ export default function ManagerForm({ onComplete }) {
 
     // Guardar ID del usuario para la configuración de organización
     if (response.id) {
-      localStorage.setItem('id', response.id);
+      localStorage.setItem('userId', response.id);
       
     }
 
@@ -295,24 +296,14 @@ export default function ManagerForm({ onComplete }) {
             <Typography sx={{ pb: 1, fontWeight: 500, color: "#0d1b12" }}>
               Nacionalidad
             </Typography>
-            <FormControl fullWidth>
-              <Select
-                name="nationality"
-                value={formData.nationality}
-                onChange={handleInputChange}
-                sx={inputStyle}
-                displayEmpty
-              >
-                <MenuItem value="" disabled>
-                  Selecciona tu nacionalidad
-                </MenuItem>
-                <MenuItem value="Costarricense">Costarricense</MenuItem>
-                <MenuItem value="Estadounidense">Estadounidense</MenuItem>
-                <MenuItem value="Mexicana">Mexicana</MenuItem>
-                <MenuItem value="Española">Española</MenuItem>
-                <MenuItem value="Otra">Otra</MenuItem>
-              </Select>
-            </FormControl>
+              <TextField
+              fullWidth
+              placeholder="Tu nacionalidad"
+              name="nationality"
+              value={formData.nationality}
+              onChange={handleInputChange}
+              InputProps={{ sx: inputStyle }}
+            />
           </Grid>
 
           {/* Género */}
@@ -334,6 +325,7 @@ export default function ManagerForm({ onComplete }) {
                 <MenuItem value="M">Masculino</MenuItem>
                 <MenuItem value="F">Femenino</MenuItem>
                 <MenuItem value="O">Otro</MenuItem>
+                <MenuItem value="N">Prefiero no decirlo</MenuItem>  
               </Select>
             </FormControl>
           </Grid>

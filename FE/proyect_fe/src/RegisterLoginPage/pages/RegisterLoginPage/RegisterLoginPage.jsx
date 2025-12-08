@@ -1,14 +1,16 @@
 // pages/RegisterLoginPage.jsx
-import { Box, Paper, Tabs, Tab, Typography } from "@mui/material";
+import { Box, Paper, Tabs, Tab, Typography, Button } from "@mui/material";
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import Header from "../../components/Header/Header";
 import TopMessage from "../../components/TopMessage/TopMessage";
 import RoleSelector from "../../components/RoleSelector/RoleSelector";
 import AuthForm from "../../components/AuthForm/AuthForm";
+import AdminLoginForm from "../../components/AdminLoginForm/AdminLoginForm";
 
 export default function RegisterLoginPage() {
   const [tab, setTab] = useState(0);
+  const [isAdminLogin, setIsAdminLogin] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
@@ -19,6 +21,7 @@ export default function RegisterLoginPage() {
   }, [location]);
 
   const handleChange = (_, value) => setTab(value);
+  const handleBackFromAdmin = () => setIsAdminLogin(false);
 
   return (
     <>
@@ -38,47 +41,76 @@ export default function RegisterLoginPage() {
         <TopMessage />
 
         <Paper elevation={4} sx={{ mt: 4, borderRadius: 3 }}>
-          <Tabs
-            value={tab}
-            onChange={handleChange}
-            centered
-            sx={{
-              borderBottom: 1,
-              borderColor: "divider",
-            }}
-          >
-            <Tab label="Iniciar Sesión" />
-            <Tab label="Registrarse" />
-          </Tabs>
+          {!isAdminLogin ? (
+            <>
+              <Tabs
+                value={tab}
+                onChange={handleChange}
+                centered
+                sx={{
+                  borderBottom: 1,
+                  borderColor: "divider",
+                }}
+              >
+                <Tab label="Iniciar Sesión" />
+                <Tab label="Registrarse" />
+              </Tabs>
 
-          <Box sx={{ p: { xs: 3, sm: 4 } }}>
-            {tab === 1 && (
-              <>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  textAlign="center"
-                  mb={3}
-                >
-                  Selecciona tu rol para comenzar.
-                </Typography>
-                <Typography
-                  variant="h6"
-                  fontWeight={700}
-                  textAlign="center"
-                  color="black"
-                >
-                  Únete como
-                </Typography>
+              <Box sx={{ p: { xs: 3, sm: 4 } }}>
+                {tab === 1 && (
+                  <>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      textAlign="center"
+                      mb={3}
+                    >
+                      Selecciona tu rol para comenzar.
+                    </Typography>
+                    <Typography
+                      variant="h6"
+                      fontWeight={700}
+                      textAlign="center"
+                      color="black"
+                    >
+                      Únete como
+                    </Typography>
 
+                    <RoleSelector />
+                  </>
+                )}
 
-                <RoleSelector />
-                
-              </>
-            )}
+                <AuthForm mode={tab === 0 ? "login" : "register"} onTabChange={setTab} />
 
-            <AuthForm mode={tab === 0 ? "login" : "register"} onTabChange={setTab} />
-          </Box>
+                {/* Botón de Admin - Solo visible en login */}
+                {tab === 0 && (
+                  <Box sx={{ mt: 3, pt: 3, borderTop: 1, borderColor: "divider" }}>
+                    <Typography
+                      variant="body2"
+                      textAlign="center"
+                      color="text.secondary"
+                      mb={2}
+                    >
+                      ¿Eres administrador?
+                    </Typography>
+                    <Button
+                      fullWidth
+                      variant="outlined"
+                      color="primary"
+                      onClick={() => setIsAdminLogin(true)}
+                      sx={{ textTransform: "none" }}
+                    >
+                      Admin
+                    </Button>
+                  </Box>
+                )}
+              </Box>
+            </>
+          ) : (
+            <Box sx={{ p: { xs: 3, sm: 4 } }}>
+              <AdminLoginForm onBack={handleBackFromAdmin} />
+            </Box>
+          )}
         </Paper>
       </Box>
     </Box>
