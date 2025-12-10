@@ -11,6 +11,7 @@ from .views import RecoveryCodeAPIView
 from .views import RecoverPasswordView
 from .views import UserUpdateDeleteView
 from .views import CreateAdminUser
+from .views import DeleteRoleView
 
 urlpatterns = [
     path('new_users/', UserListCreateView.as_view()),
@@ -24,4 +25,5 @@ urlpatterns = [
     path('recover_password/', RecoverPasswordView.as_view()),
     path('update_delete/', UserUpdateDeleteView.as_view()),
     path('create_admin/', CreateAdminUser.as_view()),
+    path('delete_role/<int:id>/', DeleteRoleView.as_view()),
 ]
