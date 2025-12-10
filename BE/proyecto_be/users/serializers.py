@@ -4,6 +4,7 @@ from .models import User  # importar el modelo User
 from .models import Role
 from .models import Key_interests
 from .models import RecoveryCode
+from .models import RejectionReason
 from rest_framework import serializers, validators
 import re
 
@@ -14,9 +15,10 @@ class UserSerializer(ModelSerializer):
         validators=[validators.UniqueValidator(queryset=User.objects.all())]
     )
     role_name = serializers.CharField(source='role.role', read_only=True)
+    role_id = serializers.IntegerField(source='role.id', read_only=True)
     class Meta:
         model = User
-        fields = ['id', 'username', 'password', 'email', 'first_name', 'last_name', 'address','role_name',
+        fields = ['id', 'username', 'password', 'email', 'first_name', 'last_name', 'address','role_name', 'role_id',
               'phone_number', 'role', 'nationality', 'date_of_birth', 'goverment_ID', 'gender', 'date_joined','created_at' ,'active']
 
     def create(self, validated_data):
@@ -71,3 +73,14 @@ class RecoveryCodeSerializer(ModelSerializer):
     class Meta:
         model = RecoveryCode
         fields = '__all__'
+
+
+class RejectionReasonSerializer(ModelSerializer):
+    """
+    Serializer para el modelo RejectionReason
+    Permite crear y actualizar motivos de rechazo
+    """
+    class Meta:
+        model = RejectionReason
+        fields = ['id', 'user', 'rejection_reason', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at']

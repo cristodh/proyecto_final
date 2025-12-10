@@ -2,17 +2,51 @@ from django.db import models
 
 # Create your models here.
 class Campaign(models.Model):
+    # ============================================================
+    # CAMPOS BÁSICOS
+    # ============================================================
     name = models.CharField(max_length=100)
     description = models.TextField()
+    short_description = models.CharField(max_length=200, blank=True, null=True)
+    slogan = models.CharField(max_length=255, blank=True, null=True)
+    story = models.TextField(blank=True, null=True)
+    
+    # ============================================================
+    # CAMPOS DE FECHAS Y ESTADO
+    # ============================================================
     start_date = models.DateField()
     end_date = models.DateField()
-    goal_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    current_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    # ============================================================
+    # CAMPOS FINANCIEROS
+    # ============================================================
+    goal_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    current_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    
+    # ============================================================
+    # CAMPOS DE UBICACIÓN Y CATEGORÍA
+    # ============================================================
     location = models.CharField(max_length=255)
     category = models.ForeignKey('Category', on_delete=models.CASCADE)
+    
+    # ============================================================
+    # CAMPOS DE CONTACTO
+    # ============================================================
+    contact_phone = models.CharField(max_length=20, blank=True, null=True)
+    contact_email = models.EmailField(blank=True, null=True)
+    website = models.URLField(blank=True, null=True)
+    
+    # ============================================================
+    # CAMPOS ADICIONALES
+    # ============================================================
+    permissions = models.TextField(blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    
+    # ============================================================
+    # RELACIONES
+    # ============================================================
     creator = models.ForeignKey('users.User', on_delete=models.CASCADE)
 
     def __str__(self):

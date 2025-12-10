@@ -15,6 +15,28 @@ async function postData(endpoint,obj) {
    }
 }
 export { postData }
+
+
+async function authenticatedPostData(endpoint,obj) {
+   try {
+     const response = await fetch(`http://127.0.0.1:8000/${endpoint}`, {
+         method: 'POST',
+         headers: {
+             'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+         },
+         body: JSON.stringify(obj)
+     })
+     const data = await response.json()
+     data.ok = response.ok
+     return data
+   } catch (error) {
+        console.error('Error:', error)
+   }
+}
+export { authenticatedPostData }
+
+
 async function getData(endpoint) {
    try {
      const response = await fetch(`http://127.0.0.1:8000/${endpoint}`, {
@@ -40,13 +62,41 @@ async function getData(endpoint) {
 }
 export { getData }
 
+async function authenticatedGetData(endpoint) {
+   try {
+     const response = await fetch(`http://127.0.0.1:8000/${endpoint}`, {
+         method: 'GET',
+          headers:{
+          "Authorization": `Bearer ${localStorage.getItem('token')}`
+         }
+     })
+     
+     if (!response.ok) {
+       throw new Error(`HTTP error! status: ${response.status}`)
+     }
+     
+     const contentType = response.headers.get("content-type")
+     if (!contentType || !contentType.includes("application/json")) {
+       throw new Error("Response is not JSON")
+     }
+     
+     const data = await response.json()
+     data.ok = response.ok
+     return data
+   } catch (error) {
+        console.error('Error in getData:', error)
+        return null
+   }
+}
+export { authenticatedGetData }
+
 async function tokenGetData(endpoint) {
    try {
      const response = await fetch(`http://127.0.0.1:8000/${endpoint}`, {
          method: 'GET',
          headers:{
           "Authorization": `Bearer ${localStorage.getItem('token')}`
-         }
+        }
      })
      
      if (!response.ok) {

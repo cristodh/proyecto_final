@@ -11,11 +11,13 @@ from .models import User
 from .models import Role
 from .models import Key_interests
 from .models import RecoveryCode
+from .models import RejectionReason
 
 from .serializers import UserSerializer
 from .serializers import RoleSerializer
 from .serializers import Key_interestsSerializer
 from .serializers import RecoveryCodeSerializer
+from .serializers import RejectionReasonSerializer
 
 
 # ============================================================
@@ -59,7 +61,8 @@ class UserLoginView(APIView):
             return Response({
                 'message': 'Login successful',
                 'id': user.id,
-                'token': str(token.access_token)
+                'token': str(token.access_token),
+                'role_id': user.role.id if user.role else None
             })
         else:
             return Response({'message': 'Invalid credentials'}, status=401)
@@ -121,8 +124,21 @@ class UserUpdateDeleteView(APIView):
         
         # Actualizar campos permitidos
         if 'role' in request.data:
+            role_value = request.data['role']
             try:
-                role = Role.objects.get(role=request.data['role'])
+                # Intentar buscar por ID primero si es un número
+                if isinstance(role_value, int):
+                    role = Role.objects.get(id=role_value)
+                else:
+                    # Si es string, buscar por el campo 'role'
+                    role = Role.objects.get(role=role_value)
+                user.role = role
+            except Role.DoesNotExist:
+                return Response({'message': f'Role not found: {role_value}'}, status=404)
+        
+        if 'role_id' in request.data:
+            try:
+                role = Role.objects.get(id=request.data['role_id'])
                 user.role = role
             except Role.DoesNotExist:
                 return Response({'message': 'Role not found'}, status=404)
@@ -138,6 +154,24 @@ class UserUpdateDeleteView(APIView):
         
         if 'email' in request.data:
             user.email = request.data['email']
+        
+        if 'username' in request.data:
+            user.username = request.data['username']
+        
+        if 'phone_number' in request.data:
+            user.phone_number = request.data['phone_number']
+        
+        if 'date_of_birth' in request.data:
+            user.date_of_birth = request.data['date_of_birth']
+        
+        if 'goverment_ID' in request.data:
+            user.goverment_ID = request.data['goverment_ID']
+        
+        if 'gender' in request.data:
+            user.gender = request.data['gender']
+        
+        if 'nationality' in request.data:
+            user.nationality = request.data['nationality']
         
         user.save()
         serializer = UserSerializer(user)
@@ -275,3 +309,18 @@ class ApproveOrganization(APIView):
 #             'admin': serializer.data,
 #             'is_admin': True
 #         }, status=200)
+
+
+# ============================================================
+# VISTAS PARA RAZONES DE RECHAZO
+# ============================================================
+
+class RejectionReasonView(ListCreateAPIView):
+    """
+    Vista para manejar razones de rechazo de usuarios
+    - GET: Obtener razón de rechazo por user_id
+    - POST/PUT: Crear o actualizar razón de rechazo
+    """
+    permission_classes = [IsAdminUser]
+    queryset = RejectionReason.objects.all()
+    serializer_class = RejectionReasonSerializer

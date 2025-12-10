@@ -10,6 +10,7 @@ import {
   DialogActions
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
+import { postData } from "../../../../services/fetch";
 
 import AddCampaignStep1 from "./AddCampaignStep1";
 import AddCampaignStep2 from "./AddCampaignStep2";
@@ -60,13 +61,40 @@ export default function AddCampaign({ onClose }) {
   // ---------------------------
   // Enviar formulario final
   // ---------------------------
-  const onSubmit = () => {
-    console.log("📤 Enviando campaña final:", formData);
-    // Aquí va el POST real:
-    // await postData("/campaigns", formData);
+  const onSubmit = async () => {
+    // Mapear campos del formulario al modelo Django
+    const campaignData = {
+      name: formData.title,
+      description: formData.story || formData.shortDescription,
+      short_description: formData.shortDescription,
+      slogan: formData.slogan,
+      story: formData.story,
+      start_date: formData.startDate,
+      end_date: formData.endDate,
+      goal_amount: parseFloat(formData.goalAmount),
+      location: formData.location,
+      category: parseInt(formData.category) || 1, // ID de la categoría, default 1
+      contact_phone: formData.contactPhone,
+      contact_email: formData.contactEmail,
+      website: formData.website,
+      permissions: formData.permissions,
+    };
+
+    console.log("📤 Enviando campaña final:", campaignData);
     
-    // Cerrar el modal después de enviar
-    if (onClose) onClose();
+    try {
+      // Enviar POST al backend
+      const response = await postData("campaign/new_campaigns/", campaignData);
+      
+      if (response && response.ok) {
+        console.log("✅ Campaña creada exitosamente");
+        if (onClose) onClose();
+      } else {
+        console.error("❌ Error al crear campaña:", response);
+      }
+    } catch (error) {
+      console.error("❌ Error al enviar campaña:", error);
+    }
   };
 
   // ---------------------------

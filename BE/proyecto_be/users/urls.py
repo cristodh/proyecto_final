@@ -12,6 +12,7 @@ from .views import RecoverPasswordView
 from .views import UserUpdateDeleteView
 from .views import CreateAdminUser
 from .views import DeleteRoleView
+from .views import RejectionReasonView
 
 urlpatterns = [
     path('new_users/', UserListCreateView.as_view()),
@@ -26,4 +27,5 @@ urlpatterns = [
     path('update_delete/', UserUpdateDeleteView.as_view()),
     path('create_admin/', CreateAdminUser.as_view()),
     path('delete_role/<int:id>/', DeleteRoleView.as_view()),
+    path('rejection_reason/', RejectionReasonView.as_view()),
 ]

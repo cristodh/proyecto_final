@@ -42,6 +42,20 @@ class Key_interests(models.Model):
     def __str__(self):
         return self.interest
 
+class RejectionReason(models.Model):
+    """
+    Modelo para almacenar los motivos de rechazo de usuarios
+    Relacionado con User mediante FK - se elimina en cascada
+    """
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='rejection_reason')
+    rejection_reason = models.TextField(default='No se especificó motivo')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"Rejection reason for {self.user.username}"
+
+
 class Role(models.Model):
     ROLE_CHOICES = (
         ("Contributor","CONTRIBUTOR"),

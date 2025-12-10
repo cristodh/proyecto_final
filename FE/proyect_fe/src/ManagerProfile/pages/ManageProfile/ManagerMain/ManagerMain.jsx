@@ -15,7 +15,7 @@ import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
 import { backdropClasses } from "@mui/material";
-import { getData } from "../../../../services/fetch";
+import { authenticatedGetData, getData } from "../../../../services/fetch";
 
 export default function ManagerMain() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -26,7 +26,7 @@ export default function ManagerMain() {
   
   useEffect(()=>{ // el useEffect se usa para cargar la informacion en la pagina al momento de renderizarla y se puede controlar de muchas maneras
     async function getUser() { 
-      const response = await getData(`user/user_id/${localStorage.getItem('id')}/`) // aqui hacemos la peticion a la BD para obtener la informacion del usuario loggeado que esta en el LocalStorage
+      const response = await authenticatedGetData(`user/user_id/${localStorage.getItem('id')}/`) // aqui hacemos la peticion a la BD para obtener la informacion del usuario loggeado que esta en el LocalStorage
       setUserLogged(response[0]) // aqui guardamos la respuesta en el estado userLogged y ponemos response[0] porque la respuesta es un array con un solo objeto y es el unico que tenemos ya que solo llamamos a un ID
     }
       getUser(); // aqui llamamos a la funcion asyncrona que obtiene la informacion del usuario

@@ -146,12 +146,12 @@ export default function AddCampaignStep1({ data, update, next }) {
               },
             }}
           >
-            <MenuItem value="Medio Ambiente">Medio Ambiente</MenuItem>
-            <MenuItem value="Educación">Educación</MenuItem>
-            <MenuItem value="Salud">Salud</MenuItem>
-            <MenuItem value="Tecnología">Tecnología</MenuItem>
-            <MenuItem value="Cultura">Cultura</MenuItem>
-            <MenuItem value="Deportes">Deportes</MenuItem>
+            <MenuItem value={1}>Medio Ambiente</MenuItem>
+            <MenuItem value={2}>Educación</MenuItem>
+            <MenuItem value={3}>Salud</MenuItem>
+            <MenuItem value={4}>Tecnología</MenuItem>
+            <MenuItem value={5}>Cultura</MenuItem>
+            <MenuItem value={6}>Deportes</MenuItem>
           </TextField>
 
           <TextField
