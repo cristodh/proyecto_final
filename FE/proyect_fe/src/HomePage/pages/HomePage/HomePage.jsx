@@ -8,7 +8,7 @@ import Footer from "../../components/Footer/Footer";
 import Box from "@mui/material/Box";
 import HeaderUser from "../../../DonorProfile/components/HeaderUser/HeaderUser";
 import { useState,useEffect } from "react";
-import { getData } from "../../../services/fetch";
+import { getData, tokenGetData } from "../../../services/fetch";
 
 
 
@@ -18,7 +18,7 @@ export default function HomePage() {
     
     useEffect(()=>{ // el useEffect se usa para cargar la informacion en la pagina al momento de renderizarla y se puede controlar de muchas maneras
       async function getUser() { 
-        const response = await getData(`user/user_id/${localStorage.getItem('id')}/`) // aqui hacemos la peticion a la BD para obtener la informacion del usuario loggeado que esta en el LocalStorage
+        const response = await tokenGetData(`user/user_id/${localStorage.getItem('id')}/`) // aqui hacemos la peticion a la BD para obtener la informacion del usuario loggeado que esta en el LocalStorage
         setUserLogged(response[0]) // aqui guardamos la respuesta en el estado userLogged y ponemos response[0] porque la respuesta es un array con un solo objeto y es el unico que tenemos ya que solo llamamos a un ID
       }
         getUser(); // aqui llamamos a la funcion asyncrona que obtiene la informacion del usuario

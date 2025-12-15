@@ -6,11 +6,10 @@ import {
   StepLabel, 
   Paper,
   Typography,
-  Button,
-  DialogActions
+  Button
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
-import { postData } from "../../../../services/fetch";
+import { authenticatedPostData } from "../../../services/fetch";
 
 import AddCampaignStep1 from "./AddCampaignStep1";
 import AddCampaignStep2 from "./AddCampaignStep2";
@@ -31,26 +30,20 @@ export default function AddCampaign({ onClose }) {
     coverImage: null,
     gallery: [],
     story: "",
-    // Nuevos campos
-    projectSections: [], // Array de {name: "", goal: ""}
+    projectSections: [],
     startDate: "",
     endDate: "",
     permissions: "",
     contactPhone: "",
     contactEmail: "",
     slogan: "",
+    pdf_documents: [],  // 👈 AÑADIDO
   });
 
-  // ---------------------------
-  // Navegación entre pasos
-  // ---------------------------
   const onNext = () => setActiveStep((prev) => prev + 1);
   const onBack = () => setActiveStep((prev) => prev - 1);
   const goToStep = (step) => setActiveStep(step);
 
-  // ---------------------------
-  // Actualización del formulario
-  // ---------------------------
   const updateFormData = (newData) => {
     setFormData((prev) => ({
       ...prev,
@@ -58,11 +51,7 @@ export default function AddCampaign({ onClose }) {
     }));
   };
 
-  // ---------------------------
-  // Enviar formulario final
-  // ---------------------------
   const onSubmit = async () => {
-    // Mapear campos del formulario al modelo Django
     const campaignData = {
       name: formData.title,
       description: formData.story || formData.shortDescription,
@@ -73,22 +62,27 @@ export default function AddCampaign({ onClose }) {
       end_date: formData.endDate,
       goal_amount: parseFloat(formData.goalAmount),
       location: formData.location,
-      category: parseInt(formData.category) || 1, // ID de la categoría, default 1
+      category: parseInt(formData.category) || 1,
       contact_phone: formData.contactPhone,
       contact_email: formData.contactEmail,
       website: formData.website,
       permissions: formData.permissions,
+
+      // 👇 AHORA SÍ SE ENVÍA
+      pdf_documents: formData.pdf_documents,
+      cover_image: formData.coverImage,
     };
 
     console.log("📤 Enviando campaña final:", campaignData);
     
     try {
-      // Enviar POST al backend
-      const response = await postData("campaign/new_campaigns/", campaignData);
+      const response = await authenticatedPostData("campaign/new_campaigns/", campaignData);
       
       if (response && response.ok) {
         console.log("✅ Campaña creada exitosamente");
-        if (onClose) onClose();
+        // NOTE: Para seguir probando con el formulario ya lleno,
+        // bloqueamos el cierre automático del modal.
+        // if (onClose) onClose();
       } else {
         console.error("❌ Error al crear campaña:", response);
       }
@@ -97,9 +91,6 @@ export default function AddCampaign({ onClose }) {
     }
   };
 
-  // ---------------------------
-  // Render de cada paso
-  // ---------------------------
   const renderStep = () => {
     const stepProps = {
       data: formData,
@@ -111,13 +102,10 @@ export default function AddCampaign({ onClose }) {
     switch (activeStep) {
       case 0:
         return <AddCampaignStep1 {...stepProps} />;
-
       case 1:
         return <AddCampaignStep2 {...stepProps} />;
-
       case 2:
         return <AddCampaignStep3 {...stepProps} />;
-
       case 3:
         return (
           <AddCampaignStep4
@@ -127,7 +115,6 @@ export default function AddCampaign({ onClose }) {
             goToStep={goToStep}
           />
         );
-
       default:
         return null;
     }
@@ -135,7 +122,6 @@ export default function AddCampaign({ onClose }) {
 
   return (
     <Box sx={{ width: "100%", maxHeight: "80vh", overflow: "auto" }}>
-      {/* Header del modal */}
       <Box sx={{ 
         display: "flex", 
         justifyContent: "space-between", 
@@ -147,6 +133,7 @@ export default function AddCampaign({ onClose }) {
         <Typography variant="h5" sx={{ fontWeight: 700, color: "#1a202c" }}>
           Crear Nuevo Proyecto
         </Typography>
+
         {onClose && (
           <Button
             onClick={onClose}
@@ -169,15 +156,6 @@ export default function AddCampaign({ onClose }) {
         <Stepper 
           activeStep={activeStep} 
           alternativeLabel
-          sx={{
-            '& .MuiStepIcon-root.Mui-active': {
-              color: '#3B82F6',
-            },
-            '& .MuiStepIcon-root.Mui-completed': {
-              color: '#1E3A8A',
-            },
-            mb: 3
-          }}
         >
           {steps.map((label) => (
             <Step key={label}>

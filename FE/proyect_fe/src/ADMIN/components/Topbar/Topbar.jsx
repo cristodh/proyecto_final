@@ -3,7 +3,6 @@ import React from "react";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Button from "@mui/material/Button";
-import NotificationsIcon from "@mui/icons-material/Notifications";
 import LogoutIcon from "@mui/icons-material/Logout";
 import Avatar from "@mui/material/Avatar";
 import userIcon from "../../../imgs/UserIcon.png";
@@ -22,10 +21,8 @@ export default function Topbar({ onOpenSidebar, adminData }) {
     : 'Admin Fundify';
 
   const handleLogout = () => {
-    // Limpiar datos de administrador
-    localStorage.removeItem('token');
-    localStorage.removeItem('id');
-    localStorage.removeItem('isAdmin');
+    // Limpiar completamente el localStorage
+    localStorage.clear();
     // Redirigir al login
     navigate('/auth-user');
   };
@@ -54,10 +51,6 @@ export default function Topbar({ onOpenSidebar, adminData }) {
       </Box>
 
       <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-        <IconButton sx={{ border: 1, borderColor: "custom.borderLight", bgcolor: "custom.cardLight" }} aria-label="notifications">
-          <NotificationsIcon />
-        </IconButton>
-
         <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
           <Avatar src={userIcon} />
           <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>

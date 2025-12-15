@@ -200,21 +200,39 @@ class CreateAdminUser(APIView):
         password = request.data.get('password')
         email = request.data.get('email')
 
-        User.objects.create_superuser(
-            username=username,
-            password=password,
-            email=email,
-            phone_number='0000000000',
-            date_of_birth='2000-01-01',
-            first_name='Admin',
-            last_name='User',
-            address='Admin Address',
-            goverment_ID='ADMIN0000',
-            gender='Other',
-            role=Role.objects.filter(id=5).first(),
-        )
+        try:
+            # Verificar que los campos requeridos estén presentes
+            if not username or not password or not email:
+                return Response({
+                    'error': 'Username, password, and email are required'
+                }, status=400)
 
-        return Response({'message': 'Admin user created successfully'}, status=201)
+            # Crear el superusuario (admin)
+            admin_user = User.objects.create_superuser(
+                username=username,
+                password=password,
+                email=email,
+                phone_number='0000000000',
+                date_of_birth='2000-01-01',
+                first_name='Admin',
+                last_name='User',
+                address='Admin Address',
+                goverment_ID='ADMIN0000',
+                gender='Other',
+                role=Role.objects.filter(id=5).first(),
+            )
+
+            return Response({
+                'message': 'Admin user created successfully',
+                'ok': True,
+                'id': admin_user.id,
+                'username': admin_user.username
+            }, status=201)
+        except Exception as e:
+            return Response({
+                'error': str(e),
+                'ok': False
+            }, status=400)
 
 
 # ============================================================
@@ -315,12 +333,115 @@ class ApproveOrganization(APIView):
 # VISTAS PARA RAZONES DE RECHAZO
 # ============================================================
 
-class RejectionReasonView(ListCreateAPIView):
+class RejectionReasonView(APIView):
     """
     Vista para manejar razones de rechazo de usuarios
     - GET: Obtener razón de rechazo por user_id
-    - POST/PUT: Crear o actualizar razón de rechazo
+    - POST: Crear o actualizar razón de rechazo
+    - PUT: Actualizar razón de rechazo
     """
     permission_classes = [IsAdminUser]
-    queryset = RejectionReason.objects.all()
-    serializer_class = RejectionReasonSerializer
+
+    def get(self, request):
+        """
+        GET: Obtener motivo de rechazo de un usuario
+        Parámetro: user_id (query parameter)
+        """
+        user_id = request.query_params.get('user_id')
+        
+        if not user_id:
+            return Response(
+                {'error': 'user_id parameter is required'},
+                status=400
+            )
+        
+        try:
+            rejection_reason = RejectionReason.objects.get(user_id=user_id)
+            serializer = RejectionReasonSerializer(rejection_reason)
+            return Response(serializer.data, status=200)
+        except RejectionReason.DoesNotExist:
+            return Response(
+                {'message': 'No rejection reason found for this user'},
+                status=404
+            )
+
+    def post(self, request):
+        """
+        POST: Crear o actualizar motivo de rechazo
+        Body: {user: user_id, rejection_reason: "texto"}
+        """
+        user_id = request.data.get('user')
+        rejection_reason_text = request.data.get('rejection_reason')
+        
+        if not user_id or not rejection_reason_text:
+            return Response(
+                {'error': 'user and rejection_reason are required'},
+                status=400
+            )
+        
+        try:
+            # Intenta obtener el registro existente
+            rejection_reason, created = RejectionReason.objects.update_or_create(
+                user_id=user_id,
+                defaults={'rejection_reason': rejection_reason_text}
+            )
+            
+            serializer = RejectionReasonSerializer(rejection_reason)
+            status_code = 201 if created else 200
+            message = "Rejection reason created successfully" if created else "Rejection reason updated successfully"
+            
+            return Response({
+                'message': message,
+                'data': serializer.data
+            }, status=status_code)
+        except User.DoesNotExist:
+            return Response(
+                {'error': 'User not found'},
+                status=404
+            )
+        except Exception as e:
+            return Response(
+                {'error': str(e)},
+                status=500
+            )
+
+    def put(self, request):
+        """
+        PUT: Actualizar motivo de rechazo
+        Body: {user: user_id, rejection_reason: "texto"}
+        """
+        user_id = request.data.get('user')
+        rejection_reason_text = request.data.get('rejection_reason')
+        
+        if not user_id or not rejection_reason_text:
+            return Response(
+                {'error': 'user and rejection_reason are required'},
+                status=400
+            )
+        
+        try:
+            rejection_reason = RejectionReason.objects.get(user_id=user_id)
+            rejection_reason.rejection_reason = rejection_reason_text
+            rejection_reason.save()
+            
+            serializer = RejectionReasonSerializer(rejection_reason)
+            
+            return Response({
+                'message': "Rejection reason updated successfully",
+                'data': serializer.data
+            }, status=200)
+        except RejectionReason.DoesNotExist:
+            return Response(
+                {'error': 'Rejection reason not found for this user'},
+                status=404
+            )
+        except User.DoesNotExist:
+            return Response(
+                {'error': 'User not found'},
+                status=404
+            )
+        except Exception as e:
+            return Response(
+                {'error': str(e)},
+                status=500
+            )

@@ -6,7 +6,7 @@ import { useTheme } from "@mui/material/styles";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import Topbar from "../../components/Topbar/Topbar";
 import DashboardMain from "./sections/DashboardMain";
-import CampaignsSection from "./sections/CampaignsSection";
+import { CampaignsSection } from "../../components/CampaignsSection";
 import ModerationSection from "./sections/ModerationSection";
 import ImpactReportsSection from "./sections/ImpactReportsSection";
 import UserManagementSection from "./sections/UserManagementSection";
@@ -27,9 +27,12 @@ export default function AdminDashboard() {
     const fetchAdminData = async () => {
       setLoading(true);
       try {
-        const response = await getAdminData('user/get_admin/');
-        if (response && response.admin) {
-          setAdminData(response.admin);
+        const userId = localStorage.getItem('id');
+        if (userId) {
+          const response = await getAdminData(`user/user_id/${userId}/`);
+          if (response) {
+            setAdminData(response);
+          }
         }
       } catch (error) {
         console.error('Error fetching admin data:', error);

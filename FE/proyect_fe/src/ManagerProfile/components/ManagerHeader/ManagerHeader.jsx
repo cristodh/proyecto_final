@@ -5,9 +5,7 @@ import Toolbar from "@mui/material/Toolbar";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
-import Badge from "@mui/material/Badge";
 import Button from "@mui/material/Button";
-import NotificationsIcon from "@mui/icons-material/Notifications";
 import MenuIcon from "@mui/icons-material/Menu";
 import HomeIcon from "@mui/icons-material/Home";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -120,12 +118,6 @@ export default function ManagerHeader({ onToggleSidebar, user}) {
         </Box>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <IconButton aria-label="notifications">
-            <Badge variant="dot" color="success">
-              <NotificationsIcon />
-            </Badge>
-          </IconButton>
-
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <Avatar alt="user-icon" src={userIcon} onClick={() => navigate('/manager_profile/main')} sx={{ cursor: "pointer" ,'&:hover': {
               boxShadow: "0 0 0 2px #1E3A8A",

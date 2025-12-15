@@ -58,10 +58,9 @@ class UserSerializer(ModelSerializer):
 
 
 class RoleSerializer(ModelSerializer):
-    rol_name = serializers.CharField(source='role')
     class Meta:
         model = Role
-        fields = ['id', 'rol_name']
+        fields = ['id', 'role']
 
 
 class Key_interestsSerializer(ModelSerializer):

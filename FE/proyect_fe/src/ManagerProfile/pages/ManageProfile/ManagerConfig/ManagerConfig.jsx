@@ -22,7 +22,7 @@ import SecurityIcon from "@mui/icons-material/Security";
 import BusinessIcon from "@mui/icons-material/Business";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
-import { getData } from "../../../../services/fetch";
+import { getData, tokenGetData } from "../../../../services/fetch";
 
 export default function ManagerConfig() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -55,7 +55,7 @@ export default function ManagerConfig() {
 
   useEffect(() => {
     async function getUser() {
-      const response = await getData(`user/user_id/${localStorage.getItem('id')}/`);
+      const response = await tokenGetData(`user/user_id/${localStorage.getItem('id')}/`);
       const user = response[0];
       setUserLogged(user);
       

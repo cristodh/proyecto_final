@@ -20,8 +20,8 @@ class CampaignSerializer(ModelSerializer):
             'id', 'name', 'description', 'short_description', 'slogan', 'story',
             'start_date', 'end_date', 'goal_amount', 'current_amount',
             'location', 'category', 'category_name', 'contact_phone', 'contact_email',
-            'website', 'permissions', 'is_active', 'creator', 'creator_username',
-            'created_at', 'updated_at'
+            'website', 'permissions', 'campaign_status', 'creator', 'creator_username',
+            'pdf_documents', 'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'current_amount', 'created_at', 'updated_at', 'creator']
 

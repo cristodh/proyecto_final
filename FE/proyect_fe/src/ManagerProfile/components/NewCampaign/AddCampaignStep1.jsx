@@ -152,6 +152,7 @@ export default function AddCampaignStep1({ data, update, next }) {
             <MenuItem value={4}>Tecnología</MenuItem>
             <MenuItem value={5}>Cultura</MenuItem>
             <MenuItem value={6}>Deportes</MenuItem>
+            <MenuItem value={7}>Otra</MenuItem>
           </TextField>
 
           <TextField

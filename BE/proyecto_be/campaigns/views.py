@@ -32,6 +32,44 @@ class CampaignListCreateView(ListCreateAPIView):
         """
         serializer.save(creator=self.request.user)
 
+class UserCampaignListView(ListCreateAPIView):
+    """
+    Vista para listar todas las campañas creadas por el usuario autenticado
+    - GET: Lista todas las campañas del usuario autenticado
+    """
+    serializer_class = CampaignSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """
+        Filtra las campañas por el usuario autenticado
+        """
+        user_id = self.kwargs['user_id']
+        return Campaign.objects.filter(creator=user_id)
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+class CampaignUpdateView(APIView):
+    def patch(self,request):
+        id_campaign = request.data.get('id')
+        name = request.data.get('name')
+        description = request.data.get('description')
+        
+
+        try:    
+            campaign = Campaign.objects.get(id=id_campaign)
+
+            if name:
+                campaign.name = name
+            if description:
+                campaign.description = description
+            campaign.save()
+
+            return Response({'message': 'Campaign updated successfully'}, status=200)
+        except Campaign.DoesNotExist:
+            return Response({'error': 'Campaign not found'}, status=404)
+
 # ============================================================
 # VISTAS CRUD - CATEGORÍAS
 # ============================================================
@@ -55,3 +93,4 @@ class MediaContentListCreateView(ListCreateAPIView):
 class DonationListCreateView(ListCreateAPIView):
     queryset = Donation.objects.all()
     serializer_class = DonationSerializer
+

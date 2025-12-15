@@ -41,13 +41,25 @@ class Campaign(models.Model):
     # ============================================================
     # CAMPOS ADICIONALES
     # ============================================================
+    CAMPAIGN_STATUS = (
+        ('active', 'Active'),
+        ('detained', 'Detained'),
+        ('completed', 'Completed'),
+        ('rejected', 'Rejected'),
+        ('pending', 'Pending')
+    )
     permissions = models.TextField(blank=True, null=True)
-    is_active = models.BooleanField(default=True)
+    campaign_status = models.CharField(max_length=20, choices=CAMPAIGN_STATUS, default='pending')
     
     # ============================================================
     # RELACIONES
     # ============================================================
     creator = models.ForeignKey('users.User', on_delete=models.CASCADE)
+
+    # ============================================================
+    # PDF
+    # ============================================================
+    pdf_documents = models.JSONField(blank=True, null=True)
 
     def __str__(self):
         return self.name

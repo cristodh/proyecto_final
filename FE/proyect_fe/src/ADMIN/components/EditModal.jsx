@@ -13,8 +13,12 @@ import {
   Button,
   Typography,
   CircularProgress,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
-import { putData, getData } from "../../services/fetch";
+import { putData, getData, authenticatedGetData } from "../../services/fetch";
 
 // ============================================================
 // COMPONENTE MODAL DE EDICIÓN
@@ -59,16 +63,26 @@ export default function EditModal({
   const [isSaving, setIsSaving] = useState(false);
   const [rejectionReason, setRejectionReason] = useState(null);
   const [loadingReason, setLoadingReason] = useState(false);
+  const [isEditingReason, setIsEditingReason] = useState(false);
+  const [editedReason, setEditedReason] = useState("");
+  const [openChangeRoleDialog, setOpenChangeRoleDialog] = useState(false);
+  const [roles, setRoles] = useState([]);
+  const [selectedNewRole, setSelectedNewRole] = useState("");
+  const [loadingRoles, setLoadingRoles] = useState(false);
 
   // ============================================================
   // EFECTOS
   // ============================================================
   /**
    * Carga el motivo de rechazo cuando el modal se abre y el usuario tiene rol 4
+   * También carga los roles disponibles cuando se abre el modal
    */
   useEffect(() => {
     if (open && selectedUser && selectedUser.role_id === 4) {
       loadRejectionReason();
+    }
+    if (open) {
+      loadRoles();
     }
   }, [open, selectedUser]);
 
@@ -78,14 +92,32 @@ export default function EditModal({
   const loadRejectionReason = async () => {
     setLoadingReason(true);
     try {
-      const response = await getData(`user/rejection_reason/?user_id=${selectedUser.id}`);
+      const response = await authenticatedGetData(`user/rejection_reason/?user_id=${selectedUser.id}`);
       if (response && response.rejection_reason) {
         setRejectionReason(response.rejection_reason);
+        setEditedReason(response.rejection_reason);
       }
     } catch (error) {
       console.error('Error loading rejection reason:', error);
     } finally {
       setLoadingReason(false);
+    }
+  };
+
+  /**
+   * Carga los roles disponibles desde el backend
+   */
+  const loadRoles = async () => {
+    setLoadingRoles(true);
+    try {
+      const response = await authenticatedGetData('user/new_roles/');
+      if (response && Array.isArray(response)) {
+        setRoles(response);
+      }
+    } catch (error) {
+      console.error('Error loading roles:', error);
+    } finally {
+      setLoadingRoles(false);
     }
   };
 
@@ -97,6 +129,114 @@ export default function EditModal({
    */
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
+  };
+
+  /**
+   * Abre el diálogo para cambiar el rol del usuario
+   */
+  const handleOpenChangeRoleDialog = () => {
+    setSelectedNewRole(selectedUser?.role_id || "");
+    setOpenChangeRoleDialog(true);
+  };
+
+  /**
+   * Cierra el diálogo de cambio de rol
+   */
+  const handleCloseChangeRoleDialog = () => {
+    setOpenChangeRoleDialog(false);
+    setSelectedNewRole("");
+  };
+
+  /**
+   * Cambia el rol del usuario
+   */
+  const handleChangeRole = async () => {
+    if (!selectedNewRole) {
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const response = await putData(`user/update_delete/`, {
+        id: selectedUser.id,
+        role_id: selectedNewRole
+      });
+
+      if (response && (response.ok || response.message === 'User updated successfully')) {
+        // Actualizar la lista de usuarios localmente
+        const roleObj = roles.find(r => r.id === parseInt(selectedNewRole));
+        setUsers(users.map(u =>
+          u.id === selectedUser.id ? { ...u, role_id: parseInt(selectedNewRole), role: roleObj?.role || u.role } : u
+        ));
+        handleCloseChangeRoleDialog();
+        alert('Rol actualizado exitosamente');
+      } else {
+        alert('Error al actualizar el rol: ' + (response?.error || 'Error desconocido'));
+      }
+    } catch (error) {
+      console.error('Error changing role:', error);
+      alert('Error al cambiar el rol');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  /**
+   * Cambia el rol a Pendiente (3) y guarda
+   */
+  const handleSetPending = async () => {
+    setIsSaving(true);
+    try {
+      const userResponse = await putData(`user/update_delete/`, {
+        id: selectedUser.id,
+        role_id: 3, // Cambiar a Pendiente
+        active: false,
+        ...editFormData
+      });
+
+      console.log('User set pending response:', userResponse);
+
+      if (userResponse && (userResponse.ok || userResponse.message === 'User updated successfully')) {
+        // Actualizar la lista de usuarios localmente
+        setUsers(users.map(u =>
+          u.id === selectedUser.id ? { ...u, role_id: 3, role: 'Pendiente', status: 'pending', ...editFormData } : u
+        ));
+        handleClose();
+      }
+    } catch (error) {
+      console.error('Error setting user to pending:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  /**
+   * Guarda el motivo de rechazo editado
+   */
+  const handleSaveRejectionReason = async () => {
+    if (!editedReason.trim()) {
+      alert("Por favor ingresa un motivo de rechazo");
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const response = await putData(`user/rejection_reason/`, {
+        user: selectedUser.id,
+        rejection_reason: editedReason,
+      });
+
+      if (response && (response.ok || response.message === "Rejection reason updated successfully" || response.message === "Rejection reason created successfully")) {
+        setRejectionReason(editedReason);
+        setIsEditingReason(false);
+        alert("Motivo del rechazo actualizado correctamente");
+      }
+    } catch (error) {
+      console.error("Error saving rejection reason:", error);
+      alert("Error al guardar el motivo del rechazo");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   /**
@@ -433,6 +573,44 @@ export default function EditModal({
                 <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
                   <CircularProgress />
                 </Box>
+              ) : isEditingReason ? (
+                <Box>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2, color: "text.secondary" }}>
+                    Editar Motivo del Rechazo
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    label="Motivo del rechazo"
+                    value={editedReason}
+                    onChange={(e) => setEditedReason(e.target.value)}
+                    variant="outlined"
+                    multiline
+                    rows={4}
+                    sx={{ mb: 2 }}
+                  />
+                  <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Button
+                      onClick={handleSaveRejectionReason}
+                      variant="contained"
+                      color="primary"
+                      disabled={isSaving}
+                      size="small"
+                    >
+                      {isSaving ? "Guardando..." : "Guardar"}
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setIsEditingReason(false);
+                        setEditedReason(rejectionReason);
+                      }}
+                      variant="outlined"
+                      size="small"
+                      disabled={isSaving}
+                    >
+                      Cancelar
+                    </Button>
+                  </Box>
+                </Box>
               ) : rejectionReason ? (
                 <Box>
                   <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2, color: "text.secondary" }}>
@@ -441,6 +619,14 @@ export default function EditModal({
                   <Alert severity="error" sx={{ mb: 2 }}>
                     {rejectionReason}
                   </Alert>
+                  <Button
+                    onClick={() => setIsEditingReason(true)}
+                    variant="contained"
+                    color="warning"
+                    size="small"
+                  >
+                    Editar Comentario
+                  </Button>
                 </Box>
               ) : (
                 <Alert severity="info">No hay motivo de rechazo registrado para este usuario.</Alert>
@@ -450,15 +636,35 @@ export default function EditModal({
         </Box>
       </DialogContent>
       {/* Botones de acciones del modal de edición */}
-      <DialogActions sx={{ p: 2, gap: 1 }}>
+      <DialogActions sx={{ p: 2, gap: 1, flexWrap: 'wrap' }}>
         {/* Botón Cancelar */}
         <Button onClick={handleClose} variant="outlined">
           Cancelar
+        </Button>
+        {/* Botón Cambiar Rol */}
+        <Button 
+          onClick={handleOpenChangeRoleDialog}
+          variant="contained" 
+          color="secondary"
+          disabled={isSaving}
+        >
+          Cambiar Rol
         </Button>
         {/* Botón Guardar Cambios */}
         <Button onClick={handleSaveChanges} variant="contained" color="primary" disabled={isSaving}>
           {isSaving ? "Guardando..." : "Guardar Cambios"}
         </Button>
+        {/* Botón Establecer como Pendiente (solo para Gestor de Proyectos - role_id 1) */}
+        {selectedUser && selectedUser.role_id === 1 && (
+          <Button 
+            onClick={handleSetPending} 
+            variant="contained" 
+            color="info"
+            disabled={isSaving}
+          >
+            {isSaving ? "Procesando..." : "Establecer como Pendiente"}
+          </Button>
+        )}
         {/* Botón Aprobar (solo si el usuario está en rol Denegado - id 4) */}
         {selectedUser && selectedUser.role_id === 4 && (
           <Button 
@@ -471,6 +677,46 @@ export default function EditModal({
           </Button>
         )}
       </DialogActions>
+
+      {/* Diálogo para cambiar rol */}
+      <Dialog open={openChangeRoleDialog} onClose={handleCloseChangeRoleDialog} maxWidth="xs" fullWidth>
+        <DialogTitle>Cambiar Rol</DialogTitle>
+        <DialogContent sx={{ minHeight: '150px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          {loadingRoles ? (
+            <CircularProgress />
+          ) : roles && roles.length > 0 ? (
+            <FormControl fullWidth sx={{ mt: 2 }}>
+              <InputLabel>Nuevo rol</InputLabel>
+              <Select
+                value={selectedNewRole}
+                label="Nuevo rol"
+                onChange={(e) => setSelectedNewRole(e.target.value)}
+              >
+                {roles.map((role) => (
+                  <MenuItem key={role.id} value={role.id}>
+                    {role.role}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          ) : (
+            <Typography color="error">No hay roles disponibles</Typography>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={handleCloseChangeRoleDialog} variant="outlined">
+            Cancelar
+          </Button>
+          <Button 
+            onClick={handleChangeRole} 
+            variant="contained" 
+            color="primary"
+            disabled={isSaving || !selectedNewRole || loadingRoles}
+          >
+            Cambiar
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Dialog>
   );
 }

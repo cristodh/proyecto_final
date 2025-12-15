@@ -13,7 +13,7 @@ import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
-import { getData } from "../../../../services/fetch";
+import { getData, tokenGetData } from "../../../../services/fetch";
 import { 
   LineChart, 
   Line, 
@@ -65,7 +65,7 @@ export default function ManagerAnalytics() {
 
   useEffect(() => {
     async function getUser() {
-      const response = await getData(`user/user_id/${localStorage.getItem('id')}/`);
+      const response = await tokenGetData(`user/user_id/${localStorage.getItem('id')}/`);
       setUserLogged(response[0]);
     }
     getUser();

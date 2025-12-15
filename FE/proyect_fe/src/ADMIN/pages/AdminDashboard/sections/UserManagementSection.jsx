@@ -18,12 +18,18 @@ import {
   Button,
   TextField,
   MenuItem,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Alert,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import EditIcon from "@mui/icons-material/Edit";
 import BlockIcon from "@mui/icons-material/Block";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { getData, putData, deleteData } from "../../../../services/fetch";
+import AddIcon from "@mui/icons-material/Add";
+import { getData, putData, deleteData, authenticatedPostData } from "../../../../services/fetch";
 import ApprovalModal from "../../../components/ApprovalModal";
 import EditModal from "../../../components/EditModal";
 
@@ -52,6 +58,19 @@ export default function UserManagementSection() {
   const [editFormData, setEditFormData] = useState({});
   const [editOrgFormData, setEditOrgFormData] = useState({});
   const [savingEdit, setSavingEdit] = useState(false);
+
+  // ============================================================
+  // ESTADOS - MODAL DE CREAR ADMIN
+  // ============================================================
+  const [openCreateAdminModal, setOpenCreateAdminModal] = useState(false);
+  const [adminFormData, setAdminFormData] = useState({
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
+  const [creatingAdmin, setCreatingAdmin] = useState(false);
+  const [adminFormError, setAdminFormError] = useState('');
 
   // ============================================================
   // FUNCIONES UTILIDAD
@@ -170,16 +189,14 @@ export default function UserManagementSection() {
 
   /**
    * Obtiene el color de Material UI para mostrar el estado del usuario
-   * @param {string} status - Estado (active, suspended, banned)
+   * @param {string} status - Estado (active, inactive)
    * @returns {string} - Color de Material UI
    */
   const getStatusColor = (status) => {
     switch (status) {
       case "active":
         return "success";
-      case "suspended":
-        return "warning";
-      case "banned":
+      case "inactive":
         return "error";
       default:
         return "default";
@@ -189,10 +206,17 @@ export default function UserManagementSection() {
   /**
    * Obtiene la etiqueta de texto para un estado
    * @param {string} status - Estado del usuario
-   * @returns {string} - Etiqueta capitalizada
+   * @returns {string} - Etiqueta en español
    */
   const getStatusLabel = (status) => {
-    return status.charAt(0).toUpperCase() + status.slice(1);
+    switch (status) {
+      case "active":
+        return "Activo";
+      case "inactive":
+        return "Inactivo";
+      default:
+        return status.charAt(0).toUpperCase() + status.slice(1);
+    }
   };
 
   // ============================================================
@@ -269,6 +293,125 @@ export default function UserManagementSection() {
     } catch (error) {
       console.error('Error deleting user:', error);
     }
+  };
+
+  // ============================================================
+  // FUNCIONES DE CREACIÓN DE ADMIN
+  // ============================================================
+  /**
+   * Valida el formulario de creación de admin
+   */
+  const validateAdminForm = () => {
+    if (!adminFormData.username.trim()) {
+      setAdminFormError('El nombre de usuario es requerido');
+      return false;
+    }
+    if (!adminFormData.email.trim()) {
+      setAdminFormError('El email es requerido');
+      return false;
+    }
+    if (!adminFormData.password.trim()) {
+      setAdminFormError('La contraseña es requerida');
+      return false;
+    }
+    if (adminFormData.password.length < 8) {
+      setAdminFormError('La contraseña debe tener al menos 8 caracteres');
+      return false;
+    }
+    if (adminFormData.password !== adminFormData.confirmPassword) {
+      setAdminFormError('Las contraseñas no coinciden');
+      return false;
+    }
+    setAdminFormError('');
+    return true;
+  };
+
+  /**
+   * Crea un nuevo usuario administrador
+   */
+  const handleCreateAdmin = async () => {
+    if (!validateAdminForm()) {
+      return;
+    }
+
+    setCreatingAdmin(true);
+    try {
+      const response = await authenticatedPostData('user/create_admin/', {
+        username: adminFormData.username,
+        email: adminFormData.email,
+        password: adminFormData.password,
+      });
+
+      if (response && response.ok) {
+        // Resetear formulario
+        setAdminFormData({
+          username: '',
+          email: '',
+          password: '',
+          confirmPassword: '',
+        });
+        setAdminFormError('');
+        setOpenCreateAdminModal(false);
+        
+        // Recargar lista de usuarios
+        const usersResponse = await getData('user/new_users/');
+        if (usersResponse) {
+          const formattedUsers = usersResponse.map(user => ({
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            role: user.role_name || 'User',
+            role_id: user.role_id || null,
+            status: user.active ? 'active' : 'inactive',
+            phone_number: user.phone_number,
+            date_of_birth: user.date_of_birth,
+            goverment_ID: user.goverment_ID,
+            gender: user.gender,
+            nationality: user.nationality,
+            created_at: user.created_at
+          }));
+          setUsers(formattedUsers);
+        }
+        alert('Admin creado exitosamente');
+      } else {
+        setAdminFormError(response?.error || 'Error al crear el admin');
+      }
+    } catch (error) {
+      console.error('Error creating admin:', error);
+      setAdminFormError('Error al crear el admin. Intenta de nuevo.');
+    } finally {
+      setCreatingAdmin(false);
+    }
+  };
+
+  /**
+   * Abre el modal de crear admin
+   */
+  const handleOpenCreateAdminModal = () => {
+    setOpenCreateAdminModal(true);
+    setAdminFormData({
+      username: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+    });
+    setAdminFormError('');
+  };
+
+  /**
+   * Cierra el modal de crear admin
+   */
+  const handleCloseCreateAdminModal = () => {
+    setOpenCreateAdminModal(false);
+    setAdminFormData({
+      username: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+    });
+    setAdminFormError('');
   };
 
   // ============================================================
@@ -478,6 +621,41 @@ export default function UserManagementSection() {
       </Box>
 
       {/* ========================================================
+          SECCIÓN DE CREACIÓN DE ADMIN
+          ======================================================== */}
+      <Paper
+        elevation={0}
+        sx={{
+          p: 3,
+          mb: 3,
+          borderRadius: 2,
+          border: 1,
+          borderColor: "custom.borderLight",
+          background: "linear-gradient(135deg, rgba(30, 58, 138, 0.05) 0%, rgba(30, 58, 138, 0.02) 100%)",
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <Box>
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
+              Crear Nuevo Administrador
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Solo administradores pueden crear nuevas cuentas de administrador
+            </Typography>
+          </Box>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddIcon />}
+            onClick={handleOpenCreateAdminModal}
+            sx={{ minWidth: 150 }}
+          >
+            Crear Admin
+          </Button>
+        </Box>
+      </Paper>
+
+      {/* ========================================================
           SECCIÓN DE FILTROS Y BÚSQUEDA
           ======================================================== */}
       <Paper
@@ -530,8 +708,7 @@ export default function UserManagementSection() {
             >
               <MenuItem value="all">Todos</MenuItem>
               <MenuItem value="active">Activo</MenuItem>
-              <MenuItem value="suspended">Suspendido</MenuItem>
-              <MenuItem value="banned">Baneado</MenuItem>
+              <MenuItem value="inactive">Inactivo</MenuItem>
             </TextField>
           </Grid>
         </Grid>
@@ -623,7 +800,7 @@ export default function UserManagementSection() {
                         Verificar
                       </Button>
                     )}
-                    {/* Botón Suspender/Activar */}
+                    {/* Botón Desactivar/Activar */}
                     <Button
                       size="small"
                       variant="outlined"
@@ -631,7 +808,7 @@ export default function UserManagementSection() {
                       startIcon={<BlockIcon />}
                       color={user.status === "active" ? "warning" : "success"}
                     >
-                      {user.status === "active" ? "Suspender" : "Activar"}
+                      {user.status === "active" ? "Desactivar" : "Activar"}
                     </Button>
                     {/* Botón Eliminar */}
                     <Button
@@ -650,6 +827,79 @@ export default function UserManagementSection() {
           </TableBody>
         </Table>
       </TableContainer>
+
+      {/* ========================================================
+          MODAL DE CREAR ADMIN
+          ======================================================== */}
+      <Dialog 
+        open={openCreateAdminModal} 
+        onClose={handleCloseCreateAdminModal}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle sx={{ fontWeight: 700, fontSize: 18 }}>
+          Crear Nuevo Administrador
+        </DialogTitle>
+        <DialogContent>
+          <Box sx={{ mt: 2, display: "flex", flexDirection: "column", gap: 2 }}>
+            {adminFormError && (
+              <Alert severity="error">{adminFormError}</Alert>
+            )}
+            <TextField
+              fullWidth
+              label="Nombre de Usuario"
+              placeholder="Ingresa el nombre de usuario"
+              value={adminFormData.username}
+              onChange={(e) => setAdminFormData({ ...adminFormData, username: e.target.value })}
+              disabled={creatingAdmin}
+            />
+            <TextField
+              fullWidth
+              label="Email"
+              type="email"
+              placeholder="Ingresa el email"
+              value={adminFormData.email}
+              onChange={(e) => setAdminFormData({ ...adminFormData, email: e.target.value })}
+              disabled={creatingAdmin}
+            />
+            <TextField
+              fullWidth
+              label="Contraseña"
+              type="password"
+              placeholder="Ingresa una contraseña segura"
+              value={adminFormData.password}
+              onChange={(e) => setAdminFormData({ ...adminFormData, password: e.target.value })}
+              disabled={creatingAdmin}
+            />
+            <TextField
+              fullWidth
+              label="Confirmar Contraseña"
+              type="password"
+              placeholder="Confirma la contraseña"
+              value={adminFormData.confirmPassword}
+              onChange={(e) => setAdminFormData({ ...adminFormData, confirmPassword: e.target.value })}
+              disabled={creatingAdmin}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 2, gap: 1 }}>
+          <Button 
+            onClick={handleCloseCreateAdminModal}
+            variant="outlined"
+            disabled={creatingAdmin}
+          >
+            Cancelar
+          </Button>
+          <Button 
+            onClick={handleCreateAdmin}
+            variant="contained"
+            color="primary"
+            disabled={creatingAdmin}
+          >
+            {creatingAdmin ? "Creando..." : "Crear Admin"}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* ========================================================
           MODAL DE APROBACIÓN DE USUARIOS
