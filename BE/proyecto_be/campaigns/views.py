@@ -105,6 +105,10 @@ class CampaignUpdateView(APIView):
             if 'campaign_status' in request.data:
                 campaign.campaign_status = request.data.get('campaign_status')
             
+            # Comentario del administrador
+            if 'admin_comment' in request.data:
+                campaign.admin_comment = request.data.get('admin_comment')
+            
             # PDF Documents
             if 'pdf_documents' in request.data:
                 campaign.pdf_documents = request.data.get('pdf_documents')
@@ -131,7 +135,7 @@ class CampaignUpdateView(APIView):
 class CampaignStatusUpdateView(APIView):
     """
     Vista para actualizar solo el estado de una campaña (para admin)
-    - PATCH: Actualiza el estado de la campaña
+    - PATCH: Actualiza el estado de la campaña y comentario del admin
     """
     permission_classes = [IsAuthenticated]
 
@@ -141,6 +145,11 @@ class CampaignStatusUpdateView(APIView):
             
             if 'campaign_status' in request.data:
                 campaign.campaign_status = request.data.get('campaign_status')
+                
+                # Actualizar comentario del administrador si viene en la petición
+                if 'admin_comment' in request.data:
+                    campaign.admin_comment = request.data.get('admin_comment')
+                
                 campaign.save()
                 
                 serializer = CampaignSerializer(campaign)

@@ -272,6 +272,7 @@ export default function CampaignsSection() {
     filterStatus,
     setFilterStatus,
     selectedCampaign,
+    setSelectedCampaign,
     detailsModalOpen,
     reviewModalOpen,
     editModalOpen,
@@ -302,7 +303,30 @@ export default function CampaignsSection() {
     await updateCampaignStatus(data.campaignId, data.newStatus, data.comment);
   };
 
-  const handleQuickAction = (campaign, action) => {
+  // Handler para acciones desde el modal de detalles
+  // Si la campaña incluye admin_comment, ya viene del diálogo del modal de detalles
+  const handleQuickAction = async (campaign, action) => {
+    // Si viene con admin_comment incluido, ejecutar directamente
+    if (campaign.admin_comment) {
+      const statusMap = {
+        approve: CAMPAIGN_STATUS.ACTIVE,
+        reject: CAMPAIGN_STATUS.REJECTED,
+        detain: CAMPAIGN_STATUS.DETAINED,
+        complete: CAMPAIGN_STATUS.COMPLETED,
+      };
+      const newStatus = statusMap[action];
+      if (newStatus) {
+        await updateCampaignStatus(campaign.id, newStatus, campaign.admin_comment);
+        // Refrescar la campaña seleccionada en el modal
+        setSelectedCampaign((prev) => 
+          prev?.id === campaign.id 
+            ? { ...prev, campaign_status: newStatus, admin_comment: campaign.admin_comment } 
+            : prev
+        );
+        return;
+      }
+    }
+    // Si no tiene admin_comment, abrir el modal de revisión (para aprobar)
     openReviewModal(campaign, action);
   };
 

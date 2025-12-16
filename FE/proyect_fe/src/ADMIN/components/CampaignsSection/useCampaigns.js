@@ -139,27 +139,27 @@ export function useCampaigns() {
   // Cambiar estado de campaña
   const updateCampaignStatus = useCallback(async (id, newStatus, comment = "") => {
     try {
-      const response = await putData(`campaign/campaign_status/${id}/`, {
+      const response = await patchData(`campaign/status/${id}/`, {
         campaign_status: newStatus,
         admin_comment: comment,
       });
       
       if (response?.ok) {
         setCampaigns((prev) =>
-          prev.map((c) => (c.id === id ? { ...c, campaign_status: newStatus } : c))
+          prev.map((c) => (c.id === id ? { ...c, campaign_status: newStatus, admin_comment: comment } : c))
         );
         return true;
       }
       // Actualización local para desarrollo
       setCampaigns((prev) =>
-        prev.map((c) => (c.id === id ? { ...c, campaign_status: newStatus } : c))
+        prev.map((c) => (c.id === id ? { ...c, campaign_status: newStatus, admin_comment: comment } : c))
       );
       return true;
     } catch (err) {
       console.error("Error updating campaign status:", err);
       // Actualización local para desarrollo
       setCampaigns((prev) =>
-        prev.map((c) => (c.id === id ? { ...c, campaign_status: newStatus } : c))
+        prev.map((c) => (c.id === id ? { ...c, campaign_status: newStatus, admin_comment: comment } : c))
       );
       return true;
     }
@@ -278,6 +278,7 @@ export function useCampaigns() {
     
     // Modal state
     selectedCampaign,
+    setSelectedCampaign,
     detailsModalOpen,
     reviewModalOpen,
     editModalOpen,

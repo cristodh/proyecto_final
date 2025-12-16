@@ -66,6 +66,12 @@ class Campaign(models.Model):
     # ============================================================
     # Formato: [{"name": "Mano de obra", "goal": 50000}, ...]
     project_sections = models.JSONField(blank=True, null=True)
+    
+    # ============================================================
+    # COMENTARIO DEL ADMINISTRADOR
+    # ============================================================
+    # Razón por la cual se aprobó, rechazó, detuvo, etc.
+    admin_comment = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.name

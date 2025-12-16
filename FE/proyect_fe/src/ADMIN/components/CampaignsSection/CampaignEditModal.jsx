@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -15,12 +15,15 @@ import {
   CircularProgress,
   InputAdornment,
   Paper,
+  Link,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveIcon from "@mui/icons-material/Save";
 import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { patchData, authenticatedGetData } from "../../../services/fetch";
 import { CAMPAIGN_STATUS, STATUS_CONFIG } from "./useCampaigns";
 
@@ -34,6 +37,15 @@ export default function CampaignEditModal({ open, onClose, campaign, onSave }) {
   
   // Estado para nueva sección
   const [newSection, setNewSection] = useState({ name: "", goal: "" });
+  
+  // Estados para archivos PDF
+  const [newPdfFiles, setNewPdfFiles] = useState([]); // Archivos pendientes de subir
+  const [uploadingPdf, setUploadingPdf] = useState(false);
+  const fileInputRef = useRef(null);
+  
+  // Cloudinary config
+  const cloudName = "dfcwqzjks";
+  const uploadPreset = "pdfsss";
 
   // Cargar datos de la campaña cuando se abre el modal
   useEffect(() => {
@@ -53,9 +65,12 @@ export default function CampaignEditModal({ open, onClose, campaign, onSave }) {
         contact_email: campaign.contact_email || "",
         website: campaign.website || "",
         campaign_status: campaign.campaign_status || "pending",
+        admin_comment: campaign.admin_comment || "",
         project_sections: campaign.project_sections || [],
+        pdf_documents: campaign.pdf_documents || [],
       });
       setNewSection({ name: "", goal: "" });
+      setNewPdfFiles([]);
       setError(null);
       setSuccess(false);
       fetchCategories();
@@ -103,7 +118,114 @@ export default function CampaignEditModal({ open, onClose, campaign, onSave }) {
     }));
   };
 
+  // ============================================================
+  // FUNCIONES PARA ARCHIVOS PDF
+  // ============================================================
+  
+  // Actualizar descripción de un PDF existente
+  const handlePdfDescriptionChange = (index, value) => {
+    setFormData((prev) => {
+      const updatedPdfs = [...(prev.pdf_documents || [])];
+      updatedPdfs[index] = { ...updatedPdfs[index], description: value };
+      return { ...prev, pdf_documents: updatedPdfs };
+    });
+  };
+
+  // Eliminar un PDF existente
+  const handleRemovePdf = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      pdf_documents: (prev.pdf_documents || []).filter((_, i) => i !== index)
+    }));
+  };
+
+  // Manejar selección de nuevos archivos
+  const handleFileSelect = (e) => {
+    const selected = Array.from(e.target.files);
+    const mapped = selected.map(file => ({
+      file,
+      description: ""
+    }));
+    setNewPdfFiles(prev => [...prev, ...mapped]);
+  };
+
+  // Actualizar descripción de archivo pendiente
+  const handleNewPdfDescriptionChange = (index, value) => {
+    const updated = [...newPdfFiles];
+    updated[index].description = value;
+    setNewPdfFiles(updated);
+  };
+
+  // Eliminar archivo pendiente
+  const handleRemoveNewPdf = (index) => {
+    setNewPdfFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  // Subir archivo a Cloudinary
+  const uploadPdfToCloudinary = async (file) => {
+    const formDataUpload = new FormData();
+    formDataUpload.append("file", file);
+    formDataUpload.append("upload_preset", uploadPreset);
+
+    const res = await fetch(
+      `https://api.cloudinary.com/v1_1/${cloudName}/raw/upload`,
+      { method: "POST", body: formDataUpload }
+    );
+    return await res.json();
+  };
+
+  // Subir todos los archivos pendientes
+  const handleUploadNewPdfs = async () => {
+    // Validar descripciones
+    for (const f of newPdfFiles) {
+      if (!f.description.trim()) {
+        setError("Todos los archivos requieren una descripción antes de subir.");
+        return;
+      }
+    }
+
+    setUploadingPdf(true);
+    const uploadedList = [];
+
+    for (const item of newPdfFiles) {
+      try {
+        const data = await uploadPdfToCloudinary(item.file);
+        uploadedList.push({
+          name: item.file.name,
+          description: item.description,
+          url: data.secure_url,
+        });
+      } catch (err) {
+        console.error(`Error subiendo ${item.file.name}:`, err);
+      }
+    }
+
+    setUploadingPdf(false);
+
+    if (uploadedList.length > 0) {
+      setFormData((prev) => ({
+        ...prev,
+        pdf_documents: [...(prev.pdf_documents || []), ...uploadedList]
+      }));
+      setNewPdfFiles([]);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  // Verificar si se requiere comentario del admin
+  const requiresAdminComment = () => {
+    return formData.campaign_status && formData.campaign_status !== "active";
+  };
+
   const handleSubmit = async () => {
+    // Validar comentario obligatorio si el estado no es "active"
+    if (requiresAdminComment() && !formData.admin_comment?.trim()) {
+      setError("Debes proporcionar un comentario explicando la razón del estado seleccionado.");
+      return;
+    }
+
     setSaving(true);
     setError(null);
     setSuccess(false);
@@ -376,6 +498,39 @@ export default function CampaignEditModal({ open, onClose, campaign, onSave }) {
                 ))}
               </TextField>
             </Grid>
+            
+            {/* Comentario del administrador - obligatorio si no está activa */}
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                multiline
+                rows={3}
+                label={requiresAdminComment() ? "Comentario del administrador *" : "Comentario del administrador"}
+                value={formData.admin_comment || ""}
+                onChange={handleChange("admin_comment")}
+                placeholder={
+                  formData.campaign_status === "rejected" ? "Explica la razón del rechazo..." :
+                  formData.campaign_status === "detained" ? "Explica la razón de la detención..." :
+                  formData.campaign_status === "pending" ? "Explica por qué está pendiente..." :
+                  formData.campaign_status === "completed" ? "Comentarios sobre la finalización..." :
+                  "Comentarios adicionales (opcional)"
+                }
+                required={requiresAdminComment()}
+                error={requiresAdminComment() && !formData.admin_comment?.trim()}
+                helperText={
+                  requiresAdminComment() && !formData.admin_comment?.trim()
+                    ? "Este campo es obligatorio cuando el estado no es 'Activa'"
+                    : formData.campaign_status === "active" 
+                      ? "Opcional para campañas activas"
+                      : ""
+                }
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    bgcolor: requiresAdminComment() ? 'rgba(255, 152, 0, 0.05)' : 'transparent',
+                  }
+                }}
+              />
+            </Grid>
           </Grid>
         </Box>
 
@@ -497,6 +652,186 @@ export default function CampaignEditModal({ open, onClose, campaign, onSave }) {
               </Typography>
             </Box>
           )}
+        </Box>
+
+        {/* ============================================================ */}
+        {/* ARCHIVOS ADJUNTOS (PDF) */}
+        {/* ============================================================ */}
+        <Box sx={{ mb: 1 }}>
+          <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 2, color: "primary.main", display: "flex", alignItems: "center", gap: 1 }}>
+            📎 Documentos Adjuntos (PDF)
+          </Typography>
+
+          {/* Lista de PDFs existentes */}
+          {formData.pdf_documents && formData.pdf_documents.length > 0 && (
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                Archivos actuales:
+              </Typography>
+              {formData.pdf_documents.map((doc, index) => (
+                <Paper
+                  key={index}
+                  elevation={0}
+                  sx={{
+                    p: 2,
+                    mb: 1,
+                    border: 1,
+                    borderColor: "divider",
+                    borderRadius: 1,
+                  }}
+                >
+                  <Grid container spacing={2} alignItems="center">
+                    <Grid item xs={12} sm={3}>
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        <AttachFileIcon color="primary" fontSize="small" />
+                        <Link 
+                          href={doc.url} 
+                          target="_blank" 
+                          rel="noopener" 
+                          sx={{ 
+                            fontSize: "0.875rem", 
+                            fontWeight: 600,
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                            maxWidth: "150px",
+                            display: "block"
+                          }}
+                        >
+                          {doc.name}
+                        </Link>
+                      </Box>
+                    </Grid>
+                    <Grid item xs={12} sm={7}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="Descripción"
+                        value={doc.description || ""}
+                        onChange={(e) => handlePdfDescriptionChange(index, e.target.value)}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={2}>
+                      <Button
+                        fullWidth
+                        size="small"
+                        color="error"
+                        variant="outlined"
+                        onClick={() => handleRemovePdf(index)}
+                        startIcon={<DeleteIcon />}
+                      >
+                        Eliminar
+                      </Button>
+                    </Grid>
+                  </Grid>
+                </Paper>
+              ))}
+            </Box>
+          )}
+
+          {/* Subir nuevos archivos */}
+          <Paper elevation={0} sx={{ p: 2, bgcolor: "grey.50", borderRadius: 2 }}>
+            <Typography variant="body2" sx={{ mb: 2, fontWeight: 600 }}>
+              Subir nuevos archivos:
+            </Typography>
+            
+            <input
+              type="file"
+              accept="application/pdf"
+              multiple
+              onChange={handleFileSelect}
+              ref={fileInputRef}
+              style={{ display: "none" }}
+              id="pdf-upload-input"
+            />
+            <label htmlFor="pdf-upload-input">
+              <Button
+                component="span"
+                variant="outlined"
+                startIcon={<CloudUploadIcon />}
+                sx={{ mb: 2 }}
+              >
+                Seleccionar archivos PDF
+              </Button>
+            </label>
+
+            {/* Lista de archivos pendientes */}
+            {newPdfFiles.length > 0 && (
+              <Box sx={{ mt: 2 }}>
+                {newPdfFiles.map((item, index) => (
+                  <Paper
+                    key={index}
+                    elevation={0}
+                    sx={{
+                      p: 2,
+                      mb: 1,
+                      border: 1,
+                      borderColor: "warning.light",
+                      borderRadius: 1,
+                      bgcolor: "rgba(255, 193, 7, 0.05)"
+                    }}
+                  >
+                    <Grid container spacing={2} alignItems="center">
+                      <Grid item xs={12} sm={3}>
+                        <Typography variant="body2" sx={{ fontWeight: 600, color: "warning.dark" }}>
+                          {item.file.name}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          (Pendiente de subir)
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={12} sm={7}>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="Descripción (obligatoria)"
+                          value={item.description}
+                          onChange={(e) => handleNewPdfDescriptionChange(index, e.target.value)}
+                          required
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={2}>
+                        <Button
+                          fullWidth
+                          size="small"
+                          color="error"
+                          variant="outlined"
+                          onClick={() => handleRemoveNewPdf(index)}
+                        >
+                          Quitar
+                        </Button>
+                      </Grid>
+                    </Grid>
+                  </Paper>
+                ))}
+                
+                <Button
+                  variant="contained"
+                  color="warning"
+                  onClick={handleUploadNewPdfs}
+                  disabled={uploadingPdf || newPdfFiles.some(f => !f.description.trim())}
+                  startIcon={uploadingPdf ? <CircularProgress size={20} color="inherit" /> : <CloudUploadIcon />}
+                  sx={{ mt: 1 }}
+                >
+                  {uploadingPdf ? "Subiendo..." : `Subir ${newPdfFiles.length} archivo(s)`}
+                </Button>
+              </Box>
+            )}
+
+            {/* Estado vacío */}
+            {(!formData.pdf_documents || formData.pdf_documents.length === 0) && newPdfFiles.length === 0 && (
+              <Box sx={{ 
+                p: 2, 
+                borderRadius: 1, 
+                border: "2px dashed rgba(0,0,0,0.1)", 
+                textAlign: "center"
+              }}>
+                <Typography variant="body2" color="text.secondary">
+                  No hay documentos adjuntos. Usa el botón de arriba para agregar archivos PDF.
+                </Typography>
+              </Box>
+            )}
+          </Paper>
         </Box>
       </DialogContent>
 

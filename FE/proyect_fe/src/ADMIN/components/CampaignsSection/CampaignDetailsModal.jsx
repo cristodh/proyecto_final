@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -16,6 +16,7 @@ import {
   Link,
   Stack,
   Paper,
+  TextField,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
@@ -30,6 +31,7 @@ import CategoryIcon from "@mui/icons-material/Category";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import EditIcon from "@mui/icons-material/Edit";
+import CommentIcon from "@mui/icons-material/Comment";
 import { STATUS_CONFIG, REVIEW_CHECKLIST } from "./useCampaigns";
 
 export default function CampaignDetailsModal({
@@ -44,6 +46,11 @@ export default function CampaignDetailsModal({
   onComplete,
   onEdit,
 }) {
+  // Estado para el diálogo de comentario obligatorio
+  const [commentDialogOpen, setCommentDialogOpen] = useState(false);
+  const [adminComment, setAdminComment] = useState("");
+  const [pendingAction, setPendingAction] = useState(null); // { type: 'reject' | 'detain' | 'complete', campaign }
+
   if (!campaign) return null;
 
   const progress = calculateProgress(campaign.current_amount, campaign.goal_amount);
@@ -78,6 +85,56 @@ export default function CampaignDetailsModal({
   };
 
   const daysRemaining = getDaysRemaining();
+
+  // Abrir diálogo de comentario para acciones que lo requieren
+  const handleActionWithComment = (actionType, campaignData) => {
+    setPendingAction({ type: actionType, campaign: campaignData });
+    setAdminComment("");
+    setCommentDialogOpen(true);
+  };
+
+  // Confirmar acción con comentario
+  const handleConfirmAction = () => {
+    if (!adminComment.trim()) return;
+    
+    const campaignWithComment = { ...pendingAction.campaign, admin_comment: adminComment.trim() };
+    
+    switch (pendingAction.type) {
+      case "reject":
+        onReject?.(campaignWithComment);
+        break;
+      case "detain":
+        onDetain?.(campaignWithComment);
+        break;
+      case "complete":
+        onComplete?.(campaignWithComment);
+        break;
+    }
+    
+    setCommentDialogOpen(false);
+    setAdminComment("");
+    setPendingAction(null);
+  };
+
+  // Obtener título según la acción
+  const getActionTitle = () => {
+    switch (pendingAction?.type) {
+      case "reject": return "Rechazar Campaña";
+      case "detain": return "Detener Campaña";
+      case "complete": return "Completar Campaña";
+      default: return "Acción";
+    }
+  };
+
+  // Obtener placeholder según la acción
+  const getActionPlaceholder = () => {
+    switch (pendingAction?.type) {
+      case "reject": return "Explica la razón del rechazo de esta campaña...";
+      case "detain": return "Explica la razón por la que se detiene esta campaña...";
+      case "complete": return "Comentarios sobre la finalización de esta campaña...";
+      default: return "Escribe un comentario...";
+    }
+  };
 
   return (
     <Dialog
@@ -188,6 +245,34 @@ export default function CampaignDetailsModal({
                 <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: "pre-line" }}>
                   {campaign.story}
                 </Typography>
+              </Box>
+            )}
+
+            {/* Comentario del Administrador */}
+            {campaign.admin_comment && (
+              <Box sx={{ mb: 3 }}>
+                <Paper 
+                  elevation={0} 
+                  sx={{ 
+                    p: 2, 
+                    bgcolor: campaign.campaign_status === "rejected" ? "error.50" : 
+                             campaign.campaign_status === "detained" ? "warning.50" : 
+                             "grey.100",
+                    borderRadius: 2,
+                    border: 1,
+                    borderColor: campaign.campaign_status === "rejected" ? "error.200" : 
+                                 campaign.campaign_status === "detained" ? "warning.200" : 
+                                 "grey.300"
+                  }}
+                >
+                  <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1, display: "flex", alignItems: "center", gap: 1 }}>
+                    <CommentIcon fontSize="small" />
+                    Comentario del Administrador
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: "pre-line" }}>
+                    {campaign.admin_comment}
+                  </Typography>
+                </Paper>
               </Box>
             )}
 
@@ -479,7 +564,7 @@ export default function CampaignDetailsModal({
                       fullWidth
                       variant="contained"
                       color="error"
-                      onClick={() => onReject?.(campaign)}
+                      onClick={() => handleActionWithComment("reject", campaign)}
                     >
                       ❌ Rechazar Campaña
                     </Button>
@@ -491,7 +576,7 @@ export default function CampaignDetailsModal({
                       fullWidth
                       variant="contained"
                       color="warning"
-                      onClick={() => onDetain?.(campaign)}
+                      onClick={() => handleActionWithComment("detain", campaign)}
                     >
                       ⏸️ Detener Campaña
                     </Button>
@@ -499,7 +584,7 @@ export default function CampaignDetailsModal({
                       fullWidth
                       variant="contained"
                       color="info"
-                      onClick={() => onComplete?.(campaign)}
+                      onClick={() => handleActionWithComment("complete", campaign)}
                     >
                       🏁 Marcar Completada
                     </Button>
@@ -536,6 +621,62 @@ export default function CampaignDetailsModal({
           Cerrar
         </Button>
       </DialogActions>
+
+      {/* Diálogo para comentario obligatorio */}
+      <Dialog
+        open={commentDialogOpen}
+        onClose={() => setCommentDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{ sx: { borderRadius: 2 } }}
+      >
+        <DialogTitle sx={{ pb: 1 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <CommentIcon color="primary" />
+            <Typography variant="h6" sx={{ fontWeight: 700 }}>
+              {getActionTitle()}
+            </Typography>
+          </Box>
+          <Typography variant="body2" color="text.secondary">
+            Se requiere un comentario explicando la razón de esta acción
+          </Typography>
+        </DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            fullWidth
+            multiline
+            rows={4}
+            label="Comentario del administrador *"
+            placeholder={getActionPlaceholder()}
+            value={adminComment}
+            onChange={(e) => setAdminComment(e.target.value)}
+            error={!adminComment.trim()}
+            helperText={!adminComment.trim() ? "Este campo es obligatorio" : ""}
+            sx={{ mt: 1 }}
+          />
+        </DialogContent>
+        <DialogActions sx={{ p: 2, pt: 0 }}>
+          <Button 
+            onClick={() => {
+              setCommentDialogOpen(false);
+              setAdminComment("");
+              setPendingAction(null);
+            }} 
+            variant="outlined"
+          >
+            Cancelar
+          </Button>
+          <Button
+            onClick={handleConfirmAction}
+            variant="contained"
+            color={pendingAction?.type === "reject" ? "error" : pendingAction?.type === "detain" ? "warning" : "info"}
+            disabled={!adminComment.trim()}
+          >
+            Confirmar
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Dialog>
   );
 }
