@@ -98,6 +98,13 @@ export default function AddCampaignStep2({ data, update, next, back }) {
 
     if (local.projectSections.length === 0) {
       newErrors.projectSections = "Debe agregar al menos una sección del proyecto";
+    } else {
+      // Validar que la suma de las secciones no exceda la meta total
+      const totalSections = local.projectSections.reduce((sum, s) => sum + parseFloat(s.goal || 0), 0);
+      const goalTotal = parseFloat(local.goalAmount) || 0;
+      if (totalSections > goalTotal) {
+        newErrors.projectSections = `La suma de las secciones (₡${totalSections.toLocaleString()}) no puede exceder la meta total (₡${goalTotal.toLocaleString()})`;
+      }
     }
 
     setErrors(newErrors);
@@ -392,6 +399,54 @@ export default function AddCampaignStep2({ data, update, next, back }) {
                     </Grid>
                   ))}
                 </Grid>
+                
+                {/* Resumen de metas */}
+                {(() => {
+                  const totalSections = local.projectSections.reduce((sum, s) => sum + parseFloat(s.goal || 0), 0);
+                  const goalTotal = parseFloat(local.goalAmount) || 0;
+                  const remaining = goalTotal - totalSections;
+                  const isOverBudget = remaining < 0;
+                  
+                  return (
+                    <Box sx={{ 
+                      mt: 2, 
+                      p: 2, 
+                      borderRadius: 2, 
+                      bgcolor: isOverBudget ? "rgba(239, 68, 68, 0.1)" : "rgba(34, 197, 94, 0.1)",
+                      border: `1px solid ${isOverBudget ? "rgba(239, 68, 68, 0.3)" : "rgba(34, 197, 94, 0.3)"}`
+                    }}>
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                        <Typography variant="body2" fontWeight={600}>
+                          Total secciones:
+                        </Typography>
+                        <Typography variant="body2" fontWeight={700} color={isOverBudget ? "error.main" : "success.main"}>
+                          ₡{totalSections.toLocaleString()}
+                        </Typography>
+                      </Box>
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                        <Typography variant="body2" fontWeight={600}>
+                          Meta total:
+                        </Typography>
+                        <Typography variant="body2" fontWeight={700}>
+                          ₡{goalTotal.toLocaleString()}
+                        </Typography>
+                      </Box>
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", pt: 1, borderTop: "1px dashed rgba(0,0,0,0.2)" }}>
+                        <Typography variant="body2" fontWeight={600}>
+                          {isOverBudget ? "Excedente:" : "Disponible:"}
+                        </Typography>
+                        <Typography variant="body2" fontWeight={700} color={isOverBudget ? "error.main" : "text.secondary"}>
+                          {isOverBudget ? `-₡${Math.abs(remaining).toLocaleString()}` : `₡${remaining.toLocaleString()}`}
+                        </Typography>
+                      </Box>
+                      {isOverBudget && (
+                        <Typography variant="caption" color="error.main" sx={{ display: "block", mt: 1 }}>
+                          ⚠️ La suma de las secciones excede la meta total de recaudación
+                        </Typography>
+                      )}
+                    </Box>
+                  );
+                })()}
               </Box>
             ) : (
               <Box sx={{ 

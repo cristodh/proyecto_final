@@ -48,6 +48,7 @@ import FilterListIcon from "@mui/icons-material/FilterList";
 import { useCampaigns, STATUS_CONFIG, CAMPAIGN_STATUS } from "./useCampaigns";
 import CampaignDetailsModal from "./CampaignDetailsModal";
 import CampaignReviewModal from "./CampaignReviewModal";
+import CampaignEditModal from "./CampaignEditModal";
 
 // Componente de tarjeta de estadística
 function StatCard({ title, value, icon, color, subtitle }) {
@@ -273,14 +274,17 @@ export default function CampaignsSection() {
     selectedCampaign,
     detailsModalOpen,
     reviewModalOpen,
+    editModalOpen,
     reviewAction,
     fetchCampaigns,
     updateCampaignStatus,
+    updateCampaign,
     deleteCampaign,
     evaluateChecklist,
     calculateProgress,
     openDetailsModal,
     openReviewModal,
+    openEditModal,
     closeModals,
   } = useCampaigns();
 
@@ -566,6 +570,7 @@ export default function CampaignsSection() {
         onReject={(c) => handleQuickAction(c, "reject")}
         onDetain={(c) => handleQuickAction(c, "detain")}
         onComplete={(c) => handleQuickAction(c, "complete")}
+        onEdit={openEditModal}
       />
 
       <CampaignReviewModal
@@ -575,6 +580,13 @@ export default function CampaignsSection() {
         action={reviewAction}
         evaluateChecklist={evaluateChecklist}
         onConfirm={handleReviewConfirm}
+      />
+
+      <CampaignEditModal
+        open={editModalOpen}
+        onClose={closeModals}
+        campaign={selectedCampaign}
+        onSave={updateCampaign}
       />
     </Container>
   );

@@ -29,6 +29,7 @@ import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import CategoryIcon from "@mui/icons-material/Category";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
+import EditIcon from "@mui/icons-material/Edit";
 import { STATUS_CONFIG, REVIEW_CHECKLIST } from "./useCampaigns";
 
 export default function CampaignDetailsModal({
@@ -41,6 +42,7 @@ export default function CampaignDetailsModal({
   onReject,
   onDetain,
   onComplete,
+  onEdit,
 }) {
   if (!campaign) return null;
 
@@ -106,6 +108,14 @@ export default function CampaignDetailsModal({
                 fontWeight: 600,
               }}
             />
+            <IconButton 
+              onClick={() => onEdit && onEdit(campaign)} 
+              size="small" 
+              color="primary"
+              title="Editar campaña"
+            >
+              <EditIcon />
+            </IconButton>
             <IconButton onClick={onClose} size="small">
               <CloseIcon />
             </IconButton>
@@ -332,6 +342,62 @@ export default function CampaignDetailsModal({
                     );
                   })}
                 </Stack>
+              </Box>
+            )}
+
+            {/* Metas por Sección del Proyecto */}
+            {campaign.project_sections && campaign.project_sections.length > 0 && (
+              <Box sx={{ mt: 3 }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>
+                  📊 Metas por Sección del Proyecto ({campaign.project_sections.length})
+                </Typography>
+                <Stack spacing={1}>
+                  {campaign.project_sections.map((section, index) => {
+                    const sectionName = section.name || `Sección ${index + 1}`;
+                    const sectionGoal = parseFloat(section.goal) || 0;
+                    
+                    return (
+                      <Paper
+                        key={index}
+                        elevation={0}
+                        sx={{
+                          p: 1.5,
+                          border: 1,
+                          borderColor: "divider",
+                          borderRadius: 1,
+                          bgcolor: "grey.50",
+                        }}
+                      >
+                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                            {sectionName}
+                          </Typography>
+                          <Typography variant="body2" sx={{ fontWeight: 700, color: "primary.main" }}>
+                            {formatCurrency(sectionGoal)}
+                          </Typography>
+                        </Box>
+                      </Paper>
+                    );
+                  })}
+                </Stack>
+                {/* Total de secciones */}
+                <Box sx={{ 
+                  mt: 1.5, 
+                  p: 1.5, 
+                  borderRadius: 1, 
+                  bgcolor: "rgba(42, 157, 143, 0.1)", 
+                  border: 1, 
+                  borderColor: "rgba(42, 157, 143, 0.3)" 
+                }}>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                      Total Secciones:
+                    </Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 700, color: "#03b100ff" }}>
+                      {formatCurrency(campaign.project_sections.reduce((sum, s) => sum + (parseFloat(s.goal) || 0), 0))}
+                    </Typography>
+                  </Box>
+                </Box>
               </Box>
             )}
           </Box>

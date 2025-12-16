@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { authenticatedGetData, putData, deleteData } from "../../../services/fetch";
+import { authenticatedGetData, putData, patchData, deleteData } from "../../../services/fetch";
 
 // Estados de campaña según el backend
 export const CAMPAIGN_STATUS = {
@@ -67,6 +67,7 @@ export function useCampaigns() {
   const [selectedCampaign, setSelectedCampaign] = useState(null);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
   const [reviewAction, setReviewAction] = useState(null); // 'approve', 'reject', 'detain', etc.
 
   // Fetch inicial de campañas
@@ -224,12 +225,41 @@ export function useCampaigns() {
     setReviewModalOpen(true);
   }, []);
 
+  // Abrir modal de edición
+  const openEditModal = useCallback((campaign) => {
+    setSelectedCampaign(campaign);
+    setEditModalOpen(true);
+  }, []);
+
   // Cerrar modales
   const closeModals = useCallback(() => {
     setDetailsModalOpen(false);
     setReviewModalOpen(false);
+    setEditModalOpen(false);
     setSelectedCampaign(null);
     setReviewAction(null);
+  }, []);
+
+  // Actualizar campaña (todos los campos)
+  const updateCampaign = useCallback(async (id, updatedData) => {
+    try {
+      const response = await patchData(`campaign/update/${id}/`, updatedData);
+      
+      if (response?.ok || response?.campaign) {
+        const updatedCampaignData = response.campaign || { ...updatedData };
+        // Actualizar la campaña en el estado local
+        setCampaigns((prev) =>
+          prev.map((c) => (c.id === id ? { ...c, ...updatedCampaignData } : c))
+        );
+        // Actualizar también selectedCampaign si es la misma
+        setSelectedCampaign((prev) => (prev?.id === id ? { ...prev, ...updatedCampaignData } : prev));
+        return { success: true, data: updatedCampaignData };
+      }
+      return { success: false, error: response?.error || "No se recibió respuesta del servidor" };
+    } catch (err) {
+      console.error("Error updating campaign:", err);
+      return { success: false, error: err.message || "Error al actualizar la campaña" };
+    }
   }, []);
 
   return {
@@ -250,11 +280,13 @@ export function useCampaigns() {
     selectedCampaign,
     detailsModalOpen,
     reviewModalOpen,
+    editModalOpen,
     reviewAction,
     
     // Actions
     fetchCampaigns,
     updateCampaignStatus,
+    updateCampaign,
     deleteCampaign,
     evaluateChecklist,
     calculateProgress,
@@ -262,6 +294,7 @@ export function useCampaigns() {
     // Modal handlers
     openDetailsModal,
     openReviewModal,
+    openEditModal,
     closeModals,
   };
 }

@@ -71,6 +71,9 @@ export default function AddCampaign({ onClose }) {
       // 👇 AHORA SÍ SE ENVÍA
       pdf_documents: formData.pdf_documents,
       cover_image: formData.coverImage,
+      
+      // 👇 METAS POR SECCIÓN DEL PROYECTO
+      project_sections: formData.projectSections,
     };
 
     console.log("📤 Enviando campaña final:", campaignData);

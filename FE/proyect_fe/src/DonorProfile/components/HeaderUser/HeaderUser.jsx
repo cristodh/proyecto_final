@@ -18,6 +18,21 @@ import { useNavigate } from "react-router-dom";
 export default function HeaderUser({ onToggleSidebar, user}) {
   const navigate = useNavigate();
 
+  // Función para obtener la ruta del perfil según el rol
+  const getProfileRoute = () => {
+    const roleId = user?.role;
+    switch (roleId) {
+      case 1:
+        return '/manager_profile/main';  // Manager
+      case 2:
+        return '/donor_profile/main';     // Donor
+      case 5:
+        return '/admin/dashboard';        // Admin
+      default:
+        return '/donor_profile/main';     // Default
+    }
+  };
+
   // Función para cerrar sesión
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -139,7 +154,7 @@ export default function HeaderUser({ onToggleSidebar, user}) {
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <Avatar alt="user-icon" src={userIcon} onClick={() => navigate('/donor_profile/main')} sx={{ cursor: "pointer" ,'&:hover': {
+            <Avatar alt="user-icon" src={userIcon} onClick={() => navigate(getProfileRoute())} sx={{ cursor: "pointer" ,'&:hover': {
               boxShadow: "0 0 0 2px #0f1414ff",
               transform: "scale(1.05)",
               }

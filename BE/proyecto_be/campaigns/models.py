@@ -60,6 +60,12 @@ class Campaign(models.Model):
     # PDF
     # ============================================================
     pdf_documents = models.JSONField(blank=True, null=True)
+    
+    # ============================================================
+    # METAS POR SECCIÓN DEL PROYECTO
+    # ============================================================
+    # Formato: [{"name": "Mano de obra", "goal": 50000}, ...]
+    project_sections = models.JSONField(blank=True, null=True)
 
     def __str__(self):
         return self.name

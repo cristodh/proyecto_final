@@ -138,6 +138,26 @@ async function putData(endpoint, obj) {
 }
 export {putData}
 
+async function patchData(endpoint, obj) {
+   try {
+     const response = await fetch(`http://127.0.0.1:8000/${endpoint}`, {
+         method: 'PATCH',
+         headers: {
+             'Content-Type': 'application/json',
+             'Authorization': `Bearer ${localStorage.getItem('token')}`
+         },
+         body: JSON.stringify(obj)
+     })
+     const data = await response.json()
+     data.ok = response.ok
+     return data
+   } catch (error) {
+        console.error('Error in patchData:', error)
+        return null
+   }
+}
+export {patchData}
+
 async function deleteData(endpoint) {
    try {
      const token = localStorage.getItem('token');
