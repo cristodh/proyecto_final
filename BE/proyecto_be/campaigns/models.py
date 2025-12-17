@@ -57,6 +57,11 @@ class Campaign(models.Model):
     creator = models.ForeignKey('users.User', on_delete=models.CASCADE)
 
     # ============================================================
+    # IMAGEN PRINCIPAL / PORTADA
+    # ============================================================
+    main_image = models.URLField(blank=True, null=True)
+    
+    # ============================================================
     # PDF
     # ============================================================
     pdf_documents = models.JSONField(blank=True, null=True)
@@ -93,12 +98,19 @@ class MediaContent(models.Model):
 
 class Donation(models.Model):
     PAYMENT_CHOICES = [
-        ('credit_card', 'Credit Card'),
-        ('paypal', 'PayPal'),
-        ('bank_transfer', 'Bank Transfer'),
-        ('sinpe_movil', 'SINPE Movil'),
-        ('other', 'Other'),
+        ('sinpe_movil', 'SINPE Móvil'),
+        ('bank_transfer_bcr', 'Transferencia Bancaria - BCR'),
+        ('bank_transfer_bn', 'Transferencia Bancaria - Banco Nacional'),
+        ('bank_transfer_bac', 'Transferencia Bancaria - BAC'),
+        ('bank_transfer_other', 'Transferencia Bancaria - Otro Banco'),
     ]
+    
+    DONATION_STATUS = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+    
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     donated_at = models.DateTimeField(auto_now_add=True)
     message = models.TextField(blank=True, null=True)
@@ -108,6 +120,20 @@ class Donation(models.Model):
     donor = models.ForeignKey('users.User', on_delete=models.CASCADE)
     confirmation_number = models.CharField(max_length=100, unique=True)
     confirmation_email = models.EmailField()
+    
+    # ============================================================
+    # COMPROBANTE DE PAGO (PROOF OF PAYMENT)
+    # ============================================================
+    proof_of_payment_url = models.URLField(blank=True, null=True, help_text="URL de Cloudinary del comprobante de pago")
+    proof_of_payment_description = models.TextField(blank=True, null=True, help_text="Descripción del comprobante de pago (referencia, número de transacción, etc.)")
+    
+    # ============================================================
+    # ESTADO DE LA DONACIÓN
+    # ============================================================
+    donation_status = models.CharField(max_length=20, choices=DONATION_STATUS, default='pending', help_text="Estado de aprobación de la donación")
+    approved_at = models.DateTimeField(blank=True, null=True, help_text="Fecha de aprobación")
+    approved_by = models.ForeignKey('users.User', on_delete=models.SET_NULL, blank=True, null=True, related_name='approved_donations', help_text="Admin que aprobó la donación")
+    rejection_reason = models.TextField(blank=True, null=True, help_text="Motivo del rechazo")
 
     def __str__(self):
         return f"Donation of {self.amount} by {self.donor.username} to {self.campaign.name}"

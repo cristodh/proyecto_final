@@ -114,7 +114,7 @@ export default function HeaderUser({ onToggleSidebar, user}) {
           </Button>
           <Button 
             startIcon={<ExploreIcon />} 
-            onClick={() => navigate('/explorar-proyectos')} 
+            onClick={() => navigate('/explore-projects')} 
             sx={{ 
               textTransform: "none",
               color: "#64748b",

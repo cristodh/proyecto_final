@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
@@ -289,6 +291,19 @@ export default function ManagerCampaigns() {
           open={detailsOpen}
           onClose={handleCloseDetails}
           campaign={selectedCampaign}
+        />
+
+        {/* Toast notifications */}
+        <ToastContainer 
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
         />
       </Box>
     </Box>

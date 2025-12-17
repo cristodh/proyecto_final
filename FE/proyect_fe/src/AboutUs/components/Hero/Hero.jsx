@@ -9,7 +9,7 @@ export default function Hero() {
 
   return (
     <Box component="section" sx={{
-      py: { xs: 8, sm: 10 },
+      py: { xs: 8, sm: 10, md: 12 },
       backgroundImage: `linear-gradient(rgba(13,27,18,0.4), rgba(13,27,18,0.8)), url(${bg})`,
       backgroundSize: "cover",
       backgroundPosition: "center",

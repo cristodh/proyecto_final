@@ -9,6 +9,7 @@ import {
   Button
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
+import { toast } from "react-toastify";
 import { authenticatedPostData } from "../../../services/fetch";
 
 import AddCampaignStep1 from "./AddCampaignStep1";
@@ -52,6 +53,10 @@ export default function AddCampaign({ onClose }) {
   };
 
   const onSubmit = async () => {
+    // Debug: Ver qué tiene coverImage
+    console.log("🖼️ formData.coverImage:", formData.coverImage);
+    console.log("🖼️ formData.coverImage?.url:", formData.coverImage?.url);
+    
     const campaignData = {
       name: formData.title,
       description: formData.story || formData.shortDescription,
@@ -70,7 +75,7 @@ export default function AddCampaign({ onClose }) {
 
       // 👇 AHORA SÍ SE ENVÍA
       pdf_documents: formData.pdf_documents,
-      cover_image: formData.coverImage,
+      main_image: formData.coverImage?.url || null,  // Extraer solo la URL de la imagen
       
       // 👇 METAS POR SECCIÓN DEL PROYECTO
       project_sections: formData.projectSections,
@@ -83,14 +88,25 @@ export default function AddCampaign({ onClose }) {
       
       if (response && response.ok) {
         console.log("✅ Campaña creada exitosamente");
-        // NOTE: Para seguir probando con el formulario ya lleno,
-        // bloqueamos el cierre automático del modal.
-        // if (onClose) onClose();
+        toast.success("🎉 ¡Proyecto enviado para aprobación exitosamente!", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+        // Cerrar el modal después de éxito
+        if (onClose) onClose();
       } else {
         console.error("❌ Error al crear campaña:", response);
+        toast.error("❌ Error al enviar el proyecto. Por favor, intenta de nuevo.", {
+          position: "top-right",
+          autoClose: 4000,
+        });
       }
     } catch (error) {
       console.error("❌ Error al enviar campaña:", error);
+      toast.error("❌ Error de conexión. Verifica tu conexión e intenta de nuevo.", {
+        position: "top-right",
+        autoClose: 4000,
+      });
     }
   };
 

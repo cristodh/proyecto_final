@@ -19,7 +19,7 @@ export default function MainHeader() {
   const navigate = useNavigate();
   return (
     <AppBar position="sticky" elevation={0} sx={{
-      bgcolor: (t) => `${t.palette.background.paper}cc`, // slight transparency
+      bgcolor: (t) => `${t.palette.background.paper}`, // slight transparency
       borderBottom: 1,
       borderColor: "primary.main",
       backdropFilter: "blur(6px)"
@@ -38,7 +38,7 @@ export default function MainHeader() {
 
         {isMdUp ? (
           <Stack direction="row" spacing={4} sx={{ flex: 1, justifyContent: "center" }}>
-            <Button sx={{ textTransform: "none" }}>Explorar Proyectos</Button>
+            <Button sx={{ textTransform: "none" }}onClick={()=> navigate('/explore-projects')}>Explorar Proyectos</Button>
             <Button sx={{ textTransform: "none" }} onClick={() => navigate('/about-us')}>Conócenos</Button>
            
           </Stack>

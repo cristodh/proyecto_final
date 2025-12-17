@@ -20,11 +20,10 @@ export default function Header() {
 
   return (
     <AppBar position="sticky" elevation={0} sx={{
-      bgcolor: "rgba(240, 249, 255, 0.8)", // slight transparency
+      bgcolor: (t) => `${t.palette.background.paper}`, // slight transparency
       borderBottom: 1,
-      borderColor: theme.palette.custom?.borderLight || "#cfe7d7",
-      backdropFilter: "blur(6px)",
-      color: theme.palette.text.primary
+      borderColor: "primary.main",
+      backdropFilter: "blur(6px)"
     }}>
       <Toolbar sx={{ maxWidth: 1400, mx: "auto", width: "100%", px: 2 }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1, cursor: "pointer" }} onClick={() => navigate('/')}>
@@ -40,9 +39,8 @@ export default function Header() {
 
         {mdUp ? (
           <Stack direction="row" spacing={4} sx={{ flex: 1, justifyContent: "flex-end", alignItems: "center" }}>
-            <Stack direction="row" spacing={3} alignItems="center">
-              <Button sx={{ textTransform: "none" }}>Explorar Proyectos</Button>
-              <Button sx={{ textTransform: "none", color: "primary.main", fontWeight: 700 }}>Nuestra Esencia</Button>
+            <Stack direction="row" alignItems="center">
+              <Button sx={{ textTransform: "none" }} onClick={()=>navigate('/explore-projects')}>Explorar Proyectos</Button>
             </Stack>
             <Box sx={{ display: "flex", gap: 1 }}>
               <Button variant="contained" sx={{ textTransform: "none", minWidth: 120 }}>Inicio</Button>

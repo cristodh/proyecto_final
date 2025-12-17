@@ -17,6 +17,8 @@ import {
   Stack,
   Paper,
   TextField,
+  Tabs,
+  Tab,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
@@ -32,6 +34,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import EditIcon from "@mui/icons-material/Edit";
 import CommentIcon from "@mui/icons-material/Comment";
+import CampaignDonationsTab from "../CampaignDonationsTab";
 import { STATUS_CONFIG, REVIEW_CHECKLIST } from "./useCampaigns";
 
 export default function CampaignDetailsModal({
@@ -50,6 +53,7 @@ export default function CampaignDetailsModal({
   const [commentDialogOpen, setCommentDialogOpen] = useState(false);
   const [adminComment, setAdminComment] = useState("");
   const [pendingAction, setPendingAction] = useState(null); // { type: 'reject' | 'detain' | 'complete', campaign }
+  const [activeTab, setActiveTab] = useState(0); // 0: Detalles, 1: Donaciones
 
   if (!campaign) return null;
 
@@ -180,7 +184,17 @@ export default function CampaignDetailsModal({
         </Box>
       </DialogTitle>
 
+      {/* Tabs */}
+      <Box sx={{ borderBottom: 1, borderColor: "divider", px: 3, pt: 2 }}>
+        <Tabs value={activeTab} onChange={(e, val) => setActiveTab(val)}>
+          <Tab label="Detalles de Campaña" />
+          <Tab label="Donaciones Pendientes" />
+        </Tabs>
+      </Box>
+
       <DialogContent dividers sx={{ p: 3 }}>
+        {/* Tab 0: Detalles */}
+        {activeTab === 0 && (
         <Box sx={{ display: "flex", gap: 3 }}>
           {/* Columna izquierda - Info principal (scrolleable) */}
           <Box sx={{ flex: 1, minWidth: 0, maxHeight: "65vh", overflow: "auto", pr: 1 }}>
@@ -614,6 +628,23 @@ export default function CampaignDetailsModal({
             </Paper>
           </Box>
         </Box>
+        )}
+
+        {/* Tab 1: Donaciones */}
+        {activeTab === 1 && (
+          <CampaignDonationsTab
+            campaign={campaign}
+            user={{ id: 1, role: "admin" }} // Mock user - adjust as needed
+            formatCurrency={formatCurrency}
+            token={localStorage.getItem("token")}
+            onDonationApproved={(newAmount) => {
+              // Callback si se aprueba una donación
+              if (campaign) {
+                campaign.current_amount = newAmount;
+              }
+            }}
+          />
+        )}
       </DialogContent>
 
       <DialogActions sx={{ p: 2 }}>

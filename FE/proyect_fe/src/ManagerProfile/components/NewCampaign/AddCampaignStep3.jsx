@@ -35,6 +35,10 @@ export default function AddCampaignStep3({ data, update, next, back }) {
       return;
     }
 
+    // Debug: Ver qué se está enviando al padre
+    console.log("📷 Step3 - local.coverImage antes de update:", local.coverImage);
+    console.log("📷 Step3 - local completo:", local);
+    
     update(local);
     next();
   };
@@ -51,12 +55,14 @@ export default function AddCampaignStep3({ data, update, next, back }) {
           {/* IMAGEN PRINCIPAL */}
           <SingleImageUploader
             uploadedImage={local.coverImage}
-            onUploaded={(img) =>
-              setLocal(prev => ({ ...prev, coverImage: img }))
-            }
-            onUpdateUploaded={(img) =>
-              setLocal(prev => ({ ...prev, coverImage: img }))
-            }
+            onUploaded={(img) => {
+              console.log("📷 SingleImageUploader onUploaded:", img);
+              setLocal(prev => ({ ...prev, coverImage: img }));
+            }}
+            onUpdateUploaded={(img) => {
+              console.log("📷 SingleImageUploader onUpdateUploaded:", img);
+              setLocal(prev => ({ ...prev, coverImage: img }));
+            }}
           />
 
           {/* PDFs */}
