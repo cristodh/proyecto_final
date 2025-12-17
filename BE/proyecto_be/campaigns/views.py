@@ -331,66 +331,90 @@ class DonationListCreateView(ListCreateAPIView):
 
 class DonationCreateView(APIView):
     """
-    Vista para crear una donación
-    - POST: Crea una donación y actualiza el current_amount de la campaña
+    Crea una donación en estado PENDING.
+    La donación NO se refleja en el monto actual de la campaña
+    hasta que sea aprobada por un administrador.
     """
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
         try:
+            # Transacción atómica para evitar inconsistencias
             with transaction.atomic():
-                # Validar que la campaña existe y está activa
-                campaign_id = request.data.get('campaign')
-                try:
-                    campaign = Campaign.objects.get(id=campaign_id)
-                except Campaign.DoesNotExist:
-                    return Response({'error': 'Campaña no encontrada'}, status=404)
-                
-                if campaign.campaign_status != 'active':
-                    return Response({
-                        'error': 'Solo se pueden hacer donaciones a campañas activas'
-                    }, status=400)
-                
+
+                # Obtener la campaña
+                campaign_id = request.data.get("campaign")
+                campaign = Campaign.objects.get(id=campaign_id)
+
+                # Validar que la campaña esté activa
+                if campaign.campaign_status != "active":
+                    return Response(
+                        {"error": "Solo se pueden recibir donaciones en campañas activas"},
+                        status=400
+                    )
+
                 # Validar monto
-                amount = request.data.get('amount')
-                try:
-                    amount = Decimal(str(amount))
-                    if amount <= 0:
-                        return Response({'error': 'El monto debe ser mayor a 0'}, status=400)
-                except:
-                    return Response({'error': 'Monto inválido'}, status=400)
-                
+                amount = Decimal(str(request.data.get("amount")))
+                if amount <= 0:
+                    return Response(
+                        {"error": "El monto de la donación debe ser mayor a 0"},
+                        status=400
+                    )
+
                 # Generar número de confirmación único
                 confirmation_number = f"DON-{uuid.uuid4().hex[:8].upper()}-{campaign.id}"
-                
-                # Crear la donación
+
+                # Crear donación en estado PENDING
                 donation = Donation.objects.create(
-                    amount=amount,
-                    message=request.data.get('message', ''),
-                    anonymous=request.data.get('anonymous', False),
-                    payment_method=request.data.get('payment_method', 'other'),
                     campaign=campaign,
                     donor=request.user,
+                    amount=amount,
+                    message=request.data.get("message", ""),
+                    anonymous=request.data.get("anonymous", False),
+                    payment_method=request.data.get("payment_method"),
                     confirmation_number=confirmation_number,
-                    confirmation_email=request.data.get('confirmation_email', request.user.email),
-                    proof_of_payment_url=request.data.get('proof_of_payment_url', ''),
-                    proof_of_payment_description=request.data.get('proof_of_payment_description', ''),
-                    proof_of_payment_name=request.data.get('proof_of_payment_name', '')
+                    confirmation_email=request.data.get(
+                        "confirmation_email",
+                        request.user.email
+                    ),
+
+                    # Comprobante de pago (Cloudinary)
+                    proof_of_payment_url=request.data.get(
+                        "proof_of_payment_url", ""
+                    ),
+                    proof_of_payment_description=request.data.get(
+                        "proof_of_payment_description", ""
+                    ),
+                    proof_of_payment_name=request.data.get(
+                        "proof_of_payment_name", ""
+                    ),
+
+                    # 🔑 Estado inicial
+                    donation_status="pending"
                 )
-                
-                # Actualizar el current_amount de la campaña
-                campaign.current_amount = Decimal(str(campaign.current_amount)) + amount
-                campaign.save()
-                
+
+                # Serializar respuesta
                 serializer = DonationSerializer(donation)
-                return Response({
-                    'message': '¡Donación realizada exitosamente!',
-                    'donation': serializer.data,
-                    'campaign_current_amount': str(campaign.current_amount)
-                }, status=201)
-                
+
+                return Response(
+                    {
+                        "message": "Donación registrada correctamente y pendiente de aprobación",
+                        "donation": serializer.data
+                    },
+                    status=201
+                )
+
+        except Campaign.DoesNotExist:
+            return Response(
+                {"error": "La campaña indicada no existe"},
+                status=404
+            )
+
         except Exception as e:
-            return Response({'error': str(e)}, status=400)
+            return Response(
+                {"error": str(e)},
+                status=400
+            )
 
 
 class CampaignDonationsView(APIView):
@@ -403,7 +427,7 @@ class CampaignDonationsView(APIView):
     def get(self, request, campaign_id):
         try:
             campaign = Campaign.objects.get(id=campaign_id)
-            donations = Donation.objects.filter(campaign=campaign).order_by('-donated_at')
+            donations = Donation.objects.filter(campaign=campaign,donation_status='approved')
             
             # Para donaciones anónimas, ocultar información del donante
             donation_list = []
@@ -603,7 +627,7 @@ class DonationApproveView(APIView):
     def patch(self, request, donation_id):
         try:
             with transaction.atomic():
-                donation = Donation.objects.get(id=donation_id)
+                donation = Donation.objects.select_for_update().get(id=donation_id)
                 campaign = donation.campaign
                 
                 # Verificar permiso
@@ -645,33 +669,42 @@ class DonationRejectView(APIView):
 
     def patch(self, request, donation_id):
         try:
-            donation = Donation.objects.get(id=donation_id)
-            campaign = donation.campaign
-            
-            # Verificar permiso
-            if request.user != campaign.creator and not request.user.is_staff:
-                return Response({'error': 'No tienes permiso'}, status=403)
-            
-            if donation.donation_status != 'pending':
-                return Response({'error': f'La donación ya está {donation.donation_status}'}, status=400)
-            
-            if not request.data.get('rejection_reason'):
-                return Response({'error': 'Debes proporcionar un motivo de rechazo'}, status=400)
-            
-            # Rechazar donación
-            donation.donation_status = 'rejected'
-            donation.rejection_reason = request.data.get('rejection_reason')
-            donation.approved_by = request.user
-            donation.save()
-            
-            serializer = DonationSerializer(donation)
-            return Response({
-                'message': 'Donación rechazada',
-                'donation': serializer.data
-            }, status=200)
-            
+            with transaction.atomic():
+                donation = Donation.objects.select_for_update().get(
+                    id=donation_id,
+                    donation_status='pending'
+                )
+
+                campaign = donation.campaign
+
+                # Verificar permiso
+                if request.user != campaign.creator and not request.user.is_staff:
+                    return Response({'error': 'No tienes permiso'}, status=403)
+
+                rejection_reason = request.data.get('rejection_reason')
+                if not rejection_reason:
+                    return Response(
+                        {'error': 'Debes proporcionar un motivo de rechazo'},
+                        status=400
+                    )
+
+                # ❌ Rechazar donación (NO afecta montos)
+                donation.donation_status = 'rejected'
+                donation.rejection_reason = rejection_reason
+                donation.approved_by = request.user
+                donation.save()
+
+                serializer = DonationSerializer(donation)
+                return Response({
+                    'message': 'Donación rechazada correctamente',
+                    'donation': serializer.data
+                }, status=200)
+
         except Donation.DoesNotExist:
-            return Response({'error': 'Donación no encontrada'}, status=404)
+            return Response(
+                {'error': 'Donación no encontrada o ya procesada'},
+                status=404
+            )
         except Exception as e:
             return Response({'error': str(e)}, status=400)
 

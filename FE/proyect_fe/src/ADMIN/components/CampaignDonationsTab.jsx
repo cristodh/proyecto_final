@@ -103,7 +103,7 @@ export default function CampaignDonationsTab({
 
     try {
       setProcessing(rejectDialog.donation.id);
-      await fetch(
+      const response = await fetch(
         `http://127.0.0.1:8000/campaign/donations/${rejectDialog.donation.id}/reject/`,
         {
           method: "PATCH",
@@ -114,6 +114,8 @@ export default function CampaignDonationsTab({
           body: JSON.stringify({ rejection_reason: rejectReason }),
         }
       );
+
+      if (!response.ok) throw new Error("Error al rechazar donación");
 
       setDonations((prev) =>
         prev.filter((d) => d.id !== rejectDialog.donation.id)
@@ -199,6 +201,7 @@ export default function CampaignDonationsTab({
                   size="small"
                   startIcon={<CancelIcon />}
                   onClick={() => handleRejectClick(donation)}
+                  disabled={processing}
                 >
                   Rechazar
                 </Button>
@@ -208,6 +211,7 @@ export default function CampaignDonationsTab({
                   size="small"
                   startIcon={<CheckCircleIcon />}
                   onClick={() => handleApprove(donation.id)}
+                  disabled={processing}
                 >
                   Aprobar
                 </Button>
@@ -217,6 +221,50 @@ export default function CampaignDonationsTab({
         );
       })}
 
+      {/* ================= DIALOG RECHAZO ================= */}
+      <Dialog
+        open={rejectDialog.open}
+        onClose={() => setRejectDialog({ open: false, donation: null })}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Rechazar donación</DialogTitle>
+
+        <DialogContent dividers>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Indicá el motivo del rechazo. Esta acción no se puede deshacer.
+          </Typography>
+
+          <TextField
+            label="Motivo del rechazo"
+            multiline
+            rows={4}
+            fullWidth
+            value={rejectReason}
+            onChange={(e) => setRejectReason(e.target.value)}
+          />
+        </DialogContent>
+
+        <DialogActions>
+          <Button
+            onClick={() => setRejectDialog({ open: false, donation: null })}
+            disabled={processing}
+          >
+            Cancelar
+          </Button>
+
+          <Button
+            variant="contained"
+            color="error"
+            onClick={handleRejectSubmit}
+            disabled={!rejectReason.trim() || processing}
+          >
+            Confirmar rechazo
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* ================= DIALOG PREVIEW ================= */}
       <Dialog
         open={previewDialog.open}
         onClose={() => setPreviewDialog({ open: false, url: null, type: null })}
@@ -248,7 +296,9 @@ export default function CampaignDonationsTab({
           >
             Descargar
           </Button>
-          <Button onClick={() => setPreviewDialog({ open: false, url: null, type: null })}>
+          <Button
+            onClick={() => setPreviewDialog({ open: false, url: null, type: null })}
+          >
             Cerrar
           </Button>
         </DialogActions>
