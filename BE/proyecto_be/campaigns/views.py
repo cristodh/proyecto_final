@@ -769,3 +769,89 @@ class UserReportCreateView(APIView):
             
         except Exception as e:
             return Response({'error': str(e)}, status=400)
+
+
+class UserReportListView(APIView):
+    """
+    Vista para listar todos los reportes (solo admin)
+    - GET: permite filtrar por tipo con query param ?type=campaign|user|all
+    - Default: campaign (solo campañas) para evitar mezclar con reportes de usuario
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            if not request.user.is_staff:
+                return Response({'error': 'No tienes permiso'}, status=403)
+
+            report_type = request.query_params.get('type', 'campaign')
+            reports = UserReport.objects.all().select_related(
+                'reporter', 'reported_user', 'campaign', 'donation'
+            ).order_by('-created_at')
+
+            if report_type == 'campaign':
+                reports = reports.filter(campaign__isnull=False, reported_user__isnull=True)
+            elif report_type == 'user':
+                reports = reports.filter(reported_user__isnull=False)
+
+            serializer = UserReportSerializer(reports, many=True)
+            return Response({
+                'count': reports.count(),
+                'results': serializer.data
+            }, status=200)
+        except Exception as e:
+            return Response({'error': str(e)}, status=400)
+
+
+class UserReportStatusUpdateView(APIView):
+    """
+    Vista para actualizar o eliminar un reporte (solo admin)
+    - PATCH: actualiza el estado del reporte
+    - DELETE: elimina el reporte
+    """
+    permission_classes = [IsAuthenticated]
+    allowed_status = ['open', 'reviewed', 'dismissed']
+
+    def _get_report(self, report_id):
+        try:
+            return UserReport.objects.get(id=report_id)
+        except UserReport.DoesNotExist:
+            return None
+
+    def patch(self, request, report_id):
+        try:
+            if not request.user.is_staff:
+                return Response({'error': 'No tienes permiso'}, status=403)
+
+            report = self._get_report(report_id)
+            if not report:
+                return Response({'error': 'Reporte no encontrado'}, status=404)
+
+            new_status = request.data.get('status')
+            if new_status not in self.allowed_status:
+                return Response({'error': 'Estado inválido'}, status=400)
+
+            report.status = new_status
+            report.save()
+
+            serializer = UserReportSerializer(report)
+            return Response({
+                'message': 'Estado actualizado',
+                'report': serializer.data
+            }, status=200)
+        except Exception as e:
+            return Response({'error': str(e)}, status=400)
+
+    def delete(self, request, report_id):
+        try:
+            if not request.user.is_staff:
+                return Response({'error': 'No tienes permiso'}, status=403)
+
+            report = self._get_report(report_id)
+            if not report:
+                return Response({'error': 'Reporte no encontrado'}, status=404)
+
+            report.delete()
+            return Response({'message': 'Reporte eliminado'}, status=204)
+        except Exception as e:
+            return Response({'error': str(e)}, status=400)

@@ -19,12 +19,19 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  CircularProgress,
 } from "@mui/material";
 import WarningIcon from "@mui/icons-material/Warning";
 import BlockIcon from "@mui/icons-material/Block";
 import DoneIcon from "@mui/icons-material/Done";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { getData, putData, deleteData } from "../../../../services/fetch";
+import {
+  getAdminData,
+  patchData,
+  deleteData,
+  putData,
+  authenticatedPostData,
+} from "../../../../services/fetch";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -48,34 +55,91 @@ export default function ModerationSection() {
   const [campaignReports, setCampaignReports] = useState([]);
   const [userReports, setUserReports] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [actionReason, setActionReason] = useState("");
 
-  // TODO: Agregar useEffect para traer reportes del backend
-  useEffect(() => {
-    const fetchReports = async () => {
-      setLoading(true);
-      try {
-        // const campaignData = await getData('reports/campaigns/');
-        // const userData = await getData('reports/users/');
-        // if (campaignData) setCampaignReports(campaignData);
-        // if (userData) setUserReports(userData);
-      } catch (error) {
-        console.error('Error fetching reports:', error);
-      } finally {
-        setLoading(false);
+  const reasonLabels = {
+    spam: "Spam o contenido no deseado",
+    fraud: "Fraude o estafa",
+    abuse: "Acoso o abuso",
+    inappropriate: "Contenido inapropiado",
+    other: "Otro",
+  };
+
+  const normalizeReports = (items) =>
+    items.map((report) => ({
+      id: report.id,
+      type: report.report_type || (report.campaign ? "campaign" : "user"),
+      campaignName: report.campaign_name,
+      campaignId: report.campaign,
+      reportedUserName: report.reported_user_username,
+      reportedUserId: report.reported_user,
+      reporterName: report.reporter_username,
+      reasonCode: report.reason,
+      reasonLabel: reasonLabels[report.reason] || report.reason,
+      description: report.description || "Sin descripción",
+      status: report.status,
+      createdAt: report.created_at,
+      createdAtText: report.created_at
+        ? new Date(report.created_at).toLocaleString("es-CR", {
+            dateStyle: "medium",
+            timeStyle: "short",
+          })
+        : "",
+      donationId: report.donation,
+      raw: report,
+    }));
+
+  const loadReports = async () => {
+    setLoading(true);
+    setErrorMessage("");
+    try {
+      const [campaignData, userData] = await Promise.all([
+        getAdminData("campaign/reports/?type=campaign"),
+        getAdminData("campaign/reports/?type=user"),
+      ]);
+
+      if (!campaignData || !campaignData.results) {
+        setCampaignReports([]);
+      } else {
+        const normalizedCampaigns = normalizeReports(campaignData.results).filter(
+          (r) => r.type === "campaign"
+        );
+        setCampaignReports(normalizedCampaigns);
       }
-    };
-    fetchReports();
+
+      if (!userData || !userData.results) {
+        setUserReports([]);
+      } else {
+        const normalizedUsers = normalizeReports(userData.results).filter(
+          (r) => r.type === "user"
+        );
+        setUserReports(normalizedUsers);
+      }
+
+      if ((!campaignData || !campaignData.results) && (!userData || !userData.results)) {
+        setErrorMessage("No se pudo obtener la lista de reportes");
+      }
+    } catch (error) {
+      console.error("Error fetching reports:", error);
+      setErrorMessage("Error al cargar los reportes");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadReports();
   }, []);
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "pending":
+      case "open":
         return "warning";
       case "reviewed":
         return "info";
-      case "resolved":
-        return "success";
-      case "rejected":
+      case "dismissed":
         return "error";
       default:
         return "default";
@@ -83,13 +147,13 @@ export default function ModerationSection() {
   };
 
   const getStatusLabel = (status) => {
-    return status === "pending"
+    return status === "open"
       ? "Pendiente"
       : status === "reviewed"
         ? "Revisado"
-        : status === "resolved"
-          ? "Resuelto"
-          : "Rechazado";
+        : status === "dismissed"
+          ? "Descartado"
+          : status;
   };
 
   const handleOpenDialog = (report) => {
@@ -100,18 +164,91 @@ export default function ModerationSection() {
   const handleCloseDialog = () => {
     setOpenDialog(false);
     setSelectedReport(null);
+    setActionReason("");
   };
 
   const handleAction = async (action) => {
-    // TODO: Implementar acciones en backend (warn, suspend, resolve, delete)
+    if (!selectedReport) return;
+
+    const requiresReason = action !== "delete" && action !== "omit" ? true : action === "omit" ? false : true;
+    if (requiresReason && !actionReason.trim()) {
+      setErrorMessage("Debes ingresar un motivo para esta acción");
+      return;
+    }
+
+    const statusMap = {
+      warn: "reviewed",
+      suspend: "reviewed",
+      approve: "reviewed",
+      delete: "dismissed",
+      omit: "dismissed",
+    };
+
+    setActionLoading(true);
+    setErrorMessage("");
     try {
-      // const response = await putData(`reports/${selectedReport.id}/`, { action: action, status: 'resolved' });
-      // if (response.ok) {
-      //   // Actualizar lista de reportes
-      //   handleCloseDialog();
-      // }
+      if (selectedReport.type === "campaign") {
+        if (action === "approve") {
+          // Denegar campaña: actualizar estado de la campaña con motivo
+          await patchData(`campaign/status/${selectedReport.campaignId}/`, {
+            campaign_status: "rejected",
+            admin_comment: actionReason,
+          });
+          await patchData(`campaign/reports/${selectedReport.id}/`, {
+            status: statusMap[action] || "reviewed",
+          });
+        } else if (action === "omit") {
+          await patchData(`campaign/reports/${selectedReport.id}/`, {
+            status: statusMap[action] || "dismissed",
+          });
+        } else {
+          // warn / suspend -> solo marcar revisado con motivo
+          await patchData(`campaign/reports/${selectedReport.id}/`, {
+            status: statusMap[action] || "reviewed",
+            admin_comment: actionReason,
+          });
+        }
+      } else if (selectedReport.type === "user") {
+        if (action === "approve" || action === "suspend" || action === "warn") {
+          // Suspender/desactivar usuario reportado
+          if (selectedReport.reportedUserId) {
+            await putData("users/update_delete/", {
+              id: selectedReport.reportedUserId,
+              active: false,
+            });
+            await authenticatedPostData("users/rejection_reason/", {
+              user: selectedReport.reportedUserId,
+              rejection_reason: actionReason,
+            });
+          }
+          await patchData(`campaign/reports/${selectedReport.id}/`, {
+            status: statusMap[action] || "reviewed",
+          });
+        } else if (action === "omit") {
+          await patchData(`campaign/reports/${selectedReport.id}/`, {
+            status: statusMap[action] || "dismissed",
+          });
+        } else if (action === "delete") {
+          await deleteData(`campaign/reports/${selectedReport.id}/`);
+        }
+      } else {
+        // Fallback: solo actualizar estado del reporte
+        if (action === "delete") {
+          await deleteData(`campaign/reports/${selectedReport.id}/`);
+        } else {
+          await patchData(`campaign/reports/${selectedReport.id}/`, {
+            status: statusMap[action] || "reviewed",
+          });
+        }
+      }
+
+      await loadReports();
+      handleCloseDialog();
     } catch (error) {
-      console.error('Error processing action:', error);
+        console.error('Error processing action:', error);
+        setErrorMessage('No se pudo completar la acción');
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -139,21 +276,31 @@ export default function ModerationSection() {
           </TableRow>
         </TableHead>
         <TableBody>
+          {campaignReports.length === 0 && !loading && (
+            <TableRow>
+              <TableCell colSpan={6} align="center">
+                <Typography variant="body2" color="text.secondary">
+                  No hay reportes de campañas
+                </Typography>
+              </TableCell>
+            </TableRow>
+          )}
+
           {campaignReports.map((report) => (
             <TableRow key={report.id} hover>
               <TableCell>
                 <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                  {report.campaign}
+                  {report.campaignName}
                 </Typography>
               </TableCell>
               <TableCell>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <WarningIcon sx={{ fontSize: 18, color: "warning.main" }} />
-                  {report.reason}
+                  {report.reasonLabel}
                 </Box>
               </TableCell>
-              <TableCell>{report.reporter}</TableCell>
-              <TableCell>{report.date}</TableCell>
+              <TableCell>{report.reporterName || "-"}</TableCell>
+              <TableCell>{report.createdAtText}</TableCell>
               <TableCell>
                 <Chip
                   label={getStatusLabel(report.status)}
@@ -201,16 +348,26 @@ export default function ModerationSection() {
           </TableRow>
         </TableHead>
         <TableBody>
+          {userReports.length === 0 && !loading && (
+            <TableRow>
+              <TableCell colSpan={6} align="center">
+                <Typography variant="body2" color="text.secondary">
+                  No hay reportes de usuarios
+                </Typography>
+              </TableCell>
+            </TableRow>
+          )}
+
           {userReports.map((report) => (
             <TableRow key={report.id} hover>
               <TableCell>
                 <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                  {report.user}
+                  {report.reportedUserName}
                 </Typography>
               </TableCell>
-              <TableCell>{report.reason}</TableCell>
-              <TableCell>{report.reporter}</TableCell>
-              <TableCell>{report.date}</TableCell>
+              <TableCell>{report.reasonLabel}</TableCell>
+              <TableCell>{report.reporterName || "-"}</TableCell>
+              <TableCell>{report.createdAtText}</TableCell>
               <TableCell>
                 <Chip
                   label={getStatusLabel(report.status)}
@@ -245,6 +402,14 @@ export default function ModerationSection() {
         </Typography>
       </Box>
 
+      {errorMessage && (
+        <Box sx={{ mb: 2 }}>
+          <Typography color="error" variant="body2">
+            {errorMessage}
+          </Typography>
+        </Box>
+      )}
+
       <Paper
         elevation={0}
         sx={{
@@ -270,6 +435,12 @@ export default function ModerationSection() {
         </TabPanel>
       </Paper>
 
+      {loading && (
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+          <CircularProgress size={28} />
+        </Box>
+      )}
+
       {/* Dialog de acción */}
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
         <DialogTitle>Revisar Reporte</DialogTitle>
@@ -277,14 +448,35 @@ export default function ModerationSection() {
           {selectedReport && (
             <Box sx={{ mt: 2 }}>
               <Typography variant="body2" sx={{ mb: 1 }}>
-                <strong>Motivo:</strong> {selectedReport.reason}
+                <strong>Motivo:</strong> {selectedReport.reasonLabel}
               </Typography>
               <Typography variant="body2" sx={{ mb: 1 }}>
-                <strong>Evidencia:</strong> {selectedReport.evidence}
+                <strong>Descripción:</strong> {selectedReport.description}
               </Typography>
               <Typography variant="body2">
-                <strong>Reportado por:</strong> {selectedReport.reporter}
+                <strong>Reportado por:</strong> {selectedReport.reporterName || "-"}
               </Typography>
+              {selectedReport.campaignName && (
+                <Typography variant="body2">
+                  <strong>Campaña:</strong> {selectedReport.campaignName}
+                </Typography>
+              )}
+              {selectedReport.reportedUserName && (
+                <Typography variant="body2">
+                  <strong>Usuario:</strong> {selectedReport.reportedUserName}
+                </Typography>
+              )}
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="body2" sx={{ mb: 1 }}>
+                  Motivo del administrador (obligatorio para cambiar estado):
+                </Typography>
+                <textarea
+                  style={{ width: "100%", minHeight: 80, padding: 8, borderRadius: 8, border: '1px solid #ccc' }}
+                  value={actionReason}
+                  onChange={(e) => setActionReason(e.target.value)}
+                  placeholder="Describe el motivo de la decisión"
+                />
+              </Box>
             </Box>
           )}
         </DialogContent>
@@ -294,6 +486,7 @@ export default function ModerationSection() {
             onClick={() => handleAction("warn")}
             startIcon={<WarningIcon />}
             variant="outlined"
+            disabled={actionLoading}
           >
             Advertir
           </Button>
@@ -302,6 +495,7 @@ export default function ModerationSection() {
             startIcon={<BlockIcon />}
             variant="outlined"
             color="warning"
+            disabled={actionLoading}
           >
             Suspender
           </Button>
@@ -310,16 +504,18 @@ export default function ModerationSection() {
             startIcon={<DoneIcon />}
             variant="contained"
             color="success"
+            disabled={actionLoading}
           >
-            Resolver
+            Resolver / Denegar
           </Button>
           <Button
-            onClick={() => handleAction("delete")}
+            onClick={() => handleAction("omit")}
             startIcon={<DeleteIcon />}
             variant="outlined"
             color="error"
+            disabled={actionLoading}
           >
-            Eliminar
+            Omitir reporte
           </Button>
         </DialogActions>
       </Dialog>

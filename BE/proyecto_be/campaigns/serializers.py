@@ -73,12 +73,13 @@ class UserReportSerializer(ModelSerializer):
     reporter_username = serializers.CharField(source='reporter.username', read_only=True)
     reported_user_username = serializers.SerializerMethodField()
     campaign_name = serializers.SerializerMethodField()
+    report_type = serializers.SerializerMethodField()
     
     class Meta:
         model = UserReport
         fields = [
             'id', 'reporter', 'reporter_username', 'reported_user', 'reported_user_username',
-            'campaign', 'campaign_name', 'donation', 'reason', 'description',
+            'campaign', 'campaign_name', 'donation', 'reason', 'description', 'report_type',
             'status', 'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'reporter', 'created_at', 'updated_at', 'status']
@@ -88,6 +89,14 @@ class UserReportSerializer(ModelSerializer):
 
     def get_campaign_name(self, obj):
         return obj.campaign.name if obj.campaign else None
+
+    def get_report_type(self, obj):
+        # Si tiene reported_user, lo consideramos reporte de usuario; si no, de campaña
+        if obj.reported_user:
+            return 'user'
+        if obj.campaign:
+            return 'campaign'
+        return 'unknown'
 
 
 class UserReportCreateSerializer(ModelSerializer):

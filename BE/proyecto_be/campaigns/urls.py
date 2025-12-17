@@ -23,6 +23,8 @@ from .views import (
     DonationApproveView,
     DonationRejectView,
     UserReportCreateView,
+    UserReportListView,
+    UserReportStatusUpdateView,
 )
 
 urlpatterns = [
@@ -92,4 +94,7 @@ urlpatterns = [
     # ============================================================
     # Crear un reporte (POST)
     path('reports/create/', UserReportCreateView.as_view()),
+    # Listar reportes (GET) y gestionar un reporte (PATCH/DELETE)
+    path('reports/', UserReportListView.as_view()),
+    path('reports/<int:report_id>/', UserReportStatusUpdateView.as_view()),
 ]

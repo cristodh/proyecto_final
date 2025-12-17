@@ -13,7 +13,8 @@ class User(AbstractUser):
     date_of_birth = models.DateField(null=False)
     goverment_ID = models.CharField(max_length=20,null=False)
     gender = models.CharField(max_length=50,null=False)
-    role = models.ForeignKey("Role",on_delete=models.CASCADE,default=4)
+    # Default donor role (id=2) so new self-registered users are active donors
+    role = models.ForeignKey("Role",on_delete=models.CASCADE,default=2)
     nationality = models.CharField(max_length=50,null=False)
     created_at = models.DateTimeField(auto_now_add=True)
     active = models.BooleanField(default=True)

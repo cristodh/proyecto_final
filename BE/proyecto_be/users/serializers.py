@@ -24,6 +24,12 @@ class UserSerializer(ModelSerializer):
     def create(self, validated_data):
         # Sacamos la contrasenia de todos los datos
         password = validated_data.pop('password')
+        # If no role is provided (Donor registration), set Donor role (id=2) and keep user active
+        if 'role' not in validated_data or not validated_data.get('role'):
+            donor_role = Role.objects.filter(id=2).first()
+            if donor_role:
+                validated_data['role'] = donor_role
+        validated_data.setdefault('active', True)
         user = User(**validated_data)  # El usuario
         user.set_password(password)  # Ciframos la contrasenia
         user.save()  # guardamos el cambio
