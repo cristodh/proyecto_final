@@ -126,6 +126,7 @@ class Donation(models.Model):
     # ============================================================
     proof_of_payment_url = models.URLField(blank=True, null=True, help_text="URL de Cloudinary del comprobante de pago")
     proof_of_payment_description = models.TextField(blank=True, null=True, help_text="Descripción del comprobante de pago (referencia, número de transacción, etc.)")
+    proof_of_payment_name = models.CharField(max_length=255, blank=True, null=True, help_text="Nombre de archivo del comprobante de pago")
     
     # ============================================================
     # ESTADO DE LA DONACIÓN
@@ -137,6 +138,35 @@ class Donation(models.Model):
 
     def __str__(self):
         return f"Donation of {self.amount} by {self.donor.username} to {self.campaign.name}"
+
+
+class UserReport(models.Model):
+    STATUS_CHOICES = [
+        ('open', 'Open'),
+        ('reviewed', 'Reviewed'),
+        ('dismissed', 'Dismissed'),
+    ]
+
+    REASONS = [
+        ('spam', 'Spam o contenido no deseado'),
+        ('fraud', 'Fraude o estafa'),
+        ('abuse', 'Acoso o abuso'),
+        ('inappropriate', 'Contenido inapropiado'),
+        ('other', 'Otro'),
+    ]
+
+    reporter = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True, related_name='reports_made')
+    reported_user = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='reports_received', null=True, blank=True)
+    campaign = models.ForeignKey('Campaign', on_delete=models.SET_NULL, null=True, blank=True)
+    donation = models.ForeignKey('Donation', on_delete=models.SET_NULL, null=True, blank=True)
+    reason = models.CharField(max_length=20, choices=REASONS)
+    description = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='open')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Report {self.id} - {self.get_reason_display()}"
 
 
     

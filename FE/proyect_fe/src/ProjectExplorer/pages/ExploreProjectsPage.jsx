@@ -8,6 +8,9 @@ import ExploreFilters from "../components/ExploreFilters";
 import ProjectGrid from "../components/ProjectGrid";
 import PublicCampaignDetailsModal from "../components/PublicCampaignDetailsModal";
 import useExplore from "../hooks/useExplore";
+import Header from "../../RegisterLoginPage/components/Header/Header";
+import HeaderUser from "../../DonorProfile/components/HeaderUser/HeaderUser";
+import HeaderExplorer from "../components/HeaderExplorer";
 
 // Tema personalizado para el explorador
 const exploreTheme = createTheme({
@@ -66,11 +69,11 @@ export default function ExploreProjectsPage() {
     <ThemeProvider theme={exploreTheme}>
       {localStorage.getItem("token")===null ? (
         <>
-        <h1>sin login</h1>
+        <Header showLoginBtn={!localStorage.getItem('token')} />
         </>
       ):(
         <>
-        <h1>con login</h1>
+        <HeaderExplorer />  
         </>
       )}
       <Box sx={{ minHeight: "100vh", bgcolor: "grey.50" }}>

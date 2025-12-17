@@ -9,11 +9,13 @@ from .models import Campaign
 from .models import Category # importar el modelo Category
 from .models import MediaContent # importar el modelo MediaContent
 from .models import Donation # importar el modelo Donation
+from .models import UserReport # importar el modelo UserReport
 
 from .serializers import CampaignSerializer # importar el serializador CampaignSerializer
 from .serializers import CategorySerializer # importar el serializador CategorySerializer
 from .serializers import MediaContentSerializer # importar el serializador MediaContentSerializer
 from .serializers import DonationSerializer, DonationCreateSerializer # importar los serializadores de donaciones
+from .serializers import UserReportSerializer, UserReportCreateSerializer # importar los serializadores de reportes
 
 import uuid
 from decimal import Decimal
@@ -372,7 +374,8 @@ class DonationCreateView(APIView):
                     confirmation_number=confirmation_number,
                     confirmation_email=request.data.get('confirmation_email', request.user.email),
                     proof_of_payment_url=request.data.get('proof_of_payment_url', ''),
-                    proof_of_payment_description=request.data.get('proof_of_payment_description', '')
+                    proof_of_payment_description=request.data.get('proof_of_payment_description', ''),
+                    proof_of_payment_name=request.data.get('proof_of_payment_name', '')
                 )
                 
                 # Actualizar el current_amount de la campaña
@@ -395,7 +398,7 @@ class CampaignDonationsView(APIView):
     Vista para obtener todas las donaciones de una campaña específica
     - GET: Lista donaciones de una campaña
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request, campaign_id):
         try:
@@ -721,6 +724,48 @@ class BankAccountsView(APIView):
                 'bank_accounts': bank_accounts,
                 'instructions': 'Por favor realice su transferencia a cualquiera de estas cuentas y luego suba el comprobante de pago.'
             }, status=200)
+            
+        except Exception as e:
+            return Response({'error': str(e)}, status=400)
+
+
+class UserReportCreateView(APIView):
+    """
+    Vista para crear un reporte de usuario
+    - POST: Crea un reporte de un usuario sobre otro usuario
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            # Validar que el usuario reportado existe
+            reported_user_id = request.data.get('reported_user')
+            campaign_id = request.data.get('campaign')
+            donation_id = request.data.get('donation')
+
+            # Para reportar campañas se permite reported_user vacío; para reportar usuarios es obligatorio
+            if not reported_user_id and not campaign_id:
+                return Response({'error': 'Debes enviar reported_user o campaign'}, status=400)
+            
+            # Verificar que no se está reportando a sí mismo (solo si viene reported_user)
+            if reported_user_id and str(reported_user_id) == str(request.user.id):
+                return Response({'error': 'No puedes reportarte a ti mismo'}, status=400)
+            
+            # Crear el reporte
+            report = UserReport.objects.create(
+                reporter=request.user,
+                reported_user_id=reported_user_id if reported_user_id else None,
+                campaign_id=campaign_id,
+                donation_id=donation_id,
+                reason=request.data.get('reason', 'other'),
+                description=request.data.get('description', '')
+            )
+            
+            serializer = UserReportSerializer(report)
+            return Response({
+                'message': 'Reporte enviado exitosamente',
+                'report': serializer.data
+            }, status=201)
             
         except Exception as e:
             return Response({'error': str(e)}, status=400)

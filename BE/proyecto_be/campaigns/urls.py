@@ -22,6 +22,7 @@ from .views import (
     DonationApprovalsView,
     DonationApproveView,
     DonationRejectView,
+    UserReportCreateView,
 )
 
 urlpatterns = [
@@ -85,4 +86,10 @@ urlpatterns = [
     
     # Rechazar una donación (PATCH)
     path('donations/<int:donation_id>/reject/', DonationRejectView.as_view()),
+    
+    # ============================================================
+    # REPORTES DE USUARIOS
+    # ============================================================
+    # Crear un reporte (POST)
+    path('reports/create/', UserReportCreateView.as_view()),
 ]

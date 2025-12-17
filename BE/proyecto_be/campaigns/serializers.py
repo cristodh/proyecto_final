@@ -5,6 +5,7 @@ from .models import Campaign # importar el modelo Campaign
 from .models import Category # importar el modelo Category
 from .models import MediaContent # importar el modelo MediaContent
 from .models import Donation # importar el modelo Donation
+from .models import UserReport # importar el modelo UserReport
 
 class CampaignSerializer(ModelSerializer):
     """
@@ -48,7 +49,7 @@ class DonationSerializer(ModelSerializer):
             'id', 'amount', 'donated_at', 'message', 'anonymous',
             'payment_method', 'campaign', 'campaign_name', 'donor', 
             'donor_username', 'donor_email', 'confirmation_number', 
-            'confirmation_email', 'proof_of_payment_url', 'proof_of_payment_description',
+            'confirmation_email', 'proof_of_payment_url', 'proof_of_payment_description', 'proof_of_payment_name',
             'donation_status', 'approved_at', 'approved_by', 'approved_by_username', 'rejection_reason'
         ]
         read_only_fields = ['id', 'donated_at', 'confirmation_number', 'donor', 'approved_at', 'approved_by', 'approved_by_username']
@@ -64,5 +65,32 @@ class DonationCreateSerializer(ModelSerializer):
         fields = [
             'amount', 'message', 'anonymous', 'payment_method', 
             'campaign', 'confirmation_email', 'proof_of_payment_url', 
-            'proof_of_payment_description'
+            'proof_of_payment_description', 'proof_of_payment_name'
         ]
+
+
+class UserReportSerializer(ModelSerializer):
+    reporter_username = serializers.CharField(source='reporter.username', read_only=True)
+    reported_user_username = serializers.SerializerMethodField()
+    campaign_name = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = UserReport
+        fields = [
+            'id', 'reporter', 'reporter_username', 'reported_user', 'reported_user_username',
+            'campaign', 'campaign_name', 'donation', 'reason', 'description',
+            'status', 'created_at', 'updated_at'
+        ]
+        read_only_fields = ['id', 'reporter', 'created_at', 'updated_at', 'status']
+
+    def get_reported_user_username(self, obj):
+        return obj.reported_user.username if obj.reported_user else None
+
+    def get_campaign_name(self, obj):
+        return obj.campaign.name if obj.campaign else None
+
+
+class UserReportCreateSerializer(ModelSerializer):
+    class Meta:
+        model = UserReport
+        fields = ['reported_user', 'campaign', 'donation', 'reason', 'description']

@@ -3,7 +3,7 @@ import { AppBar, Toolbar, Button, Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import logoFundify from "../../../imgs/LogoFundifyClose.png";
 
-export default function Header() {
+export default function Header({ showLoginBtn }) {
   const navigate = useNavigate();
 
   return (
@@ -19,16 +19,16 @@ export default function Header() {
       }}
     >
       <Toolbar disableGutters sx={{ display: "flex", justifyContent: "space-between" }}>
-        
+
         {/* Logo */}
         <Box display="flex" alignItems="center" gap={1} onClick={() => navigate('/')} sx={{ cursor: "pointer" }}>
-          <img 
-            src={logoFundify} 
-            alt="Fundify Logo" 
-            style={{ 
+          <img
+            src={logoFundify}
+            alt="Fundify Logo"
+            style={{
               height: "48px",
               width: "auto"
-            }} 
+            }}
           />
         </Box>
 
@@ -45,6 +45,25 @@ export default function Header() {
         >
           Inicio
         </Button>
+
+        {showLoginBtn && (
+          <Button
+            variant="outlined"
+            onClick={() => navigate("/auth-user")}
+            sx={{
+              borderColor: "#2A9D8F",
+              color: "#2A9D8F",
+              "&:hover": {
+                borderColor: "#02695dff",
+                background: "rgba(2, 105, 93, 0.08)",
+              },
+              textTransform: "none",
+            }}
+          >
+            Iniciar Sesión
+          </Button>
+        )}
+
       </Toolbar>
     </AppBar>
   );

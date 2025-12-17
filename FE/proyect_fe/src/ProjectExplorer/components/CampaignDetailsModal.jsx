@@ -19,12 +19,6 @@ import {
   ListItemIcon,
   ListItemText,
   Alert,
-  CircularProgress,
-  TextField,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import CloseIcon from "@mui/icons-material/Close";
@@ -39,7 +33,6 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import LockIcon from "@mui/icons-material/Lock";
 import LoginIcon from "@mui/icons-material/Login";
-import ReportIcon from "@mui/icons-material/Report";
 import DonationModal from "./DonationModal";
 
 const PLACEHOLDER_IMAGE = "https://via.placeholder.com/800x400?text=Campa%C3%B1a";
@@ -71,15 +64,6 @@ export default function PublicCampaignDetailsModal({
   const [donationLoading, setDonationLoading] = useState(false);
   const [donationSuccess, setDonationSuccess] = useState(false);
   const [donationError, setDonationError] = useState(null);
-  const [donationsModalOpen, setDonationsModalOpen] = useState(false);
-  const [donationsData, setDonationsData] = useState({ donations: [], stats: null });
-  const [donationsLoading, setDonationsLoading] = useState(false);
-  const [donationsError, setDonationsError] = useState(null);
-  const [reportModalOpen, setReportModalOpen] = useState(false);
-  const [reportData, setReportData] = useState({ reason: 'spam', description: '', reported_user: null, donation: null });
-  const [reportLoading, setReportLoading] = useState(false);
-  const [reportSuccess, setReportSuccess] = useState(false);
-  const [reportError, setReportError] = useState(null);
   
   // Cargar métodos de pago del backend
   useEffect(() => {
@@ -135,19 +119,8 @@ export default function PublicCampaignDetailsModal({
   } = campaign;
 
   // ¿Usuario autenticado?
-  const token = localStorage.getItem("token");
-  const roleId = localStorage.getItem("role_id");
-  const userId = localStorage.getItem("id");
-  
-  // Si no hay user del prop, intentar construirlo desde localStorage
-  const currentUser = user || (token && userId ? { 
-    id: parseInt(userId), 
-    role: roleId ? parseInt(roleId) : null 
-  } : null);
-  
-  const isAuthenticated = !!token && !!currentUser;
-  const isDonor = isAuthenticated && currentUser?.role === 2; // Rol 2 = Donor según backend
-
+  const isAuthenticated = !!user;
+  const isDonor = user?.role === 4;
 
   // Progreso
   const progress = calculateProgress
@@ -236,7 +209,6 @@ export default function PublicCampaignDetailsModal({
         confirmation_email: donationData.confirmationEmail,
         proof_of_payment_url: donationData.proofOfPaymentUrl,
         proof_of_payment_description: donationData.proofOfPaymentDescription,
-        proof_of_payment_name: donationData.proofOfPaymentName || "",
       };
 
       // Obtener token del localStorage
@@ -290,7 +262,7 @@ export default function PublicCampaignDetailsModal({
     }
   };
 
-  return (<>
+  return (
     <Dialog
       open={open}
       onClose={onClose}
@@ -408,40 +380,6 @@ export default function PublicCampaignDetailsModal({
             </Grid>
           </Grid>
         </Paper>
-
-        {/* Botón: Ver donaciones */}
-        <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
-          <Button
-            size="small"
-            variant="outlined"
-            onClick={async () => {
-              try {
-                setDonationsError(null);
-                setDonationsLoading(true);
-                setDonationsModalOpen(true);
-                const authToken = localStorage.getItem("token");
-                const res = await fetch(`http://127.0.0.1:8000/campaign/donations/campaign/${id}/`, {
-                  headers: {
-                    "Accept": "application/json",
-                    ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
-                  },
-                });
-                if (!res.ok) {
-                  const err = await res.json().catch(() => ({}));
-                  throw new Error(err.error || `Error al cargar donaciones (${res.status})`);
-                }
-                const data = await res.json();
-                setDonationsData({ donations: data.donations || [], stats: data.stats || null });
-              } catch (e) {
-                setDonationsError(e.message);
-              } finally {
-                setDonationsLoading(false);
-              }
-            }}
-          >
-            Ver donaciones
-          </Button>
-        </Box>
 
         {/* Descripción */}
         <Box sx={{ mb: 2 }}>
@@ -613,7 +551,7 @@ export default function PublicCampaignDetailsModal({
                 setShowDonationForm(true);
                 setDonationData({
                   ...donationData,
-                  confirmationEmail: currentUser?.email || "",
+                  confirmationEmail: user?.email || "",
                 });
               }}
               sx={{ mb: 2 }}
@@ -646,22 +584,6 @@ export default function PublicCampaignDetailsModal({
         <Button onClick={onClose} variant="outlined" size="small">
           Cerrar
         </Button>
-        {isAuthenticated && (
-          <Button
-            variant="outlined"
-            color="error"
-            startIcon={<ReportIcon />}
-            size="small"
-            onClick={() => {
-              setReportData({ reason: 'spam', description: '', reported_user: null, donation: null });
-              setReportModalOpen(true);
-              setReportSuccess(false);
-              setReportError(null);
-            }}
-          >
-            Reportar campaña
-          </Button>
-        )}
         {!isAuthenticated && (
           <Button
             variant="contained"
@@ -695,278 +617,5 @@ export default function PublicCampaignDetailsModal({
         handleSubmitDonation={handleSubmitDonation}
       />
     </Dialog>
-
-    {/* Modal: Lista de Donaciones */}
-    <Dialog
-      open={donationsModalOpen}
-      onClose={() => setDonationsModalOpen(false)}
-      maxWidth="sm"
-      fullWidth
-      scroll="paper"
-      PaperProps={{ sx: { borderRadius: 2 } }}
-    >
-      <DialogTitle sx={{ pr: 6, py: 1.5 }}>
-        <Typography variant="subtitle1" fontWeight={700}>
-          Donaciones de {name}
-        </Typography>
-        <IconButton onClick={() => setDonationsModalOpen(false)} size="small" sx={{ position: "absolute", right: 8, top: 8 }}>
-          <CloseIcon fontSize="small" />
-        </IconButton>
-      </DialogTitle>
-      <DialogContent dividers sx={{ p: 2 }}>
-        {/* Misma barra de progreso */}
-        <Paper elevation={0} sx={{ p: 1.5, mb: 2, bgcolor: "grey.50", borderRadius: 1.5 }}>
-          <Typography variant="body2" fontWeight={700} gutterBottom>
-            Progreso de Financiamiento
-          </Typography>
-          <LinearProgress
-            variant="determinate"
-            value={Math.min(
-              donationsData.stats?.progress_percentage ?? progress,
-              100
-            )}
-            sx={{ height: 8, borderRadius: 4, mb: 1, bgcolor: "grey.200", "& .MuiLinearProgress-bar": { borderRadius: 4 } }}
-          />
-          <Grid container spacing={1}>
-            <Grid item xs={4}>
-              <Typography variant="body2" fontWeight={700} color="primary">
-                {formatMoney(donationsData.stats?.current_amount ?? current_amount)}
-              </Typography>
-              <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.65rem" }}>
-                Recaudado
-              </Typography>
-            </Grid>
-            <Grid item xs={4} sx={{ textAlign: "center" }}>
-              <Typography variant="body2" fontWeight={700}>
-                {(donationsData.stats?.progress_percentage ?? progress).toFixed(1)}%
-              </Typography>
-              <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.65rem" }}>
-                Completado
-              </Typography>
-            </Grid>
-            <Grid item xs={4} sx={{ textAlign: "right" }}>
-              <Typography variant="body2" fontWeight={700}>
-                {formatMoney(donationsData.stats?.goal_amount ?? goal_amount)}
-              </Typography>
-              <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.65rem" }}>
-                Meta
-              </Typography>
-            </Grid>
-          </Grid>
-        </Paper>
-
-        {donationsLoading && (
-          <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
-            <CircularProgress size={20} />
-          </Box>
-        )}
-        {donationsError && (
-          <Alert severity="error" sx={{ mb: 2 }}>{donationsError}</Alert>
-        )}
-
-        {!donationsLoading && !donationsError && (
-          <List dense>
-            {donationsData.donations.length === 0 && (
-              <Typography variant="caption" color="text.secondary">
-                Aún no hay donaciones registradas.
-              </Typography>
-            )}
-            {donationsData.donations.map((d) => (
-              <ListItem key={d.confirmation_number} disableGutters sx={{ py: 0.75, display: 'flex', alignItems: 'flex-start' }}>
-                <ListItemIcon sx={{ minWidth: 32, mt: 0.5 }}>
-                  <Avatar sx={{ bgcolor: "success.main", width: 24, height: 24 }}>
-                    ₡
-                  </Avatar>
-                </ListItemIcon>
-                <ListItemText
-                  primary={
-                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <Typography variant="caption" fontWeight={700}>
-                        {d.donor_username === 'Anónimo' ? 'Usuario anónimo' : d.donor_username}
-                      </Typography>
-                      <Typography variant="caption" fontWeight={700} color="primary">
-                        {formatMoney(d.amount)}
-                      </Typography>
-                    </Box>
-                  }
-                  secondary={
-                    <Box>
-                      <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem", display: 'block' }}>
-                        {d.message ? d.message : 'Sin mensaje'}
-                      </Typography>
-                      {d.proof_of_payment_name && (
-                        <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.65rem" }}>
-                          Comprobante: {d.proof_of_payment_name}
-                        </Typography>
-                      )}
-                    </Box>
-                  }
-                />
-                {/* Botón Reportar - Solo si no es anónimo y hay usuario autenticado */}
-                {d.donor_username !== 'Anónimo' && d.donor && isAuthenticated && (
-                  <IconButton
-                    size="small"
-                    color="error"
-                    onClick={() => {
-                      setReportData({
-                        reason: 'spam',
-                        description: '',
-                        reported_user: d.donor,
-                        donation: d.id
-                      });
-                      setReportModalOpen(true);
-                      setReportSuccess(false);
-                      setReportError(null);
-                    }}
-                    sx={{ ml: 1 }}
-                  >
-                    <ReportIcon fontSize="small" />
-                  </IconButton>
-                )}
-              </ListItem>
-            ))}
-          </List>
-        )}
-      </DialogContent>
-      <DialogActions sx={{ p: 1.5, gap: 1 }}>
-        <Button onClick={() => setDonationsModalOpen(false)} variant="outlined" size="small">
-          Cerrar
-        </Button>
-      </DialogActions>
-    </Dialog>
-
-    {/* Modal: Reportar Usuario */}
-    <Dialog
-      open={reportModalOpen}
-      onClose={() => setReportModalOpen(false)}
-      maxWidth="xs"
-      fullWidth
-      PaperProps={{ sx: { borderRadius: 2 } }}
-    >
-      <DialogTitle sx={{ pr: 6, py: 1.5 }}>
-        <Typography variant="subtitle1" fontWeight={700}>
-          {reportData.reported_user ? 'Reportar Usuario' : 'Reportar Campaña'}
-        </Typography>
-        <IconButton onClick={() => setReportModalOpen(false)} size="small" sx={{ position: "absolute", right: 8, top: 8 }}>
-          <CloseIcon fontSize="small" />
-        </IconButton>
-      </DialogTitle>
-      <DialogContent dividers sx={{ p: 2 }}>
-        {reportSuccess && (
-          <Alert severity="success" sx={{ mb: 2 }}>
-            Reporte enviado exitosamente. Será revisado por un administrador.
-          </Alert>
-        )}
-        {reportError && (
-          <Alert severity="error" sx={{ mb: 2 }}>{reportError}</Alert>
-        )}
-        
-        <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <FormControl fullWidth size="small">
-            <InputLabel>Motivo del reporte</InputLabel>
-            <Select
-              value={reportData.reason}
-              onChange={(e) => setReportData({ ...reportData, reason: e.target.value })}
-              label="Motivo del reporte"
-              disabled={reportLoading || reportSuccess}
-            >
-              <MenuItem value="spam">Spam o contenido no deseado</MenuItem>
-              <MenuItem value="fraud">Fraude o estafa</MenuItem>
-              <MenuItem value="abuse">Acoso o abuso</MenuItem>
-              <MenuItem value="inappropriate">Contenido inapropiado</MenuItem>
-              <MenuItem value="other">Otro</MenuItem>
-            </Select>
-          </FormControl>
-
-          <TextField
-            fullWidth
-            multiline
-            rows={3}
-            size="small"
-            label="Descripción (opcional)"
-            placeholder="Describe el motivo de tu reporte..."
-            value={reportData.description}
-            onChange={(e) => setReportData({ ...reportData, description: e.target.value })}
-            disabled={reportLoading || reportSuccess}
-          />
-        </Box>
-      </DialogContent>
-      <DialogActions sx={{ p: 1.5, gap: 1 }}>
-        <Button 
-          onClick={() => setReportModalOpen(false)} 
-          variant="outlined" 
-          size="small"
-          disabled={reportLoading}
-        >
-          Cancelar
-        </Button>
-        <Button 
-          onClick={async () => {
-            try {
-              setReportLoading(true);
-              setReportError(null);
-              
-              const authToken = localStorage.getItem("token");
-              if (!authToken) {
-                throw new Error("Debes iniciar sesión para reportar");
-              }
-
-              const payload = {
-                campaign: Number(id),
-                reason: reportData.reason,
-                description: reportData.description
-              };
-              if (reportData.reported_user) {
-                payload.reported_user = reportData.reported_user;
-              }
-              if (reportData.donation) {
-                payload.donation = reportData.donation;
-              }
-
-              console.log('REPORT PAYLOAD', payload);
-
-              const res = await fetch('http://127.0.0.1:8000/campaign/reports/create/', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${authToken}`
-                },
-                body: JSON.stringify(payload)
-              });
-
-              if (!res.ok) {
-                const text = await res.text();
-                let errMsg = `Error al enviar reporte (${res.status})`;
-                try {
-                  const parsed = JSON.parse(text || '{}');
-                  errMsg = parsed.error || parsed.detail || errMsg;
-                } catch (_) {
-                  if (text) errMsg = `${errMsg}: ${text}`;
-                }
-                throw new Error(errMsg);
-              }
-
-              setReportSuccess(true);
-              setTimeout(() => {
-                setReportModalOpen(false);
-                setReportSuccess(false);
-                setReportData({ reason: 'spam', description: '', reported_user: null, donation: null });
-              }, 2000);
-            } catch (e) {
-              setReportError(e.message);
-            } finally {
-              setReportLoading(false);
-            }
-          }}
-          variant="contained" 
-          color="error" 
-          size="small"
-          disabled={reportLoading || reportSuccess}
-          startIcon={reportLoading ? <CircularProgress size={16} /> : <ReportIcon />}
-        >
-          {reportLoading ? 'Enviando...' : 'Enviar Reporte'}
-        </Button>
-      </DialogActions>
-    </Dialog>
-  </>);
+  );
 }
