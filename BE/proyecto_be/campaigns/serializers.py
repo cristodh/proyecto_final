@@ -6,6 +6,7 @@ from .models import Category # importar el modelo Category
 from .models import MediaContent # importar el modelo MediaContent
 from .models import Donation # importar el modelo Donation
 from .models import UserReport # importar el modelo UserReport
+from .models import CampaignFollower # importar el modelo CampaignFollower
 
 class CampaignSerializer(ModelSerializer):
     """
@@ -19,8 +20,8 @@ class CampaignSerializer(ModelSerializer):
         model = Campaign
         fields = [
             'id', 'name', 'description', 'short_description', 'slogan', 'story',
-            'start_date', 'end_date', 'goal_amount', 'current_amount',
-            'location', 'category', 'category_name', 'contact_phone', 'contact_email',
+            'start_date', 'end_date', 'goal_amount', 'current_amount', 'lives_impact_estimate',
+            'location', 'province', 'category', 'category_name', 'contact_phone', 'contact_email',
             'website', 'permissions', 'campaign_status', 'admin_comment', 'creator', 'creator_username',
             'pdf_documents', 'project_sections', 'main_image', 'created_at', 'updated_at'
         ]
@@ -103,3 +104,36 @@ class UserReportCreateSerializer(ModelSerializer):
     class Meta:
         model = UserReport
         fields = ['reported_user', 'campaign', 'donation', 'reason', 'description']
+
+
+class CampaignFollowerSerializer(ModelSerializer):
+    campaign_name = serializers.CharField(source='campaign.name', read_only=True)
+    campaign_image = serializers.CharField(source='campaign.main_image', read_only=True)
+    campaign_current_amount = serializers.SerializerMethodField()
+    campaign_goal_amount = serializers.SerializerMethodField()
+    campaign_status = serializers.CharField(source='campaign.campaign_status', read_only=True)
+    campaign_end_date = serializers.DateField(source='campaign.end_date', read_only=True)
+    campaign_creator_username = serializers.CharField(source='campaign.creator.username', read_only=True)
+    
+    class Meta:
+        model = CampaignFollower
+        fields = [
+            'id',
+            'user',
+            'campaign',
+            'campaign_name',
+            'campaign_image',
+            'campaign_current_amount',
+            'campaign_goal_amount',
+            'campaign_status',
+            'campaign_end_date',
+            'campaign_creator_username',
+            'followed_at'
+        ]
+        read_only_fields = ['id', 'user', 'followed_at']
+
+    def get_campaign_current_amount(self, obj):
+        return str(obj.campaign.current_amount) if obj.campaign else None
+
+    def get_campaign_goal_amount(self, obj):
+        return str(obj.campaign.goal_amount) if obj.campaign else None

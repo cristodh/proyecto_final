@@ -41,6 +41,7 @@ import LockIcon from "@mui/icons-material/Lock";
 import LoginIcon from "@mui/icons-material/Login";
 import ReportIcon from "@mui/icons-material/Report";
 import DonationModal from "./DonationModal";
+import { isFollowingCampaign, followCampaign, unfollowCampaign } from "../../services/campaignService";
 
 const PLACEHOLDER_IMAGE = "https://via.placeholder.com/800x400?text=Campa%C3%B1a";
 
@@ -80,20 +81,20 @@ export default function PublicCampaignDetailsModal({
   const [reportLoading, setReportLoading] = useState(false);
   const [reportSuccess, setReportSuccess] = useState(false);
   const [reportError, setReportError] = useState(null);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followLoading, setFollowLoading] = useState(false);
+  const [followError, setFollowError] = useState(null);
   
   // Cargar métodos de pago del backend
   useEffect(() => {
     const fetchPaymentMethods = async () => {
       try {
         setPaymentMethodsLoading(true);
-        console.log("Fetching payment methods from: http://127.0.0.1:8000/campaign/payments/methods/");
         const response = await fetch("http://127.0.0.1:8000/campaign/payments/methods/");
-        console.log("Response status:", response.status);
         if (!response.ok) {
           throw new Error(`Error al cargar métodos de pago: ${response.status}`);
         }
         const data = await response.json();
-        console.log("Payment methods data:", data);
         setPaymentMethods(data.payment_methods || []);
         // Establecer el primer método como predeterminado
         if (data.payment_methods && data.payment_methods.length > 0) {
@@ -112,8 +113,6 @@ export default function PublicCampaignDetailsModal({
 
     fetchPaymentMethods();
   }, []);
-  
-  if (!campaign) return null;
 
   const {
     id,
@@ -132,7 +131,7 @@ export default function PublicCampaignDetailsModal({
     contact_phone,
     project_sections,
     pdf_documents,
-  } = campaign;
+  } = campaign || {};
 
   // ¿Usuario autenticado?
   const token = localStorage.getItem("token");
@@ -148,11 +147,31 @@ export default function PublicCampaignDetailsModal({
   const isAuthenticated = !!token && !!currentUser;
   const isDonor = isAuthenticated && currentUser?.role === 2; // Rol 2 = Donor según backend
 
+  // Consultar si el usuario ya sigue la campaña cuando se abre el modal
+  useEffect(() => {
+    const checkFollowing = async () => {
+      if (!open || !campaign?.id || !isAuthenticated || !isDonor) {
+        setIsFollowing(false);
+        return;
+      }
+      try {
+        setFollowLoading(true);
+        const following = await isFollowingCampaign(campaign.id);
+        setIsFollowing(!!following);
+      } catch (error) {
+        console.error('Error checking follow status:', error);
+      } finally {
+        setFollowLoading(false);
+      }
+    };
+
+    checkFollowing();
+  }, [open, campaign?.id, isAuthenticated, isDonor]);
 
   // Progreso
   const progress = calculateProgress
     ? calculateProgress(current_amount, goal_amount)
-    : ((parseFloat(current_amount) / parseFloat(goal_amount)) * 100) || 0;
+    : ((parseFloat(current_amount || 0) / parseFloat(goal_amount || 1)) * 100) || 0;
 
   // Formatear moneda
   const formatMoney = (value) => {
@@ -287,6 +306,34 @@ export default function PublicCampaignDetailsModal({
       setDonationError(error.message || "Error al procesar la donación");
     } finally {
       setDonationLoading(false);
+    }
+  };
+
+  const handleToggleFollow = async () => {
+    try {
+      if (!isAuthenticated) {
+        navigate("/auth-user");
+        return;
+      }
+      setFollowError(null);
+      setFollowLoading(true);
+
+      if (isFollowing) {
+        await unfollowCampaign(id);
+        setIsFollowing(false);
+      } else {
+        await followCampaign(id);
+        setIsFollowing(true);
+      }
+
+      if (refetchCampaigns) {
+        await refetchCampaigns();
+      }
+    } catch (error) {
+      console.error('Error toggling follow:', error);
+      setFollowError('No se pudo actualizar el seguimiento.');
+    } finally {
+      setFollowLoading(false);
     }
   };
 
@@ -602,6 +649,27 @@ export default function PublicCampaignDetailsModal({
         <Divider sx={{ my: 2 }} />
 
         {/* Formulario de Donación - Solo para donantes autenticados */}
+        {isDonor && (
+          <Box sx={{ mb: 2 }}>
+            <Button
+              variant={isFollowing ? "outlined" : "contained"}
+              color="primary"
+              fullWidth
+              startIcon={<FavoriteIcon />}
+              onClick={handleToggleFollow}
+              disabled={followLoading}
+              sx={{ mb: 1 }}
+            >
+              {isFollowing ? "Dejar de seguir" : "Seguir campaña"}
+            </Button>
+            {followError && (
+              <Alert severity="error" sx={{ mt: 1 }}>
+                {followError}
+              </Alert>
+            )}
+          </Box>
+        )}
+
         {isDonor && daysRemaining > 0 && (
           <Box sx={{ mb: 2 }}>
             <Button

@@ -6,6 +6,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
+import LinearProgress from "@mui/material/LinearProgress";
 
 export default function ProjectCard({
   title,
@@ -13,6 +14,9 @@ export default function ProjectCard({
   image,
   status = "En Progreso",
   eta = "Finaliza en XX días",
+  progress = 0,
+  current = 0,
+  goal = 0,
   primaryAction = { label: "Ver Actualizaciones", onClick: () => {} },
   favorite = true,
   onToggleFavorite = () => {}
@@ -33,7 +37,7 @@ export default function ProjectCard({
         border: 1, 
         borderColor: "divider", 
         borderRadius: 2,
-        height: 200,
+        height: 250,
         display: "flex",
         flexDirection: "column"
       }}
@@ -106,8 +110,35 @@ export default function ProjectCard({
           </Button>
         </Box>
 
+        {/* Progress bar and funding info */}
+        <Box sx={{ mt: 2, mb: 1 }}>
+          <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
+            <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem" }}>
+              ₡{current.toLocaleString()} recaudado
+            </Typography>
+            <Typography variant="caption" fontWeight={600} sx={{ fontSize: "0.7rem" }}>
+              {Math.round(progress)}%
+            </Typography>
+          </Box>
+          <LinearProgress 
+            variant="determinate" 
+            value={Math.min(progress, 100)} 
+            sx={{ 
+              height: 6, 
+              borderRadius: 3,
+              bgcolor: "grey.200",
+              "& .MuiLinearProgress-bar": {
+                borderRadius: 3,
+                bgcolor: cfg.bg
+              }
+            }} 
+          />
+          <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.65rem", mt: 0.5, display: "block" }}>
+            Meta: ₡{goal.toLocaleString()}
+          </Typography>
+        </Box>
+
         <Box sx={{ 
-          mt: "auto", 
           display: "flex", 
           alignItems: "center", 
           justifyContent: "space-between", 

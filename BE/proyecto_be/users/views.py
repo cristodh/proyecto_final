@@ -445,3 +445,28 @@ class RejectionReasonView(APIView):
                 {'error': str(e)},
                 status=500
             )
+
+
+class ActiveDonorsCountView(APIView):
+    """
+    Vista para obtener la cantidad de donantes activos
+    - GET: Retorna el número de usuarios con role=2 (donor) y active=True
+    """
+    permission_classes = []  # Sin autenticación requerida (público)
+
+    def get(self, request):
+        try:
+            # Contar usuarios activos con rol de donor (role_id=2)
+            active_donors = User.objects.filter(
+                role_id=2,  # Role ID para donor
+                active=True
+            ).count()
+            
+            return Response({
+                'count': active_donors
+            }, status=200)
+        except Exception as e:
+            return Response(
+                {'error': str(e)},
+                status=500
+            )

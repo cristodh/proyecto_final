@@ -8,8 +8,11 @@ import {
   Button,
   IconButton,
   InputAdornment,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { changePassword } from "../../../services/authService";
 
 const SecurityForm = () => {
   const [values, setValues] = useState({
@@ -24,18 +27,42 @@ const SecurityForm = () => {
     confirm: false,
   });
 
+  const [alert, setAlert] = useState({ open: false, message: "", severity: "success" });
+
   const handleChange = (e) => {
     setValues({ ...values, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (values.newPassword !== values.confirmPassword) {
-      alert("La nueva contraseña no coincide con la confirmación.");
+      setAlert({ open: true, message: "La nueva contraseña no coincide con la confirmación", severity: "error" });
       return;
     }
 
-    console.log("Guardando nueva contraseña...");
-    // Aquí iría tu fetch al backend
+    if (values.newPassword.length < 8) {
+      setAlert({ open: true, message: "La contraseña debe tener al menos 8 caracteres", severity: "error" });
+      return;
+    }
+
+    try {
+      const userId = localStorage.getItem('id');
+      const response = await changePassword(userId, values.currentPassword, values.newPassword);
+      
+      if (response.success) {
+        setAlert({ open: true, message: "Contraseña actualizada exitosamente", severity: "success" });
+        setValues({
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        });
+      } else {
+        const errorMessage = response.errors ? response.errors.join(", ") : "Error al cambiar la contraseña. Verifica tu contraseña actual";
+        setAlert({ open: true, message: errorMessage, severity: "error" });
+      }
+    } catch (error) {
+      console.error("Error changing password:", error);
+      setAlert({ open: true, message: "Error al cambiar la contraseña", severity: "error" });
+    }
   };
 
   return (
@@ -154,6 +181,22 @@ const SecurityForm = () => {
           Guardar Cambios
         </Button>
       </Box>
+
+      {/* Snackbar para alertas */}
+      <Snackbar
+        open={alert.open}
+        autoHideDuration={6000}
+        onClose={() => setAlert({ ...alert, open: false })}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert
+          onClose={() => setAlert({ ...alert, open: false })}
+          severity={alert.severity}
+          sx={{ width: "100%" }}
+        >
+          {alert.message}
+        </Alert>
+      </Snackbar>
     </Paper>
   );
 };

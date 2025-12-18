@@ -15,6 +15,7 @@ import {
 import { postData } from "../../../services/fetch";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import TermsAndConditionsModal from "../../../RegisterLoginPage/components/TermsAndConditionsModal/TermsAndConditionsModal";
 
 export default function ManagerForm({ onComplete }) {
   const navigate = useNavigate();
@@ -41,6 +42,7 @@ export default function ManagerForm({ onComplete }) {
   });
 
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [termsModalOpen, setTermsModalOpen] = useState(false);
 
   // Manejador de inputs
   const handleInputChange = (e) => {
@@ -423,16 +425,43 @@ export default function ManagerForm({ onComplete }) {
           label={
             <Typography sx={{ fontSize: "14px", lineHeight: 1.4, mt: 0.5 }}>
               Acepto los{" "}
-              <span style={{ color: "#179e44", fontWeight: 600 }}>
+              <span 
+                style={{ 
+                  color: "#179e44", 
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  textDecoration: "underline"
+                }}
+                onClick={() => setTermsModalOpen(true)}
+              >
                 Términos y Condiciones
               </span>{" "}
               y la{" "}
-              <span style={{ color: "#179e44", fontWeight: 600 }}>
+              <span 
+                style={{ 
+                  color: "#179e44", 
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  textDecoration: "underline"
+                }}
+                onClick={() => setTermsModalOpen(true)}
+              >
                 Política de Privacidad
               </span>
               .
             </Typography>
           }
+        />
+
+        {/* Modal de Términos y Condiciones */}
+        <TermsAndConditionsModal 
+          open={termsModalOpen} 
+          onClose={(accepted) => {
+            if (accepted) {
+              setAcceptedTerms(true);
+            }
+            setTermsModalOpen(false);
+          }}
         />
 
         {/* BOTÓN */}

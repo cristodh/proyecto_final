@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -9,42 +9,76 @@ import {
   LinearProgress,
   Button,
   Chip,
+  CircularProgress,
+  Alert,
 } from "@mui/material";
+import { authenticatedGetData } from "../../../services/fetch";
 
-export default function ManagerCampaigns() {
-  // Ejemplo de campañas — esto normalmente vendrá de tu API
-  const campaigns = [
-    {
-      id: 1,
-      title: "Becas para estudiantes",
-      description:
-        "Apoya a jóvenes talentosos para que continúen sus estudios universitarios.",
-      image:
-        "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&w=800",
-      progress: 70,
-      status: "Activa",
-    },
-    {
-      id: 2,
-      title: "Refugio de animales",
-      description:
-        "Ayuda a rescatar y alimentar animales de la calle.",
-      image:
-        "https://images.unsplash.com/photo-1546182990-dffeafbe841d?auto=format&w=800",
-      progress: 45,
-      status: "Activa",
-    },
-    {
-      id: 3,
-      title: "Centro comunitario",
-      description:
-        "Construcción de un espacio para actividades culturales y deportivas.",
-      image:
-        "https://images.unsplash.com/photo-1528909514045-2fa4ac7a08ba?auto=format&w=800",
-      progress: 90,
-      status: "Completada",
-    },
-  ];
+export default function ManagerCampaigns({ user }) {
+  const [campaigns, setCampaigns] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    async function loadCampaigns() {
+      try {
+        setLoading(true);
+        const userId = localStorage.getItem('id');
+        const data = await authenticatedGetData(`campaigns/user_campaigns/${userId}/`);
+        setCampaigns(data || []);
+        setError(null);
+      } catch (err) {
+        console.error('Error loading campaigns:', err);
+        setError('No se pudieron cargar las campañas');
+        setCampaigns([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadCampaigns();
+  }, []);
+
+  const calculateProgress = (current, goal) => {
+    if (!goal || goal === 0) return 0;
+    return Math.min(Math.round((current / goal) * 100), 100);
+  };
+
+  const getStatusLabel = (status) => {
+    const statusMap = {
+      PENDING: "Pendiente",
+      APPROVED: "Activa",
+      REJECTED: "Rechazada",
+      COMPLETED: "Completada",
+    };
+    return statusMap[status] || status;
+  };
+
+  const getStatusColor = (status) => {
+    if (status === "APPROVED") return "success";
+    if (status === "COMPLETED") return "primary";
+    if (status === "REJECTED") return "error";
+    return "warning";
+  };
+
+  if (loading) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: 300 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Alert severity="error">{error}</Alert>
+    );
+  }
+
+  if (campaigns.length === 0) {
+    return (
+      <Alert severity="info">No tienes campañas creadas aún</Alert>
+    );
+  }
 
   return (
     <Box>
@@ -55,74 +89,82 @@ export default function ManagerCampaigns() {
 
       {/* Grid de campañas */}
       <Grid container spacing={3}>
-        {campaigns.map((c) => (
-          <Grid item xs={12} md={6} lg={4} key={c.id}>
-            <Card
-              elevation={2}
-              sx={{
-                borderRadius: 3,
-                overflow: "hidden",
-                display: "flex",
-                flexDirection: "column",
-                height: "100%",
-              }}
-            >
-              {/* Imagen */}
-              <CardMedia
-                component="img"
-                height="180"
-                image={c.image}
-                alt={c.title}
-              />
+        {campaigns.map((c) => {
+          const progress = calculateProgress(c.current_amount, c.goal_amount);
+          const statusLabel = getStatusLabel(c.campaign_status);
+          const statusColor = getStatusColor(c.campaign_status);
 
-              <CardContent sx={{ flexGrow: 1 }}>
-                {/* Estado */}
-                <Chip
-                  label={c.status}
-                  color={c.status === "Activa" ? "success" : "primary"}
-                  size="small"
-                  sx={{ mb: 1 }}
-                />
+          return (
+            <Grid item xs={12} md={6} lg={4} key={c.id}>
+              <Card
+                elevation={2}
+                sx={{
+                  borderRadius: 3,
+                  overflow: "hidden",
+                  display: "flex",
+                  flexDirection: "column",
+                  height: "100%",
+                }}
+              >
+                {/* Imagen */}
+                {c.main_image && (
+                  <CardMedia
+                    component="img"
+                    height="180"
+                    image={c.main_image}
+                    alt={c.title}
+                  />
+                )}
 
-                {/* Título */}
-                <Typography variant="h6" fontWeight="600" gutterBottom>
-                  {c.title}
-                </Typography>
+                <CardContent sx={{ flexGrow: 1 }}>
+                  {/* Estado */}
+                  <Chip
+                    label={statusLabel}
+                    color={statusColor}
+                    size="small"
+                    sx={{ mb: 1 }}
+                  />
 
-                {/* Descripción */}
-                <Typography variant="body2" color="text.secondary" mb={2}>
-                  {c.description}
-                </Typography>
+                  {/* Título */}
+                  <Typography variant="h6" fontWeight="600" gutterBottom>
+                    {c.title}
+                  </Typography>
 
-                {/* Barra de progreso */}
-                <LinearProgress
-                  variant="determinate"
-                  value={c.progress}
-                  sx={{
-                    height: 8,
-                    borderRadius: 4,
-                    mb: 1.5,
-                  }}
-                />
+                  {/* Descripción */}
+                  <Typography variant="body2" color="text.secondary" mb={2}>
+                    {c.short_description}
+                  </Typography>
 
-                {/* % */}
-                <Typography variant="body2" fontWeight="600">
-                  {c.progress}% recaudado
-                </Typography>
+                  {/* Barra de progreso */}
+                  <LinearProgress
+                    variant="determinate"
+                    value={progress}
+                    sx={{
+                      height: 8,
+                      borderRadius: 4,
+                      mb: 1.5,
+                    }}
+                  />
 
-                {/* Botón */}
-                <Button
-                  fullWidth
-                  variant="contained"
-                  color="success"
-                  sx={{ mt: 2, borderRadius: 2 }}
-                >
-                  Ver detalles
-                </Button>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
+                  {/* % */}
+                  <Typography variant="body2" fontWeight="600">
+                    {progress}% recaudado (${c.current_amount} de ${c.goal_amount})
+                  </Typography>
+
+                  {/* Botón */}
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    color="success"
+                    sx={{ mt: 2, borderRadius: 2 }}
+                  >
+                    Ver detalles
+                  </Button>
+                </CardContent>
+              </Card>
+            </Grid>
+          );
+        })}
       </Grid>
     </Box>
   );

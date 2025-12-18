@@ -15,6 +15,7 @@ import {
 import { postData } from "../../../services/fetch";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import TermsAndConditionsModal from "../../../RegisterLoginPage/components/TermsAndConditionsModal/TermsAndConditionsModal";
 
 export default function DonorForm() {
   const navigate = useNavigate();
@@ -40,6 +41,7 @@ export default function DonorForm() {
   });
 
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [termsModalOpen, setTermsModalOpen] = useState(false);
 
   // Manejador de inputs
   const handleInputChange = (e) => {
@@ -345,16 +347,43 @@ export default function DonorForm() {
           label={
             <Typography sx={{ fontSize: "14px", color: "#179e44" }}>
               Acepto los{" "}
-              <span style={{ color: "#179e44", fontWeight: 600 }}>
+              <span 
+                style={{ 
+                  color: "#179e44", 
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  textDecoration: "underline"
+                }}
+                onClick={() => setTermsModalOpen(true)}
+              >
                 Términos de Servicio
               </span>{" "}
               y la{" "}
-              <span style={{ color: "#179e44", fontWeight: 600 }}>
+              <span 
+                style={{ 
+                  color: "#179e44", 
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  textDecoration: "underline"
+                }}
+                onClick={() => setTermsModalOpen(true)}
+              >
                 Política de Privacidad
               </span>
               .
             </Typography>
           }
+        />
+
+        {/* Modal de Términos y Condiciones */}
+        <TermsAndConditionsModal 
+          open={termsModalOpen} 
+          onClose={(accepted) => {
+            if (accepted) {
+              setAcceptedTerms(true);
+            }
+            setTermsModalOpen(false);
+          }}
         />
 
         {/* BOTÓN */}

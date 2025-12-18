@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Grid,
@@ -11,31 +11,71 @@ import {
   ListItemText,
   ListItemSecondaryAction,
   IconButton,
+  CircularProgress,
 } from "@mui/material";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import { authenticatedGetData } from "../../../services/fetch";
 
-export default function ManagerSummary() {
-  // datos de ejemplo
-  const stats = [
-    { id: 1, label: "Campañas Activas", value: 2 },
-    { id: 2, label: "Total Recaudado", value: "$10,750" },
-    { id: 3, label: "Donantes Totales", value: 148 },
-  ];
+export default function ManagerSummary({ user }) {
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    activeCampaigns: 0,
+    totalRaised: "$0",
+    totalDonors: 0,
+  });
+  const [campaigns, setCampaigns] = useState([]);
 
-  const campaigns = [
-    {
-      id: "c1",
-      title: "Huerto Comunitario Urbano",
-      progress: 85,
-      subtitle: "85% completado · 25 días restantes",
-    },
-    {
-      id: "c2",
-      title: "Limpieza de la Playa Costazul",
-      progress: 45,
-      subtitle: "45% completado · 52 días restantes",
-    },
-  ];
+  useEffect(() => {
+    async function loadData() {
+      try {
+        setLoading(true);
+        const userId = localStorage.getItem('id');
+        
+        // Cargar campañas del manager
+        const campaignsData = await authenticatedGetData(`campaigns/user_campaigns/${userId}/`);
+        
+        if (campaignsData && Array.isArray(campaignsData)) {
+          setCampaigns(campaignsData);
+          
+          // Calcular estadísticas
+          const activeCampaigns = campaignsData.filter(c => c.campaign_status === 'APPROVED').length;
+          const totalRaised = campaignsData.reduce((sum, c) => sum + (parseFloat(c.current_amount) || 0), 0);
+          
+          setStats({
+            activeCampaigns,
+            totalRaised: `$${totalRaised.toLocaleString()}`,
+            totalDonors: 0, // Este dato requeriría un endpoint específico
+          });
+        }
+      } catch (error) {
+        console.error('Error loading manager data:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
+
+  const calculateProgress = (current, goal) => {
+    if (!goal || goal === 0) return 0;
+    return Math.min(Math.round((current / goal) * 100), 100);
+  };
+
+  const getDaysRemaining = (endDate) => {
+    if (!endDate) return 0;
+    const today = new Date();
+    const end = new Date(endDate);
+    const diff = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
+    return Math.max(0, diff);
+  };
+
+  if (loading) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: 400 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ width: "100%", maxWidth: 1200, mx: "auto" }}>
@@ -45,34 +85,70 @@ export default function ManagerSummary() {
           Resumen del Gestor
         </Typography>
         <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
-          Bienvenida, Ana. Aquí tienes un resumen de tu actividad y el impacto
+          Bienvenido/a, {user?.first_name}. Aquí tienes un resumen de tu actividad y el impacto
           que estás generando.
         </Typography>
       </Box>
 
       {/* Estadísticas */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
-        {stats.map((s) => (
-          <Grid key={s.id} item xs={12} sm={6} md={4}>
-            <Paper
-              elevation={0}
-              sx={{
-                p: 2,
-                border: "1px solid",
-                borderColor: "divider",
-                borderRadius: 2,
-                height: "100%",
-              }}
-            >
-              <Typography variant="subtitle2" color="text.secondary">
-                {s.label}
-              </Typography>
-              <Typography variant="h5" fontWeight={800} sx={{ mt: 1 }}>
-                {s.value}
-              </Typography>
-            </Paper>
-          </Grid>
-        ))}
+        <Grid item xs={12} sm={6} md={4}>
+          <Paper
+            elevation={0}
+            sx={{
+              p: 2,
+              border: "1px solid",
+              borderColor: "divider",
+              borderRadius: 2,
+              height: "100%",
+            }}
+          >
+            <Typography variant="subtitle2" color="text.secondary">
+              Campañas Activas
+            </Typography>
+            <Typography variant="h5" fontWeight={800} sx={{ mt: 1 }}>
+              {stats.activeCampaigns}
+            </Typography>
+          </Paper>
+        </Grid>
+        <Grid item xs={12} sm={6} md={4}>
+          <Paper
+            elevation={0}
+            sx={{
+              p: 2,
+              border: "1px solid",
+              borderColor: "divider",
+              borderRadius: 2,
+              height: "100%",
+            }}
+          >
+            <Typography variant="subtitle2" color="text.secondary">
+              Total Recaudado
+            </Typography>
+            <Typography variant="h5" fontWeight={800} sx={{ mt: 1 }}>
+              {stats.totalRaised}
+            </Typography>
+          </Paper>
+        </Grid>
+        <Grid item xs={12} sm={6} md={4}>
+          <Paper
+            elevation={0}
+            sx={{
+              p: 2,
+              border: "1px solid",
+              borderColor: "divider",
+              borderRadius: 2,
+              height: "100%",
+            }}
+          >
+            <Typography variant="subtitle2" color="text.secondary">
+              Total de Campañas
+            </Typography>
+            <Typography variant="h5" fontWeight={800} sx={{ mt: 1 }}>
+              {campaigns.length}
+            </Typography>
+          </Paper>
+        </Grid>
       </Grid>
 
       {/* Campañas recientes */}
@@ -89,49 +165,62 @@ export default function ManagerSummary() {
           </Button>
         </Box>
 
-        <List disablePadding>
-          {campaigns.map((c) => (
-            <ListItem
-              key={c.id}
-              sx={{
-                p: 2,
-                mb: 1,
-                borderRadius: 1.5,
-                border: "1px solid",
-                borderColor: "divider",
-                "&:hover": { backgroundColor: "action.hover" },
-              }}
-              secondaryAction={
-                <ListItemSecondaryAction sx={{ right: 8 }}>
-                  <IconButton edge="end" aria-label="more">
-                    <MoreHorizIcon />
-                  </IconButton>
-                </ListItemSecondaryAction>
-              }
-            >
-              <ListItemText
-                primary={
-                  <Typography variant="subtitle1" fontWeight={700}>
-                    {c.title}
-                  </Typography>
-                }
-                secondary={
-                  <Box sx={{ mt: 1 }}>
-                    <LinearProgress variant="determinate" value={c.progress} sx={{ height: 8, borderRadius: 1 }} />
-                    <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block" }}>
-                      {c.subtitle}
-                    </Typography>
+        {campaigns.length === 0 ? (
+          <Box sx={{ textAlign: "center", py: 4 }}>
+            <Typography variant="body1" color="text.secondary">
+              No tienes campañas todavía. ¡Crea tu primera campaña!
+            </Typography>
+          </Box>
+        ) : (
+          <List disablePadding>
+            {campaigns.slice(0, 5).map((c) => {
+              const progress = calculateProgress(c.current_amount, c.goal_amount);
+              const daysRemaining = getDaysRemaining(c.end_date);
+              
+              return (
+                <ListItem
+                  key={c.id}
+                  sx={{
+                    p: 2,
+                    mb: 1,
+                    borderRadius: 1.5,
+                    border: "1px solid",
+                    borderColor: "divider",
+                    "&:hover": { backgroundColor: "action.hover" },
+                  }}
+                  secondaryAction={
+                    <ListItemSecondaryAction sx={{ right: 8 }}>
+                      <IconButton edge="end" aria-label="more">
+                        <MoreHorizIcon />
+                      </IconButton>
+                    </ListItemSecondaryAction>
+                  }
+                >
+                  <ListItemText
+                    primary={
+                      <Typography variant="subtitle1" fontWeight={700}>
+                        {c.title}
+                      </Typography>
+                    }
+                    secondary={
+                      <Box sx={{ mt: 1 }}>
+                        <LinearProgress variant="determinate" value={progress} sx={{ height: 8, borderRadius: 1 }} />
+                        <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block" }}>
+                          {progress}% completado · {daysRemaining} días restantes
+                        </Typography>
+                      </Box>
+                    }
+                  />
+                  <Box sx={{ ml: 2 }}>
+                    <Button variant="outlined" size="small">
+                      Gestionar
+                    </Button>
                   </Box>
-                }
-              />
-              <Box sx={{ ml: 2 }}>
-                <Button variant="outlined" size="small">
-                  Gestionar
-                </Button>
-              </Box>
-            </ListItem>
-          ))}
-        </List>
+                </ListItem>
+              );
+            })}
+          </List>
+        )}
       </Paper>
     </Box>
   );

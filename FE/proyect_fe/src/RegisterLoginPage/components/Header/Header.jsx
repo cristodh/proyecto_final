@@ -1,7 +1,6 @@
 // src/components/Header.jsx
 import { AppBar, Toolbar, Button, Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import logoFundify from "../../../imgs/LogoFundifyClose.png";
 
 export default function Header({ showLoginBtn }) {
   const navigate = useNavigate();
@@ -23,7 +22,7 @@ export default function Header({ showLoginBtn }) {
         {/* Logo */}
         <Box display="flex" alignItems="center" gap={1} onClick={() => navigate('/')} sx={{ cursor: "pointer" }}>
           <img
-            src={logoFundify}
+            src="/imgs/JustLogo.png"
             alt="Fundify Logo"
             style={{
               height: "48px",

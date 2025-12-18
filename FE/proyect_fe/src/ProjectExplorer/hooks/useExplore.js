@@ -34,7 +34,7 @@ export function useExplore() {
   const [filters, setFilters] = useState({
     search: "",
     category: "",
-    location: "",
+    province: "",
     sortBy: "recent",
     minGoal: 0,
     maxGoal: 100000000,
@@ -121,7 +121,7 @@ export function useExplore() {
       const params = new URLSearchParams();
       if (filters.search) params.append("search", filters.search);
       if (filters.category) params.append("category", filters.category);
-      if (filters.location) params.append("location", filters.location);
+      if (filters.province) params.append("province", filters.province);
       if (filters.sortBy) params.append("sort_by", filters.sortBy);
       if (filters.minGoal > 0) params.append("min_goal", filters.minGoal);
       if (filters.maxGoal < 100000000) params.append("max_goal", filters.maxGoal);
@@ -172,7 +172,7 @@ export function useExplore() {
     setFilters({
       search: "",
       category: "",
-      location: "",
+      province: "",
       sortBy: "recent",
       minGoal: 0,
       maxGoal: 100000000,

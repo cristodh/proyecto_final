@@ -54,7 +54,7 @@ export default function Topbar({ onOpenSidebar, adminData }) {
         <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
           <Avatar src={userIcon} />
           <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
-            <Typography variant="body1" sx={{ fontWeight: 700 }}>{adminName}</Typography>
+            <Typography variant="body1" sx={{ fontWeight: 700 }}>{"admin"}</Typography>
             <Typography variant="caption" color="text.secondary">Supervisor del Ecosistema</Typography>
           </Box>
         </Box>

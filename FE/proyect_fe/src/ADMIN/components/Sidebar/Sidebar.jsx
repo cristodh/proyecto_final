@@ -1,4 +1,3 @@
-// src/components/Sidebar.jsx
 import React from "react";
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
@@ -10,7 +9,6 @@ import SidebarItem from "../SidebarItem/SidebarItem";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import CampaignIcon from "@mui/icons-material/Campaign";
 import GavelIcon from "@mui/icons-material/Gavel";
-import MonitoringIcon from "@mui/icons-material/MonitorHeart";
 import GroupIcon from "@mui/icons-material/Group";
 import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -58,12 +56,6 @@ export default function Sidebar({ mobileOpen, onMobileClose, activeKey = "dashbo
           label="Moderación" 
           active={activeKey === "moderation"}
           onClick={() => handleItemClick("moderation")}
-        />
-        <SidebarItem 
-          icon={<MonitoringIcon />} 
-          label="Reportes de Impacto" 
-          active={activeKey === "reports"}
-          onClick={() => handleItemClick("reports")}
         />
         <SidebarItem 
           icon={<GroupIcon />} 

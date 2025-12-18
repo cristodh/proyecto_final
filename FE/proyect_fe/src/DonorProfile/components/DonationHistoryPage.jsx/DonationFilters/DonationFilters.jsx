@@ -4,6 +4,10 @@ import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
 
 export default function DonationFilters({ filters, setFilters, onApply, onClear }) {
   const handleChange = (e) => {
@@ -14,7 +18,7 @@ export default function DonationFilters({ filters, setFilters, onApply, onClear 
   return (
     <Box sx={{ bgcolor: "background.paper", border: 1, borderColor: "divider", borderRadius: 2, p: 2, mb: 3 }}>
       <Grid container spacing={2} alignItems="end">
-        <Grid item xs={12} md={6} lg={7} container spacing={2}>
+        <Grid item xs={12} md={6} container spacing={2}>
           <Grid item xs={12} sm={6}>
             <TextField
               label="Desde"
@@ -39,9 +43,26 @@ export default function DonationFilters({ filters, setFilters, onApply, onClear 
               size="small"
             />
           </Grid>
+          <Grid item xs={12} sm={12}>
+            <FormControl fullWidth size="small">
+              <InputLabel id="status-label">Estado</InputLabel>
+              <Select
+                labelId="status-label"
+                label="Estado"
+                name="status"
+                value={filters.status || ""}
+                onChange={handleChange}
+              >
+                <MenuItem value="">Todos</MenuItem>
+                <MenuItem value="approved">Completada</MenuItem>
+                <MenuItem value="pending">En Proceso</MenuItem>
+                <MenuItem value="rejected">Cancelada</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
         </Grid>
 
-        <Grid item xs={12} md={6} lg={5}>
+        <Grid item xs={12} md={6}>
           <TextField
             label="Buscar proyecto"
             name="q"

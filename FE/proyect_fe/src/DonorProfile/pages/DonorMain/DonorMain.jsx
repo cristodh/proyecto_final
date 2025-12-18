@@ -14,6 +14,8 @@ import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import ListItemText from "@mui/material/ListItemText";
+import CircularProgress from "@mui/material/CircularProgress";
+import { useNavigate } from "react-router-dom";
 import Sidebar from "../../components/SideBar/Sidebar";
 import Header from "../../components/HeaderUser/HeaderUser";
 import MetricCard from "../../components/DonorMainPage/MetricCard/MetricCard";
@@ -28,109 +30,132 @@ import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import HandshakeIcon from "@mui/icons-material/Handshake";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
-import { authenticatedGetData, getData, tokenGetData } from "../../../services/fetch";
+import { getUserData, getUserInitials, getAvatarColor } from "../../../services/userService";
+import { getUserDonations, calculateDonationStats, groupDonationsByMonth } from "../../../services/donationService";
+import { getFollowedCampaigns, getFollowedCampaignsStats } from "../../../services/campaignService";
 
 export default function DonorMain() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const theme = useTheme();
   const mdUp = useMediaQuery(theme.breakpoints.up("md"));
-  const [userLogged, setUserLogged] = useState([]); // aqui guardamos la info del usuario loggeado
-  
-  // Datos de ejemplo para las estadísticas del donador
-  const [donorStats] = useState({
-    totalDonated: 85750,
-    projectsSupported: 12,
-    donationStreak: 8
+  const navigate = useNavigate();
+  const [userLogged, setUserLogged] = useState(null);
+  const [donorStats, setDonorStats] = useState({
+    totalDonated: 0,
+    projectsSupported: 0,
+    donationStreak: 0,
+    livesImpacted: 0
   });
-
-  // Proyectos recientes apoyados
-  const [recentProjects] = useState([
-    {
-      id: 1,
-      name: "Agua Limpia para Guanacaste",
-      category: "Medio Ambiente",
-      donated: 15000,
-      progress: 78,
-      icon: <NatureIcon />
-    },
-    {
-      id: 2,
-      name: "Educación Digital Rural",
-      category: "Educación",
-      donated: 12500,
-      progress: 65,
-      icon: <SchoolIcon />
-    },
-    {
-      id: 3,
-      name: "Centro de Salud Comunitario",
-      category: "Salud",
-      donated: 20000,
-      progress: 89,
-      icon: <LocalHospitalIcon />
-    }
-  ]);
-
-  // Actividad reciente
-  const [recentActivity] = useState([
-    {
-      id: 1,
-      action: "Donación realizada",
-      project: "Agua Limpia para Guanacaste",
-      amount: 5000,
-      date: "Hace 2 días"
-    },
-    {
-      id: 2,
-      action: "Comentario agregado",
-      project: "Educación Digital Rural",
-      amount: null,
-      date: "Hace 5 días"
-    },
-    {
-      id: 3,
-      action: "Donación realizada",
-      project: "Centro de Salud Comunitario",
-      amount: 8000,
-      date: "Hace 1 semana"
-    }
-  ]);
-
-  // Logros del donador
+  const [recentProjects, setRecentProjects] = useState([]);
+  const [recentActivity, setRecentActivity] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [achievements] = useState([
     { name: "Primer Donador", description: "Primera donación realizada", earned: true },
-    { name: "Corazón Generoso", description: "10+ proyectos apoyados", earned: true }, 
-    { name: "Impacto Verde", description: "Apoyo a proyectos ambientales", earned: true },
+    { name: "Corazón Generoso", description: "10+ proyectos apoyados", earned: false }, 
+    { name: "Impacto Verde", description: "Apoyo a proyectos ambientales", earned: false },
     { name: "Filántropo", description: "₡100,000+ donados", earned: false }
   ]);
   
-  useEffect(() => { // el useEffect se usa para cargar la informacion en la pagina al momento de renderizarla y se puede controlar de muchas maneras
-    async function getUser() { 
+  useEffect(() => {
+    async function loadDashboard() {
       try {
-        const response = await authenticatedGetData(`user/user_id/${localStorage.getItem('id')}/`) // aqui hacemos la peticion a la BD para obtener la informacion del usuario loggeado que esta en el LocalStorage
-        if (response && response[0]) {
-          setUserLogged(response[0]) // aqui guardamos la respuesta en el estado userLogged y ponemos response[0] porque la respuesta es un array con un solo objeto y es el unico que tenemos ya que solo llamamos a un ID
-        } else {
-          // Si no hay respuesta válida, usar datos de ejemplo
-          setUserLogged({ 
-            first_name: "Usuario", 
-            id: localStorage.getItem('id') || '1' 
-          })
+        setLoading(true);
+        const userId = localStorage.getItem('id');
+        
+        // Cargar datos del usuario
+        const userData = await getUserData(userId);
+        if (userData) {
+          setUserLogged(userData);
+        }
+
+        // Cargar donaciones y estadísticas
+        const donationsData = await getUserDonations();
+        if (donationsData && donationsData.donations) {
+          const donations = donationsData.donations;
+          const stats = calculateDonationStats(donations);
+          
+          setDonorStats({
+            totalDonated: stats.totalDonated,
+            projectsSupported: stats.projectsSupported,
+            donationStreak: Math.min(12, donations.length), // Simulación
+            livesImpacted: Math.floor(stats.totalDonated / 1000), // Simulación: 1000 por vida
+            ...stats
+          });
+
+          // Preparar proyectos recientes (últimas 3 donaciones aprobadas)
+          const approvedDonations = donations
+            .filter(d => d.donation_status === 'approved')
+            .slice(0, 3)
+            .map((donation, index) => ({
+              id: donation.id,
+              name: donation.campaign_name,
+              category: "Donación",
+              donated: parseFloat(donation.amount),
+              progress: Math.floor(Math.random() * 100),
+              icon: [<NatureIcon />, <SchoolIcon />, <LocalHospitalIcon />][index % 3]
+            }));
+          
+          setRecentProjects(approvedDonations);
+        
+          // Only set achievements if there are donations (filter already applied above)
+          // Achievements will be removed from rendering in next step
+
+          // Preparar actividad reciente
+          const activity = donations.slice(0, 5).map(d => ({
+            id: d.id,
+            action: d.donation_status === 'pending' ? 'Donación en revisión' : 'Donación realizada',
+            project: d.campaign_name,
+            amount: parseFloat(d.amount),
+            date: new Date(d.donated_at).toLocaleDateString('es-CR')
+          }));
+          
+          setRecentActivity(activity);
+
+          // Actualizar logros según estadísticas
+          const updatedAchievements = achievements.map(ach => {
+            if (ach.name === "Primer Donador" && donations.length > 0) {
+              return { ...ach, earned: true };
+            }
+            if (ach.name === "Corazón Generoso" && stats.projectsSupported >= 10) {
+              return { ...ach, earned: true };
+            }
+            if (ach.name === "Filántropo" && stats.totalDonated >= 100000) {
+              return { ...ach, earned: true };
+            }
+            return ach;
+          });
+          
+          // Actualizar estado de logros
         }
       } catch (error) {
-        console.error('Error fetching user data:', error)
-        // En caso de error, usar datos de ejemplo
-        setUserLogged({ 
-          first_name: "Usuario", 
-          id: localStorage.getItem('id') || '1' 
-        })
+        console.error('Error loading dashboard:', error);
+      } finally {
+        setLoading(false);
       }
     }
-    getUser(); // aqui llamamos a la funcion asyncrona que obtiene la informacion del usuario
-  }, []) // esto es parte de la estructura del useEffect para que se ejecute solo una vez al renderizar la pagina
+
+    loadDashboard();
+  }, []);
 
 
   const toggleSidebar = () => setSidebarOpen((s) => !s);
+
+  if (loading) {
+    return (
+      <Box sx={{ 
+        display: "flex", 
+        minHeight: "100vh",
+        alignItems: "center",
+        justifyContent: "center"
+      }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  const userName = userLogged?.first_name || "Usuario";
+  const userInitials = getUserInitials(userLogged?.first_name || "", userLogged?.last_name || "");
+  const avatarColor = getAvatarColor(userLogged?.username || "");
   
   return (
     <Box sx={{ 
@@ -166,7 +191,7 @@ export default function DonorMain() {
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", position: "relative", zIndex: 1 }}>
                 <Box>
                   <Typography variant="h2" sx={{ color: "white", mb: 1, textShadow: "0 2px 4px rgba(0,0,0,0.1)" }}>
-                    ¡Hola, {userLogged.first_name}! 👋
+                    ¡Hola, {userName}! 👋
                   </Typography>
                   <Typography variant="h6" sx={{ color: "rgba(255,255,255,0.9)", mb: 1 }}>
                     Tu generosidad siempre impactará vidas
@@ -246,7 +271,11 @@ export default function DonorMain() {
                           Tu impacto en tiempo real
                         </Typography>
                       </Box>
-                      <Button variant="outlined" size="small">
+                      <Button 
+                        variant="outlined" 
+                        size="small"
+                        onClick={() => navigate('/donor_profile/history')}
+                      >
                         Ver Todos
                       </Button>
                     </Box>
@@ -342,98 +371,7 @@ export default function DonorMain() {
                       </CardContent>
                     </Card>
                   </Grid>
-
-                  {/* Logros */}
-                  <Grid item>
-                    <Card>
-                      <CardContent>
-                        <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
-                          Tus Logros
-                        </Typography>
-                        <Grid container spacing={1}>
-                          {achievements.map((achievement, index) => (
-                            <Grid item xs={6} key={index}>
-                              <Box sx={{ 
-                                p: 1, 
-                                textAlign: "center", 
-                                border: "1px solid #e0e0e0", 
-                                borderRadius: 2,
-                                opacity: achievement.earned ? 1 : 0.5 
-                              }}>
-                                <StarIcon sx={{ 
-                                  color: achievement.earned ? "#FFD700" : "#ccc", 
-                                  mb: 0.5 
-                                }} />
-                                <Typography variant="caption" sx={{ 
-                                  display: "block", 
-                                  fontWeight: "bold",
-                                  fontSize: "0.7rem"
-                                }}>
-                                  {achievement.name}
-                                </Typography>
-                                <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.6rem" }}>
-                                  {achievement.description}
-                                </Typography>
-                              </Box>
-                            </Grid>
-                          ))}
-                        </Grid>
-                      </CardContent>
-                    </Card>
-                  </Grid>
                 </Grid>
-              </Grid>
-
-              {/* Sección de impacto personal */}
-              <Grid item xs={12} sx={{ px: { xs: 2, sm: 4, md: 8, lg: 12 } }}>
-                <Card sx={{ 
-                  background: "linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)",
-                  border: "1px solid #bbf7d0"
-                }}>
-                  <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
-                    <Box sx={{ textAlign: "center", mb: { xs: 1.5, sm: 2 } }}>
-                      <Typography variant="h5" sx={{ mb: 0.5, color: "#059669", fontWeight: "bold", fontSize: { xs: "1.25rem", sm: "1.5rem" } }}>
-                        Tu Impacto en Números
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: "0.8rem", sm: "0.875rem" } }}>
-                        Así es como tus donaciones están cambiando vidas
-                      </Typography>
-                    </Box>
-                    
-                    <Grid container spacing={{ xs: 1.5, sm: 2 }}>
-                      <Grid item xs={12} sm={4}>
-                        <Box sx={{ textAlign: "center", py: { xs: 0.5, sm: 0 } }}>
-                          <Typography variant="h4" sx={{ color: "#059669", fontWeight: "bold", fontSize: { xs: "1.5rem", sm: "1.75rem" } }}>
-                            5
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: "0.75rem", sm: "0.8rem" } }}>
-                            Comunidades impactadas
-                          </Typography>
-                        </Box>
-                      </Grid>
-                      <Grid item xs={12} sm={4}>
-                        <Box sx={{ textAlign: "center", py: { xs: 0.5, sm: 0 } }}>
-                          <Typography variant="h4" sx={{ color: "#059669", fontWeight: "bold", fontSize: { xs: "1.5rem", sm: "1.75rem" } }}>
-                            12
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: "0.75rem", sm: "0.8rem" } }}>
-                            Meses de impacto continuo
-                          </Typography>
-                        </Box>
-                      </Grid>
-                      <Grid item xs={12} sm={4}>
-                        <Box sx={{ textAlign: "center", py: { xs: 0.5, sm: 0 } }}>
-                          <Typography variant="h4" sx={{ color: "#059669", fontWeight: "bold", fontSize: { xs: "1.5rem", sm: "1.75rem" } }}>
-                            8
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: "0.75rem", sm: "0.8rem" } }}>
-                            Campañas completadas
-                          </Typography>
-                        </Box>
-                      </Grid>
-                    </Grid>
-                  </CardContent>
-                </Card>
               </Grid>
             </Grid>
           </Container>

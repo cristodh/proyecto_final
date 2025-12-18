@@ -10,12 +10,14 @@ from .models import Category # importar el modelo Category
 from .models import MediaContent # importar el modelo MediaContent
 from .models import Donation # importar el modelo Donation
 from .models import UserReport # importar el modelo UserReport
+from .models import CampaignFollower # importar el modelo CampaignFollower
 
 from .serializers import CampaignSerializer # importar el serializador CampaignSerializer
 from .serializers import CategorySerializer # importar el serializador CategorySerializer
 from .serializers import MediaContentSerializer # importar el serializador MediaContentSerializer
 from .serializers import DonationSerializer, DonationCreateSerializer # importar los serializadores de donaciones
 from .serializers import UserReportSerializer, UserReportCreateSerializer # importar los serializadores de reportes
+from .serializers import CampaignFollowerSerializer # importar el serializador de seguimiento
 
 import uuid
 from decimal import Decimal
@@ -193,7 +195,7 @@ class PublicCampaignListView(APIView):
             
             # Filtros opcionales
             category = request.query_params.get('category')
-            location = request.query_params.get('location')
+            province = request.query_params.get('province')
             search = request.query_params.get('search')
             sort_by = request.query_params.get('sort_by', 'recent')
             min_goal = request.query_params.get('min_goal')
@@ -203,8 +205,8 @@ class PublicCampaignListView(APIView):
             if category:
                 campaigns = campaigns.filter(category_id=category)
             
-            if location:
-                campaigns = campaigns.filter(location__icontains=location)
+            if province:
+                campaigns = campaigns.filter(province=province)
             
             if search:
                 campaigns = campaigns.filter(
@@ -886,5 +888,100 @@ class UserReportStatusUpdateView(APIView):
 
             report.delete()
             return Response({'message': 'Reporte eliminado'}, status=204)
+        except Exception as e:
+            return Response({'error': str(e)}, status=400)
+
+
+# ============================================================
+# VISTAS PARA SEGUIMIENTO DE CAMPAÑAS
+# ============================================================
+
+class CampaignFollowView(APIView):
+    """
+    Vista para seguir o dejar de seguir una campaña
+    - POST: Seguir una campaña
+    - DELETE: Dejar de seguir una campaña
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, campaign_id):
+        try:
+            campaign = Campaign.objects.get(id=campaign_id)
+            follower, created = CampaignFollower.objects.get_or_create(
+                user=request.user,
+                campaign=campaign
+            )
+            
+            if created:
+                return Response({
+                    'message': 'Ahora estás siguiendo esta campaña',
+                    'following': True
+                }, status=201)
+            else:
+                return Response({
+                    'message': 'Ya estabas siguiendo esta campaña',
+                    'following': True
+                }, status=200)
+        except Campaign.DoesNotExist:
+            return Response({'error': 'Campaña no encontrada'}, status=404)
+        except Exception as e:
+            return Response({'error': str(e)}, status=400)
+
+    def delete(self, request, campaign_id):
+        try:
+            campaign = Campaign.objects.get(id=campaign_id)
+            CampaignFollower.objects.filter(
+                user=request.user,
+                campaign=campaign
+            ).delete()
+            
+            return Response({
+                'message': 'Dejaste de seguir esta campaña',
+                'following': False
+            }, status=200)
+        except Campaign.DoesNotExist:
+            return Response({'error': 'Campaña no encontrada'}, status=404)
+        except Exception as e:
+            return Response({'error': str(e)}, status=400)
+
+
+class UserFollowedCampaignsView(APIView):
+    """
+    Vista para obtener todas las campañas que un usuario está siguiendo
+    - GET: Lista todas las campañas que el usuario sigue
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            followed = CampaignFollower.objects.filter(user=request.user).select_related('campaign')
+            serializer = CampaignFollowerSerializer(followed, many=True)
+            
+            return Response({
+                'count': followed.count(),
+                'campaigns': serializer.data
+            }, status=200)
+        except Exception as e:
+            return Response({'error': str(e)}, status=400)
+
+
+class CampaignFollowersStatusView(APIView):
+    """
+    Vista para verificar si el usuario actual está siguiendo una campaña
+    - GET: Verifica si estás siguiendo una campaña específica
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, campaign_id):
+        try:
+            is_following = CampaignFollower.objects.filter(
+                user=request.user,
+                campaign_id=campaign_id
+            ).exists()
+            
+            return Response({
+                'campaign_id': campaign_id,
+                'is_following': is_following
+            }, status=200)
         except Exception as e:
             return Response({'error': str(e)}, status=400)

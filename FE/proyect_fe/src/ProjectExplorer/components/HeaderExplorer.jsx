@@ -10,7 +10,6 @@ import MenuIcon from "@mui/icons-material/Menu";
 import HomeIcon from "@mui/icons-material/Home";
 import ExploreIcon from "@mui/icons-material/Explore";
 import LogoutIcon from "@mui/icons-material/Logout";
-import LogoFundify from "../../imgs/LogoFundifyClose.png";
 import { useNavigate } from "react-router-dom";
 
 export default function HeaderExplorer({ onToggleSidebar }) {
@@ -58,7 +57,7 @@ export default function HeaderExplorer({ onToggleSidebar }) {
           </IconButton>
 
           <img
-            src={LogoFundify}
+            src="/imgs/JustLogo.png"
             alt="Fundify Logo"
             style={{
               height: "72px",

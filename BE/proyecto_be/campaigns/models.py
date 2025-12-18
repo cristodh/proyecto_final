@@ -24,11 +24,22 @@ class Campaign(models.Model):
     # ============================================================
     goal_amount = models.DecimalField(max_digits=10, decimal_places=2)
     current_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    lives_impact_estimate = models.IntegerField(blank=True, null=True, help_text="Estimado de vidas a impactar")
     
     # ============================================================
     # CAMPOS DE UBICACIÓN Y CATEGORÍA
     # ============================================================
+    PROVINCE_CHOICES = (
+        ('San José', 'San José'),
+        ('Alajuela', 'Alajuela'),
+        ('Cartago', 'Cartago'),
+        ('Heredia', 'Heredia'),
+        ('Guanacaste', 'Guanacaste'),
+        ('Puntarenas', 'Puntarenas'),
+        ('Limón', 'Limón'),
+    )
     location = models.CharField(max_length=255)
+    province = models.CharField(max_length=50, choices=PROVINCE_CHOICES, default='San José')
     category = models.ForeignKey('Category', on_delete=models.CASCADE)
     
     # ============================================================
@@ -169,6 +180,18 @@ class UserReport(models.Model):
         return f"Report {self.id} - {self.get_reason_display()}"
 
 
+class CampaignFollower(models.Model):
+    """
+    Modelo para que los usuarios sigan campañas
+    Permite a los donantes seguir proyectos para recibir actualizaciones
+    """
+    user = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='followed_campaigns')
+    campaign = models.ForeignKey('Campaign', on_delete=models.CASCADE, related_name='followers')
+    followed_at = models.DateTimeField(auto_now_add=True)
     
-
-   
+    class Meta:
+        unique_together = ('user', 'campaign')
+        ordering = ['-followed_at']
+    
+    def __str__(self):
+        return f"{self.user.username} follows {self.campaign.name}"

@@ -1,52 +1,99 @@
 // src/components/FeaturedCarousel.jsx
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
+import CircularProgress from "@mui/material/CircularProgress";
 import ProjectCard from "../ProjectCard/ProjectCard";
+import { getData } from "../../../services/fetch";
+import { useNavigate } from "react-router-dom";
 
-const projects = [
-  {
-    title: "Parque Comunitario 'La Esperanza'",
-    subtitle: "Un espacio verde para que nuestros niños jueguen seguros.",
-    image: "https://images.unsplash.com/photo-1542614476-6a6f9a1b6f72?auto=format&fit=crop&w=1200&q=60"
-  },
-  {
-    title: "Comedor Social 'Manos Unidas'",
-    subtitle: "Asegurando una comida caliente para quienes más lo necesitan.",
-    image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=60"
-  },
-  {
-    title: "Murales que Unen Vecindarios",
-    subtitle: "Llenando de color y arte las calles de nuestro barrio.",
-    image: "https://images.unsplash.com/photo-1505678261036-a3fcc5e884ee?auto=format&fit=crop&w=1200&q=60"
-  }
-];
+export default function FeaturedCarousel({ onProjectClick }) {
+  const [campaigns, setCampaigns] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
-export default function FeaturedCarousel() {
+  const fetchFeaturedCampaigns = async () => {
+    try {
+      setLoading(true);
+      // Traer campañas activas ordenadas por recaudación (popular)
+      const response = await getData("campaign/explore/?sort_by=popular");
+      
+      if (response && response.campaigns) {
+        // Tomar solo los primeros 3 proyectos destacados
+        const featured = response.campaigns.slice(0, 3);
+        setCampaigns(featured);
+      }
+    } catch (error) {
+      console.error("Error fetching featured campaigns:", error);
+      setCampaigns([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchFeaturedCampaigns();
+
+    // Refrescar cada 30 segundos
+    const interval = setInterval(() => {
+      fetchFeaturedCampaigns();
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleViewAll = () => {
+    navigate("/explore-projects");
+  };
+
+  const handleProjectClick = (campaign) => {
+    if (onProjectClick) {
+      onProjectClick(campaign);
+    }
+  };
+
   return (
     <Box component="section" sx={{ py: 8, bgcolor: "action.hover" }}>
       <Container maxWidth="lg">
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
           <Typography variant="h5" sx={{ fontWeight: 800 }}>Campañas Destacadas</Typography>
-          <Typography component="a" href="#" sx={{ color: "primary.main", fontWeight: 700, textDecoration: "none" }}>Ver todas</Typography>
+          <Typography 
+            onClick={handleViewAll}
+            sx={{ color: "primary.main", fontWeight: 700, textDecoration: "none", cursor: "pointer", "&:hover": { textDecoration: "underline" } }}
+          >
+            Ver todas
+          </Typography>
         </Box>
 
-        <Box sx={{
-          display: "flex",
-          overflowX: "auto",
-          scrollSnapType: "x mandatory",
-          "& > div": { scrollSnapAlign: "center" },
-          py: 1,
-          // hide scrollbar (some browsers)
-          msOverflowStyle: "none",
-          scrollbarWidth: "none",
-          "&::-webkit-scrollbar": { display: "none" }
-        }}>
-          {projects.map((p, i) => (
-            <ProjectCard key={i} title={p.title} subtitle={p.subtitle} image={p.image} />
-          ))}
-        </Box>
+        {loading ? (
+          <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
+            <CircularProgress />
+          </Box>
+        ) : campaigns.length === 0 ? (
+          <Box sx={{ textAlign: "center", py: 4 }}>
+            <Typography color="text.secondary">No hay campañas destacadas en este momento</Typography>
+          </Box>
+        ) : (
+          <Box sx={{
+            display: "flex",
+            overflowX: "auto",
+            scrollSnapType: "x mandatory",
+            "& > div": { scrollSnapAlign: "center" },
+            py: 1,
+            msOverflowStyle: "none",
+            scrollbarWidth: "none",
+            "&::-webkit-scrollbar": { display: "none" }
+          }}>
+            {campaigns.map((campaign) => (
+              <ProjectCard 
+                key={campaign.id} 
+                campaign={campaign}
+                onViewProject={() => handleProjectClick(campaign)}
+              />
+            ))}
+          </Box>
+        )}
       </Container>
     </Box>
   );

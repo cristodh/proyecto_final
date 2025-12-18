@@ -97,7 +97,7 @@ export default function ManagerSidebar({ open, onClose, user }) {
               fontSize: "0.95rem",
             }}
           >
-            {user.first_name} {user.last_name}
+            {user.first_name || 'Sin nombre'} {user.last_name || 'Sin Apellido'}
           </Typography>
           <Typography 
             variant="caption" 

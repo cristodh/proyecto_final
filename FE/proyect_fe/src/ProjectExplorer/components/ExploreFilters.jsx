@@ -64,7 +64,7 @@ export default function ExploreFilters({
   const hasActiveFilters =
     filters.search ||
     filters.category ||
-    filters.location ||
+    filters.province ||
     filters.minGoal > 0 ||
     filters.maxGoal < 100000000;
 
@@ -132,8 +132,8 @@ export default function ExploreFilters({
       <FormControl fullWidth size="small" sx={{ mb: 3 }}>
         <InputLabel>Provincia</InputLabel>
         <Select
-          value={filters.location}
-          onChange={(e) => updateFilter("location", e.target.value)}
+          value={filters.province}
+          onChange={(e) => updateFilter("province", e.target.value)}
           label="Provincia"
         >
           <MenuItem value="">

@@ -32,9 +32,6 @@ export default function ProjectsGrid({ projects = [] , onToggleFavorite = () => 
         display: "grid",
         gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
         gap: 3,
-        "& > *": {
-          height: "200px"
-        }
       }}>
         {projects.map((p) => (
           <ProjectCard

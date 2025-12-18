@@ -11,7 +11,6 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useNavigate } from "react-router-dom";
-import logoFundify from "../../imgs/LogoFundifyClose.png";
 
 export default function MainHeader() {
   const theme = useTheme();
@@ -27,7 +26,7 @@ export default function MainHeader() {
       <Toolbar sx={{ maxWidth: 1400, mx: "auto", width: "100%", px: 2 }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1, cursor: "pointer" }} onClick={() => navigate('/')}>
           <img 
-            src={logoFundify} 
+            src="/imgs/JustLogo.png" 
             alt="Fundify Logo" 
             style={{ 
               height: "48px",

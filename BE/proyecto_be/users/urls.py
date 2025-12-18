@@ -13,6 +13,7 @@ from .views import UserUpdateDeleteView
 from .views import CreateAdminUser
 from .views import DeleteRoleView
 from .views import RejectionReasonView
+from .views import ActiveDonorsCountView
 
 urlpatterns = [
     path('new_users/', UserListCreateView.as_view()),
@@ -28,4 +29,5 @@ urlpatterns = [
     path('create_admin/', CreateAdminUser.as_view()),
     path('delete_role/<int:id>/', DeleteRoleView.as_view()),
     path('rejection_reason/', RejectionReasonView.as_view()),
+    path('active_donors_count/', ActiveDonorsCountView.as_view()),
 ]

@@ -1,18 +1,17 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Typography,
   Box,
   Container,
   Grid,
   Paper,
+  CircularProgress,
 } from "@mui/material";
 import StatCard from "../../../components/StatCard/StatCard";
 import CampaignTable from "../../../components/CampaignTable/CampaignTable";
 import {
   LineChart,
   Line,
-  AreaChart,
-  Area,
   PieChart,
   Pie,
   Cell,
@@ -25,29 +24,146 @@ import {
 } from "recharts";
 
 export default function DashboardMain() {
-  const ecosystemData = [
-    { month: "Jul", campaigns: 45, users: 1200, donations: 2800 },
-    { month: "Ago", campaigns: 52, users: 1350, donations: 3200 },
-    { month: "Sep", campaigns: 38, users: 1280, donations: 2900 },
-    { month: "Oct", campaigns: 65, users: 1480, donations: 3800 },
-    { month: "Nov", campaigns: 58, users: 1520, donations: 4100 },
-    { month: "Dic", campaigns: 72, users: 1680, donations: 4600 },
-  ];
+  const [loading, setLoading] = useState(true);
+  const [ecosystemData, setEcosystemData] = useState([]);
+  const [moderationData, setModerationData] = useState([]);
+  const [stats, setStats] = useState({
+    pendingCampaigns: 0,
+    totalDonations: 0,
+    moderatedContent: 0,
+    totalImpact: 0,
+  });
 
-  const moderationData = [
-    { category: "Aprobados", value: 85, color: "#10B981" },
-    { category: "Pendientes", value: 12, color: "#F59E0B" },
-    { category: "Rechazados", value: 3, color: "#EF4444" },
-  ];
+  useEffect(() => {
+    async function loadData() {
+      try {
+        setLoading(true);
+        
+        // Cargar campañas desde endpoint público
+        let campaigns = [];
+        try {
+          const campaignsResponse = await fetch('http://127.0.0.1:8000/campaigns/explore/');
+          if (campaignsResponse.ok) {
+            campaigns = await campaignsResponse.json();
+            campaigns = Array.isArray(campaigns) ? campaigns : [];
+          }
+        } catch (e) {
+          console.warn('No se pudieron cargar campañas:', e);
+        }
+        
+        // Cargar donaciones
+        let donations = [];
+        try {
+          const token = localStorage.getItem('token');
+          const donationsResponse = await fetch('http://127.0.0.1:8000/campaigns/donations/', {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          if (donationsResponse.ok) {
+            donations = await donationsResponse.json();
+            donations = Array.isArray(donations) ? donations : [];
+          }
+        } catch (e) {
+          console.warn('No se pudieron cargar donaciones:', e);
+        }
+        
+        // Si no hay datos, usar datos por defecto
+        if (campaigns.length === 0 && donations.length === 0) {
+          campaigns = [];
+          donations = [];
+        }
+        
+        // Calcular estadísticas
+        const pendingCampaigns = campaigns.filter(c => c.campaign_status === 'PENDING').length;
+        const totalDonations = donations.length;
+        const totalRaised = donations.reduce((sum, d) => sum + (parseFloat(d.amount) || 0), 0);
+        const approvedContent = campaigns.filter(c => c.campaign_status === 'APPROVED').length;
+        
+        setStats({
+          pendingCampaigns,
+          totalDonations,
+          moderatedContent: approvedContent,
+          totalImpact: totalRaised,
+        });
+        
+        // Generar datos de ecosistema (últimos 6 meses)
+        const currentMonth = new Date().getMonth();
+        const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+        const last6Months = [];
+        
+        for (let i = 5; i >= 0; i--) {
+          const monthIndex = (currentMonth - i + 12) % 12;
+          last6Months.push({
+            month: months[monthIndex],
+            campaigns: campaigns.filter(c => {
+              try {
+                return new Date(c.created_at).getMonth() === monthIndex;
+              } catch {
+                return false;
+              }
+            }).length,
+            users: 0,
+            donations: donations.filter(d => {
+              try {
+                return new Date(d.created_at).getMonth() === monthIndex;
+              } catch {
+                return false;
+              }
+            }).length,
+          });
+        }
+        
+        setEcosystemData(last6Months);
+        
+        // Datos de moderación
+        const approveds = campaigns.filter(c => c.campaign_status === 'APPROVED').length;
+        const pendings = campaigns.filter(c => c.campaign_status === 'PENDING').length;
+        const rejecteds = campaigns.filter(c => c.campaign_status === 'REJECTED').length;
+        
+        setModerationData([
+          { category: 'Aprobados', value: approveds, color: '#10B981' },
+          { category: 'Pendientes', value: pendings, color: '#F59E0B' },
+          { category: 'Rechazados', value: rejecteds, color: '#EF4444' }
+        ]);
+      } catch (error) {
+        console.error('Error loading dashboard data:', error);
+        // Usar datos por defecto en caso de error
+        setStats({
+          pendingCampaigns: 0,
+          totalDonations: 0,
+          moderatedContent: 0,
+          totalImpact: 0,
+        });
+        setModerationData([
+          { category: 'Aprobados', value: 0, color: '#10B981' },
+          { category: 'Pendientes', value: 0, color: '#F59E0B' },
+          { category: 'Rechazados', value: 0, color: '#EF4444' }
+        ]);
+        setEcosystemData([
+          { month: 'Ene', campaigns: 0, users: 0, donations: 0 },
+          { month: 'Feb', campaigns: 0, users: 0, donations: 0 },
+          { month: 'Mar', campaigns: 0, users: 0, donations: 0 },
+          { month: 'Abr', campaigns: 0, users: 0, donations: 0 },
+          { month: 'May', campaigns: 0, users: 0, donations: 0 },
+          { month: 'Jun', campaigns: 0, users: 0, donations: 0 },
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
 
-  const impactData = [
-    { month: "Jul", impact: 125000, projects: 42 },
-    { month: "Ago", impact: 165000, projects: 48 },
-    { month: "Sep", impact: 145000, projects: 38 },
-    { month: "Oct", impact: 205000, projects: 55 },
-    { month: "Nov", impact: 185000, projects: 51 },
-    { month: "Dic", impact: 250000, projects: 63 },
-  ];
+  if (loading) {
+    return (
+      <Container maxWidth="lg" sx={{ py: 3, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+        <CircularProgress />
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="lg" sx={{ py: 3 }}>
@@ -64,23 +180,23 @@ export default function DashboardMain() {
         <Grid item xs={12} md={6} lg={3}>
           <StatCard
             title="Campañas por Validar"
-            value="12"
+            value={stats.pendingCampaigns}
             hint="Requieren atención inmediata"
             color="warning.main"
           />
         </Grid>
         <Grid item xs={12} md={6} lg={3}>
           <StatCard
-            title="Conexiones Realizadas"
-            value="1,432"
+            title="Donaciones Totales"
+            value={stats.totalDonations.toLocaleString()}
             hint="+28 esta semana"
             color="success.main"
           />
         </Grid>
         <Grid item xs={12} md={6} lg={3}>
           <StatCard
-            title="Contenido Moderado"
-            value="45"
+            title="Contenido Aprobado"
+            value={stats.moderatedContent}
             hint="Ecosistema saludable"
             color="text.primary"
           />
@@ -88,7 +204,7 @@ export default function DashboardMain() {
         <Grid item xs={12} md={6} lg={3}>
           <StatCard
             title="Impacto Total Generado"
-            value="$1.25M"
+            value={`$${(stats.totalImpact / 1000000).toFixed(2)}M`}
             hint="+1.2% este mes"
             color="success.main"
           />
@@ -196,97 +312,6 @@ export default function DashboardMain() {
                   </Pie>
                   <Tooltip />
                 </PieChart>
-              </ResponsiveContainer>
-            </Paper>
-          </Grid>
-
-          <Grid item xs={12}>
-            <Paper
-              elevation={0}
-              sx={{
-                p: 3,
-                borderRadius: 2,
-                border: 1,
-                borderColor: "custom.borderLight",
-              }}
-            >
-              <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-                Impacto Financiero y Proyectos Completados
-              </Typography>
-              <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={impactData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis
-                    dataKey="month"
-                    tick={{ fontSize: 12 }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <YAxis
-                    yAxisId="left"
-                    tick={{ fontSize: 12 }}
-                    axisLine={false}
-                    tickLine={false}
-                    tickFormatter={(value) => `$${value / 1000}k`}
-                  />
-                  <YAxis
-                    yAxisId="right"
-                    orientation="right"
-                    tick={{ fontSize: 12 }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <Tooltip
-                    formatter={(value, name) => [
-                      name === "impact"
-                        ? `$${value.toLocaleString()}`
-                        : value,
-                      name === "impact"
-                        ? "Impacto Total"
-                        : "Proyectos Completados",
-                    ]}
-                    contentStyle={{
-                      backgroundColor: "white",
-                      border: "1px solid #ddd",
-                      borderRadius: "8px",
-                      boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-                    }}
-                  />
-                  <Legend />
-                  <Area
-                    yAxisId="left"
-                    type="monotone"
-                    dataKey="impact"
-                    stackId="1"
-                    stroke="#8B5CF6"
-                    fill="url(#colorImpact)"
-                    name="Impacto Total"
-                  />
-                  <Line
-                    yAxisId="right"
-                    type="monotone"
-                    dataKey="projects"
-                    stroke="#F59E0B"
-                    strokeWidth={3}
-                    name="Proyectos Completados"
-                  />
-                  <defs>
-                    <linearGradient
-                      id="colorImpact"
-                      x1="0"
-                      y1="0"
-                      x2="0"
-                      y2="1"
-                    >
-                      <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.3} />
-                      <stop
-                        offset="95%"
-                        stopColor="#8B5CF6"
-                        stopOpacity={0.05}
-                      />
-                    </linearGradient>
-                  </defs>
-                </AreaChart>
               </ResponsiveContainer>
             </Paper>
           </Grid>

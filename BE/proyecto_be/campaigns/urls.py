@@ -25,6 +25,9 @@ from .views import (
     UserReportCreateView,
     UserReportListView,
     UserReportStatusUpdateView,
+    CampaignFollowView,
+    UserFollowedCampaignsView,
+    CampaignFollowersStatusView,
 )
 
 urlpatterns = [
@@ -97,4 +100,14 @@ urlpatterns = [
     # Listar reportes (GET) y gestionar un reporte (PATCH/DELETE)
     path('reports/', UserReportListView.as_view()),
     path('reports/<int:report_id>/', UserReportStatusUpdateView.as_view()),
+    
+    # ============================================================
+    # SEGUIMIENTO DE CAMPAÑAS
+    # ============================================================
+    # Seguir una campaña (POST) o dejar de seguirla (DELETE)
+    path('campaigns/<int:campaign_id>/follow/', CampaignFollowView.as_view()),
+    # Obtener campañas que el usuario sigue (GET)
+    path('campaigns/user/followed/', UserFollowedCampaignsView.as_view()),
+    # Verificar si el usuario sigue una campaña (GET)
+    path('campaigns/<int:campaign_id>/is-following/', CampaignFollowersStatusView.as_view()),
 ]

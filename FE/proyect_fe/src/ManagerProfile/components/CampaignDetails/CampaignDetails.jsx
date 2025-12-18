@@ -28,42 +28,35 @@ import {
 export default function CampaignDetails({ open, onClose, campaign }) {
   if (!campaign) return null;
 
-  const progress = (campaign.raised / campaign.goal) * 100;
+  const progress = campaign.goal_amount > 0 
+    ? (campaign.current_amount / campaign.goal_amount) * 100 
+    : 0;
   
-  // Calcular días restantes (ejemplo: 45 días)
-  const endDate = new Date('2025-01-15');
+  // Calcular días restantes
+  const endDate = campaign.end_date ? new Date(campaign.end_date) : null;
   const today = new Date();
-  const daysRemaining = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
+  const daysRemaining = endDate 
+    ? Math.ceil((endDate - today) / (1000 * 60 * 60 * 24))
+    : 0;
   
-  // Datos de ejemplo para las secciones del proyecto
-  const projectSections = [
-    { name: "Cemento", goal: 150000, raised: 120000, percentage: 80 },
-    { name: "Arena y Grava", goal: 80000, raised: 65000, percentage: 81 },
-    { name: "Láminas de Techo", goal: 200000, raised: 50000, percentage: 25 },
-    { name: "Transporte", goal: 100000, raised: 85000, percentage: 85 },
-    { name: "Mano de Obra", goal: 300000, raised: 180000, percentage: 60 },
-    { name: "Materiales Eléctricos", goal: 120000, raised: 30000, percentage: 25 }
-  ];
-  
-  // Donadores recientes
-  const recentDonors = [
-    { name: "María González", amount: 15000, date: "2024-12-01", message: "¡Excelente proyecto! Espero ayude a muchas familias." },
-    { name: "Carlos Rodríguez", amount: 25000, date: "2024-11-30", message: "Mi granito de arena para esta noble causa." },
-    { name: "Ana Martínez", amount: 10000, date: "2024-11-29", message: "Que Dios bendiga este proyecto y a todas las familias beneficiadas." },
-    { name: "José Pérez", amount: 50000, date: "2024-11-28", message: "Como constructor, sé lo importante que es tener un hogar digno." },
-    { name: "Laura Jiménez", amount: 8000, date: "2024-11-27", message: "Pequeña contribución con mucho amor." }
-  ];
+  const getStatusLabel = (status) => {
+    const statusMap = {
+      PENDING: "Pendiente",
+      APPROVED: "Activa",
+      REJECTED: "Rechazada",
+      COMPLETED: "Completada",
+    };
+    return statusMap[status] || status;
+  };
   
   const getStatusColor = (status) => {
-    switch (status) {
-      case "Activo": return { bg: "rgba(30, 58, 138, 0.1)", color: "#1E3A8A" };
-      case "Completado": return { bg: "rgba(34, 197, 94, 0.1)", color: "#059669" };
-      case "Pausado": return { bg: "rgba(156, 163, 175, 0.1)", color: "#6B7280" };
-      default: return { bg: "rgba(30, 58, 138, 0.1)", color: "#1E3A8A" };
-    }
+    if (status === "APPROVED") return { bg: "rgba(30, 58, 138, 0.1)", color: "#1E3A8A" };
+    if (status === "COMPLETED") return { bg: "rgba(34, 197, 94, 0.1)", color: "#059669" };
+    if (status === "REJECTED") return { bg: "rgba(239, 68, 68, 0.1)", color: "#DC2626" };
+    return { bg: "rgba(156, 163, 175, 0.1)", color: "#6B7280" };
   };
 
-  const statusStyle = getStatusColor(campaign.status);
+  const statusStyle = getStatusColor(campaign.campaign_status);
 
   return (
     <Dialog
@@ -92,7 +85,7 @@ export default function CampaignDetails({ open, onClose, campaign }) {
             Detalles del Proyecto
           </Typography>
           <Chip
-            label={campaign.status}
+            label={getStatusLabel(campaign.campaign_status)}
             size="small"
             sx={{
               bgcolor: statusStyle.bg,
@@ -113,7 +106,7 @@ export default function CampaignDetails({ open, onClose, campaign }) {
             {campaign.title}
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ mb: 3, lineHeight: 1.6 }}>
-            {campaign.description}
+            {campaign.short_description}
           </Typography>
         </Box>
 
@@ -138,7 +131,7 @@ export default function CampaignDetails({ open, onClose, campaign }) {
               </Typography>
               <LinearProgress
                 variant="determinate"
-                value={progress}
+                value={Math.min(100, progress)}
                 sx={{
                   height: 8,
                   borderRadius: 4,
@@ -150,10 +143,10 @@ export default function CampaignDetails({ open, onClose, campaign }) {
               />
               <Box sx={{ display: "flex", justifyContent: "space-between", mt: 1 }}>
                 <Typography variant="caption" color="text.secondary">
-                  ₡{campaign.raised.toLocaleString()}
+                  ₡{(campaign.current_amount || 0).toLocaleString()}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  ₡{campaign.goal.toLocaleString()}
+                  ₡{(campaign.goal_amount || 0).toLocaleString()}
                 </Typography>
               </Box>
             </Paper>
@@ -173,15 +166,15 @@ export default function CampaignDetails({ open, onClose, campaign }) {
                 </Typography>
               </Box>
               <Typography variant="h4" fontWeight={700} sx={{ color: daysRemaining > 30 ? "#1E3A8A" : daysRemaining > 10 ? "#F59E0B" : "#EF4444" }}>
-                {daysRemaining}
+                {Math.max(0, daysRemaining)}
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                Hasta el 15 de enero
+                {endDate ? endDate.toLocaleDateString('es-ES') : 'Sin fecha de fin'}
               </Typography>
             </Paper>
           </Grid>
 
-          {/* Total Donadores */}
+          {/* Impacto Estimado */}
           <Grid item xs={12} md={6} lg={3}>
             <Paper sx={{ 
               p: 3, 
@@ -191,19 +184,19 @@ export default function CampaignDetails({ open, onClose, campaign }) {
               <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                 <PeopleIcon sx={{ color: "#3B82F6", mr: 1 }} />
                 <Typography variant="subtitle2" color="text.secondary">
-                  Total Donadores
+                  Vidas a Impactar
                 </Typography>
               </Box>
               <Typography variant="h4" fontWeight={700} sx={{ color: "#1E3A8A" }}>
-                {campaign.donors}
+                {campaign.lives_impact_estimate || 0}
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                Personas han contribuido
+                Estimado de beneficiarios
               </Typography>
             </Paper>
           </Grid>
 
-          {/* Promedio por Donación */}
+          {/* Ubicación */}
           <Grid item xs={12} md={6} lg={3}>
             <Paper sx={{ 
               p: 3, 
@@ -211,209 +204,77 @@ export default function CampaignDetails({ open, onClose, campaign }) {
               border: "1px solid rgba(30,58,138,0.1)" 
             }}>
               <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                <TrendingUpIcon sx={{ color: "#3B82F6", mr: 1 }} />
+                <LocationIcon sx={{ color: "#3B82F6", mr: 1 }} />
                 <Typography variant="subtitle2" color="text.secondary">
-                  Promedio Donación
+                  Provincia
                 </Typography>
               </Box>
-              <Typography variant="h4" fontWeight={700} sx={{ color: "#1E3A8A" }}>
-                ₡{Math.round(campaign.raised / campaign.donors).toLocaleString()}
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                Por contribución
+              <Typography variant="body2" fontWeight={600}>
+                {campaign.province || "No especificada"}
               </Typography>
             </Paper>
           </Grid>
         </Grid>
 
-        {/* Progreso por Secciones del Proyecto */}
-        <Paper sx={{ p: 3, mb: 4, borderRadius: 3, border: "1px solid rgba(30,58,138,0.1)" }}>
-          <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
-            <BuildIcon sx={{ color: "#3B82F6", mr: 1 }} />
-            <Typography variant="h6" fontWeight={600}>
-              Progreso por Secciones del Proyecto
-            </Typography>
-          </Box>
-          <Grid container spacing={3}>
-            {projectSections.map((section, index) => (
-              <Grid item xs={12} md={6} key={index}>
-                <Box sx={{ p: 2, borderRadius: 2, bgcolor: "rgba(30, 58, 138, 0.02)" }}>
-                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
-                    <Typography variant="subtitle1" fontWeight={600}>
-                      {section.name}
-                    </Typography>
-                    <Typography variant="body2" fontWeight={600} sx={{ color: "#3B82F6" }}>
-                      {section.percentage}%
-                    </Typography>
-                  </Box>
-                  <LinearProgress
-                    variant="determinate"
-                    value={section.percentage}
-                    sx={{
-                      height: 6,
-                      borderRadius: 3,
-                      bgcolor: "rgba(30,58,138,0.1)",
-                      mb: 1,
-                      '& .MuiLinearProgress-bar': {
-                        bgcolor: section.percentage >= 80 ? "#22C55E" : section.percentage >= 50 ? "#3B82F6" : "#F59E0B",
-                      }
-                    }}
-                  />
-                  <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                    <Typography variant="caption" color="text.secondary">
-                      ₡{section.raised.toLocaleString()} recaudado
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      ₡{section.goal.toLocaleString()} meta
-                    </Typography>
-                  </Box>
-                </Box>
-              </Grid>
-            ))}
-          </Grid>
-        </Paper>
-
-        {/* Información del Proyecto */}
+        {/* Información Adicional */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12}>
             <Paper sx={{ p: 3, borderRadius: 3, border: "1px solid rgba(30,58,138,0.1)" }}>
               <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
                 Información del Proyecto
               </Typography>
               
-              <Box sx={{ mb: 2 }}>
-                <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                  <LocationIcon sx={{ color: "#3B82F6", mr: 1, fontSize: 20 }} />
-                  <Typography variant="body2" fontWeight={600}>Ubicación:</Typography>
-                </Box>
-                <Typography variant="body2" color="text.secondary" sx={{ ml: 3 }}>
-                  Cartago, Costa Rica
-                </Typography>
-              </Box>
-
-              <Box sx={{ mb: 2 }}>
-                <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                  <CalendarIcon sx={{ color: "#3B82F6", mr: 1, fontSize: 20 }} />
-                  <Typography variant="body2" fontWeight={600}>Fecha de Inicio:</Typography>
-                </Box>
-                <Typography variant="body2" color="text.secondary" sx={{ ml: 3 }}>
-                  15 de octubre, 2024
-                </Typography>
-              </Box>
-
-              <Box sx={{ mb: 2 }}>
-                <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                  <CalendarIcon sx={{ color: "#3B82F6", mr: 1, fontSize: 20 }} />
-                  <Typography variant="body2" fontWeight={600}>Fecha Final:</Typography>
-                </Box>
-                <Typography variant="body2" color="text.secondary" sx={{ ml: 3 }}>
-                  15 de enero, 2025
-                </Typography>
-              </Box>
-
-              <Box>
-                <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                  <Chip
-                    label={campaign.status}
-                    size="small"
-                    sx={{
-                      bgcolor: statusStyle.bg,
-                      color: statusStyle.color,
-                      fontWeight: 600,
-                    }}
-                  />
-                  <Typography variant="body2" fontWeight={600} sx={{ ml: 1 }}>Estado Actual</Typography>
-                </Box>
-              </Box>
-            </Paper>
-          </Grid>
-
-          {/* Donadores Recientes */}
-          <Grid item xs={12} md={6}>
-            <Paper sx={{ p: 3, borderRadius: 3, border: "1px solid rgba(30,58,138,0.1)", maxHeight: 400, overflow: 'auto' }}>
-              <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                <PersonIcon sx={{ color: "#3B82F6", mr: 1 }} />
-                <Typography variant="h6" fontWeight={600}>
-                  Donadores Recientes
-                </Typography>
-              </Box>
-              {recentDonors.map((donor, index) => (
-                <Box key={index} sx={{ 
-                  p: 2, 
-                  mb: 2, 
-                  borderRadius: 2, 
-                  bgcolor: "rgba(30, 58, 138, 0.02)",
-                  border: "1px solid rgba(30, 58, 138, 0.08)"
-                }}>
-                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
-                    <Typography variant="subtitle2" fontWeight={600}>
-                      {donor.name}
+              <Grid container spacing={2}>
+                <Grid item xs={12} md={6}>
+                  <Box sx={{ mb: 2 }}>
+                    <Typography variant="body2" fontWeight={600} color="text.secondary">
+                      Categoría:
                     </Typography>
-                    <Typography variant="body2" fontWeight={600} sx={{ color: "#22C55E" }}>
-                      ₡{donor.amount.toLocaleString()}
+                    <Typography variant="body2">
+                      {campaign.category || "No especificada"}
                     </Typography>
                   </Box>
-                  <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
-                    {new Date(donor.date).toLocaleDateString('es-ES')}
-                  </Typography>
-                  {donor.message && (
-                    <Typography variant="body2" sx={{ 
-                      fontStyle: 'italic', 
-                      color: "text.secondary",
-                      fontSize: '0.875rem'
-                    }}>
-                      "{donor.message}"
+
+                  <Box sx={{ mb: 2 }}>
+                    <Typography variant="body2" fontWeight={600} color="text.secondary">
+                      Fecha de Creación:
                     </Typography>
-                  )}
-                </Box>
-              ))}
+                    <Typography variant="body2">
+                      {campaign.created_at ? new Date(campaign.created_at).toLocaleDateString('es-ES') : "No disponible"}
+                    </Typography>
+                  </Box>
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <Box sx={{ mb: 2 }}>
+                    <Typography variant="body2" fontWeight={600} color="text.secondary">
+                      Estado de la Campaña:
+                    </Typography>
+                    <Chip
+                      label={getStatusLabel(campaign.campaign_status)}
+                      size="small"
+                      sx={{
+                        bgcolor: statusStyle.bg,
+                        color: statusStyle.color,
+                        fontWeight: 600,
+                        mt: 1
+                      }}
+                    />
+                  </Box>
+
+                  <Box sx={{ mb: 2 }}>
+                    <Typography variant="body2" fontWeight={600} color="text.secondary">
+                      Descripción Completa:
+                    </Typography>
+                    <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', mt: 1 }}>
+                      {campaign.description || "No disponible"}
+                    </Typography>
+                  </Box>
+                </Grid>
+              </Grid>
             </Paper>
           </Grid>
         </Grid>
-
-        {/* Comentarios de Donantes */}
-        <Paper sx={{ p: 3, borderRadius: 3, border: "1px solid rgba(30,58,138,0.1)" }}>
-          <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
-            <CommentIcon sx={{ color: "#3B82F6", mr: 1 }} />
-            <Typography variant="h6" fontWeight={600}>
-              Comentarios de los Donantes
-            </Typography>
-          </Box>
-          <Box sx={{ maxHeight: 300, overflow: 'auto' }}>
-            {recentDonors.map((donor, index) => (
-              <Box key={index} sx={{ 
-                p: 3, 
-                mb: 2, 
-                borderRadius: 2, 
-                bgcolor: "rgba(30, 58, 138, 0.02)",
-                border: "1px solid rgba(30, 58, 138, 0.08)"
-              }}>
-                <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                  <Avatar sx={{ 
-                    bgcolor: "#3B82F6", 
-                    width: 32, 
-                    height: 32, 
-                    fontSize: '0.875rem',
-                    mr: 2
-                  }}>
-                    {donor.name.charAt(0)}
-                  </Avatar>
-                  <Box>
-                    <Typography variant="subtitle2" fontWeight={600}>
-                      {donor.name}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {new Date(donor.date).toLocaleDateString('es-ES')} • ₡{donor.amount.toLocaleString()}
-                    </Typography>
-                  </Box>
-                </Box>
-                <Typography variant="body2" sx={{ color: "text.secondary", lineHeight: 1.5 }}>
-                  {donor.message}
-                </Typography>
-              </Box>
-            ))}
-          </Box>
-        </Paper>
       </DialogContent>
     </Dialog>
   );

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Paper,
@@ -6,25 +6,56 @@ import {
   Typography,
   Grid,
   Button,
+  Snackbar,
+  Alert,
 } from "@mui/material";
+import { patchData } from "../../../services/fetch";
 
-const ProfileForm = () => {
+const ProfileForm = ({ user, onUpdate }) => {
   const [values, setValues] = useState({
-    firstName: "Chris",
-    lastName: "Donor",
-    email: "chris@example.com",
-    phone: "+506 8888-8888",
-    country: "Costa Rica",
-    city: "San José",
+    first_name: "",
+    last_name: "",
+    email: "",
+    phone_number: "",
+    nationality: "",
+    address: "",
   });
+  const [alert, setAlert] = useState({ open: false, message: "", severity: "success" });
+
+  useEffect(() => {
+    if (user) {
+      setValues({
+        first_name: user.first_name || "",
+        last_name: user.last_name || "",
+        email: user.email || "",
+        phone_number: user.phone_number || "",
+        nationality: user.nationality || "",
+        address: user.address || "",
+      });
+    }
+  }, [user]);
 
   const handleChange = (e) => {
     setValues({ ...values, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = () => {
-    console.log("Guardando perfil:", values);
-    // Aquí iría tu fetch al backend cuando lo tengas
+  const handleSubmit = async () => {
+    try {
+      const userId = localStorage.getItem('id');
+      const response = await patchData(`user/users/${userId}/`, values);
+      
+      if (response) {
+        setAlert({ open: true, message: "Perfil actualizado exitosamente", severity: "success" });
+        if (onUpdate) {
+          onUpdate(response);
+        }
+      } else {
+        setAlert({ open: true, message: "Error al actualizar el perfil", severity: "error" });
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      setAlert({ open: true, message: "Error al actualizar el perfil", severity: "error" });
+    }
   };
 
   return (
@@ -73,8 +104,8 @@ const ProfileForm = () => {
           <TextField
             fullWidth
             label="Nombre"
-            name="firstName"
-            value={values.firstName}
+            name="first_name"
+            value={values.first_name}
             onChange={handleChange}
             variant="outlined"
             sx={{
@@ -103,8 +134,8 @@ const ProfileForm = () => {
           <TextField
             fullWidth
             label="Apellido"
-            name="lastName"
-            value={values.lastName}
+            name="last_name"
+            value={values.last_name}
             onChange={handleChange}
             sx={{
               '& .MuiOutlinedInput-root': {
@@ -162,8 +193,8 @@ const ProfileForm = () => {
           <TextField
             fullWidth
             label="Teléfono"
-            name="phone"
-            value={values.phone}
+            name="phone_number"
+            value={values.phone_number}
             onChange={handleChange}
             sx={{
               '& .MuiOutlinedInput-root': {
@@ -190,9 +221,9 @@ const ProfileForm = () => {
         <Grid item xs={12} sm={6}>
           <TextField
             fullWidth
-            label="País"
-            name="country"
-            value={values.country}
+            label="Nacionalidad"
+            name="nationality"
+            value={values.nationality}
             onChange={handleChange}
             sx={{
               '& .MuiOutlinedInput-root': {
@@ -216,12 +247,12 @@ const ProfileForm = () => {
           />
         </Grid>
 
-        <Grid item xs={12} sm={6}>
+        <Grid item xs={12}>
           <TextField
             fullWidth
-            label="Ciudad"
-            name="city"
-            value={values.city}
+            label="Dirección"
+            name="address"
+            value={values.address}
             onChange={handleChange}
             sx={{
               '& .MuiOutlinedInput-root': {
@@ -272,6 +303,22 @@ const ProfileForm = () => {
           Guardar Cambios
         </Button>
       </Box>
+
+      {/* Alert de feedback */}
+      <Snackbar
+        open={alert.open}
+        autoHideDuration={3000}
+        onClose={() => setAlert({ ...alert, open: false })}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setAlert({ ...alert, open: false })}
+          severity={alert.severity}
+          sx={{ width: "100%" }}
+        >
+          {alert.message}
+        </Alert>
+      </Snackbar>
     </Paper>
   );
 };

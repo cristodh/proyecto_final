@@ -2,13 +2,25 @@ import React, { useState } from "react";
 import { Box, Typography, TextField, Button, MenuItem, Card, CardContent } from "@mui/material";
 
 export default function AddCampaignStep1({ data, update, next }) {
+  const PROVINCES = [
+    'San José',
+    'Alajuela',
+    'Cartago',
+    'Heredia',
+    'Guanacaste',
+    'Puntarenas',
+    'Limón'
+  ];
+
   const [local, setLocal] = useState({
     title: data.title || "",
     shortDescription: data.shortDescription || "",
     category: data.category || "",
     location: data.location || "",
+    province: data.province || "",
     website: data.website || "",
     slogan: data.slogan || "",
+    livesImpactEstimate: data.livesImpactEstimate || "",
   });
 
   const [errors, setErrors] = useState({});
@@ -44,10 +56,20 @@ export default function AddCampaignStep1({ data, update, next }) {
       newErrors.location = "La ubicación es obligatoria";
     }
 
+    if (!local.province) {
+      newErrors.province = "Debe seleccionar una provincia";
+    }
+
     if (!local.slogan.trim()) {
       newErrors.slogan = "El lema es obligatorio";
     } else if (local.slogan.length < 5) {
       newErrors.slogan = "El lema debe tener al menos 5 caracteres";
+    }
+
+    if (!local.livesImpactEstimate) {
+      newErrors.livesImpactEstimate = "El estimado de vidas a impactar es obligatorio";
+    } else if (isNaN(local.livesImpactEstimate) || local.livesImpactEstimate <= 0) {
+      newErrors.livesImpactEstimate = "Debe ser un número positivo";
     }
 
     // Validación opcional del sitio web
@@ -176,6 +198,34 @@ export default function AddCampaignStep1({ data, update, next }) {
           />
 
           <TextField
+            select
+            label="Provincia"
+            fullWidth
+            value={local.province}
+            onChange={(e) => handleChange("province", e.target.value)}
+            error={!!errors.province}
+            helperText={errors.province}
+            required
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                '&.Mui-focused fieldset': {
+                  borderColor: '#3B82F6',
+                },
+              },
+              '& .MuiInputLabel-root.Mui-focused': {
+                color: '#3B82F6',
+              },
+            }}
+          >
+            <MenuItem value="">Selecciona una provincia</MenuItem>
+            {PROVINCES.map((prov) => (
+              <MenuItem key={prov} value={prov}>
+                {prov}
+              </MenuItem>
+            ))}
+          </TextField>
+
+          <TextField
             label="Lema del proyecto"
             fullWidth
             placeholder="Juntos construimos un futuro mejor"
@@ -183,6 +233,29 @@ export default function AddCampaignStep1({ data, update, next }) {
             onChange={(e) => handleChange("slogan", e.target.value)}
             error={!!errors.slogan}
             helperText={errors.slogan || "Una frase inspiradora que represente tu proyecto"}
+            required
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                '&.Mui-focused fieldset': {
+                  borderColor: '#3B82F6',
+                },
+              },
+              '& .MuiInputLabel-root.Mui-focused': {
+                color: '#3B82F6',
+              },
+            }}
+          />
+
+          <TextField
+            label="Estimado de vidas a impactar"
+            fullWidth
+            type="number"
+            inputProps={{ min: "1", step: "1" }}
+            placeholder="Ej: 100"
+            value={local.livesImpactEstimate}
+            onChange={(e) => handleChange("livesImpactEstimate", e.target.value)}
+            error={!!errors.livesImpactEstimate}
+            helperText={errors.livesImpactEstimate || "Número estimado de personas beneficiadas por tu proyecto"}
             required
             sx={{
               '& .MuiOutlinedInput-root': {

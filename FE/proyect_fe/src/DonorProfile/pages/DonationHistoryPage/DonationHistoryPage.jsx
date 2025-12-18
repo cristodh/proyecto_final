@@ -1,4 +1,3 @@
-// src/pages/DonationHistoryPage.jsx
 import React from "react";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
@@ -17,103 +16,153 @@ import EmptyState from "../../components/DonationHistoryPage.jsx/EmptyState/Empt
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
 import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
 import HistoryIcon from "@mui/icons-material/History";
 import PaymentIcon from "@mui/icons-material/Payment";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import PendingIcon from "@mui/icons-material/Pending";
-import { useState,useEffect } from "react";
-import { getData, tokenGetData } from "../../../services/fetch";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { getUserData } from "../../../services/userService";
+import { getUserDonations, getFilteredDonations, downloadProofOfPayment } from "../../../services/donationService";
 
 export default function DonationHistoryPage() {
   const theme = useTheme();
   const mdUp = useMediaQuery(theme.breakpoints.up("md"));
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
-  const [userLogged,setUserLogged]= useState([]) // aqui guardamos la info del usuario loggeado
-  
-  useEffect(() => { // el useEffect se usa para cargar la informacion en la pagina al momento de renderizarla y se puede controlar de muchas maneras
-    async function getUser() { 
+  const [userLogged, setUserLogged] = useState(null);
+  const [donations, setDonations] = useState([]);
+  const [filteredDonations, setFilteredDonations] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState({ status: "", from: "", to: "", q: "" });
+
+  useEffect(() => {
+    async function loadData() {
       try {
-        const response = await tokenGetData(`user/user_id/${localStorage.getItem('id')}/`) // aqui hacemos la peticion a la BD para obtener la informacion del usuario loggeado que esta en el LocalStorage
-        if (response && response[0]) {
-          setUserLogged(response[0]) // aqui guardamos la respuesta en el estado userLogged y ponemos response[0] porque la respuesta es un array con un solo objeto y es el unico que tenemos ya que solo llamamos a un ID
-        } else {
-          setUserLogged({ 
-            first_name: "Usuario", 
-            id: localStorage.getItem('id') || '1' 
-          })
+        setLoading(true);
+        const userId = localStorage.getItem('id');
+        
+        // Cargar datos del usuario
+        const userData = await getUserData(userId);
+        if (userData) {
+          setUserLogged(userData);
+        }
+
+        // Cargar donaciones
+        const donationsData = await getUserDonations();
+        if (donationsData && donationsData.donations) {
+          const reformattedDonations = donationsData.donations.map(d => ({
+            id: d.id,
+            dateObj: new Date(d.donated_at),
+            date: new Date(d.donated_at).toLocaleDateString('es-CR', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            }),
+            project: d.campaign_name || 'Campaña desconocida',
+            amount: parseFloat(d.amount),
+            status: d.donation_status === 'approved' ? 'Completada' : 
+                    d.donation_status === 'pending' ? 'En Proceso' :
+                    d.donation_status === 'rejected' ? 'Cancelada' : d.donation_status,
+            confirmation_number: d.confirmation_number,
+            proof_url: d.proof_of_payment_url,
+            proof_name: d.proof_of_payment_name,
+            original_status: d.donation_status
+          }));
+          
+          setDonations(reformattedDonations);
+          setFilteredDonations(reformattedDonations);
         }
       } catch (error) {
-        console.error('Error fetching user data:', error)
-        setUserLogged({ 
-          first_name: "Usuario", 
-          id: localStorage.getItem('id') || '1' 
-        })
+        console.error('Error loading donation data:', error);
+      } finally {
+        setLoading(false);
       }
     }
-    getUser(); // aqui llamamos a la funcion asyncrona que obtiene la informacion del usuario
-  }, []) // esto es parte de la estructura del useEffect para que se ejecute solo una vez al renderizar la pagina
 
-  // filters state
-  const [filters, setFilters] = React.useState({ from: "", to: "", q: "" });
+    loadData();
+  }, []);
 
-  // sample donations data (replace with API)
-  const [donations, setDonations] = React.useState([
-    { id: "d1", date: "15 de mayo, 2025", project: 'Refugio Animal "Huellitas Felices"', amount: 15000, currency: "₡", status: "Completada" },
-    { id: "d2", date: "02 de abril, 2025", project: 'Comedor Infantil "Sonrisas"', amount: 10000, currency: "₡", status: "Completada" },
-    { id: "d3", date: "21 de febrero, 2025", project: "Educación Digital para Adultos Mayores", amount: 25000, currency: "₡", status: "En Proceso" },
-    { id: "d4", date: "10 de enero, 2025", project: "Limpieza del Río Virilla", amount: 5000, currency: "₡", status: "Cancelada" }
-  ]);
+  const applyFilters = async () => {
+    try {
+      let startDate = filters.from ? new Date(filters.from) : null;
+      let endDate = filters.to ? new Date(filters.to) : null;
+      
+      let filtered = donations;
 
-  // basic filter implementation (client-side)
-  const applyFilters = () => {
+      // Filtrar por estado
+      if (filters.status) {
+        filtered = filtered.filter(d => d.original_status === filters.status);
+      }
 
-    const q = filters.q.trim().toLowerCase();
-    setDonations((prev) => {
-      // restore original set (we keep initial sample in variable)
-      const all = [
-        { id: "d1", date: "15 de mayo, 2025", project: 'Refugio Animal "Huellitas Felices"', amount: 15000, currency: "₡", status: "Completada" },
-        { id: "d2", date: "02 de abril, 2025", project: 'Comedor Infantil "Sonrisas"', amount: 10000, currency: "₡", status: "Completada" },
-        { id: "d3", date: "21 de febrero, 2025", project: "Educación Digital para Adultos Mayores", amount: 25000, currency: "₡", status: "En Proceso" },
-        { id: "d4", date: "10 de enero, 2025", project: "Limpieza del Río Virilla", amount: 5000, currency: "₡", status: "Cancelada" }
-      ];
-      return all.filter((d) => (q ? d.project.toLowerCase().includes(q) : true));
-    });
+      // Filtrar por fecha
+      if (startDate) {
+        filtered = filtered.filter(d => d.dateObj >= startDate);
+      }
+
+      if (endDate) {
+        filtered = filtered.filter(d => d.dateObj <= endDate);
+      }
+
+      // Filtrar por nombre de proyecto
+      if (filters.q) {
+        const query = filters.q.toLowerCase();
+        filtered = filtered.filter(d => d.project.toLowerCase().includes(query));
+      }
+
+      setFilteredDonations(filtered);
+    } catch (error) {
+      console.error('Error applying filters:', error);
+    }
   };
 
   const clearFilters = () => {
-    setFilters({ from: "", to: "", q: "" });
-    // reset donations to original sample
-    setDonations([
-      { id: "d1", date: "15 de mayo, 2025", project: 'Refugio Animal "Huellitas Felices"', amount: 15000, currency: "₡", status: "Completada" },
-      { id: "d2", date: "02 de abril, 2025", project: 'Comedor Infantil "Sonrisas"', amount: 10000, currency: "₡", status: "Completada" },
-      { id: "d3", date: "21 de febrero, 2025", project: "Educación Digital para Adultos Mayores", amount: 25000, currency: "₡", status: "En Proceso" },
-      { id: "d4", date: "10 de enero, 2025", project: "Limpieza del Río Virilla", amount: 5000, currency: "₡", status: "Cancelada" }
-    ]);
+    setFilters({ status: "", from: "", to: "", q: "" });
+    setFilteredDonations(donations);
   };
 
-  // CSV export: crafts a CSV and triggers download
   const exportCSV = () => {
-    if (!donations.length) return;
-    const header = ["Fecha", "Proyecto", "Monto", "Moneda", "Estado"];
-    const rows = donations.map((d) => [d.date, d.project, d.amount, d.currency ?? "", d.status]);
+    if (!filteredDonations.length) return;
+    const header = ["Fecha", "Proyecto", "Monto", "Estado"];
+    const rows = filteredDonations.map(d => [d.date, d.project, `₡${d.amount}`, d.status]);
     const csvContent = [header, ...rows].map(r => r.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `donations_history_${new Date().toISOString().slice(0,10)}.csv`;
+    a.download = `historial_donaciones_${new Date().toISOString().slice(0, 10)}.csv`;
     document.body.appendChild(a);
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
   };
 
+  const handleDownloadProof = async (proofUrl, proofName) => {
+    if (proofUrl) {
+      await downloadProofOfPayment(proofUrl, proofName || 'comprobante_pago.pdf');
+    }
+  };
+
   // Calcular estadísticas
-  const totalDonated = donations.reduce((sum, donation) => sum + donation.amount, 0);
-  const completedDonations = donations.filter(d => d.status === "Completada").length;
-  const pendingDonations = donations.filter(d => d.status === "En Proceso").length;
-  const cancelledDonations = donations.filter(d => d.status === "Cancelada").length;
+  const totalDonated = filteredDonations.reduce((sum, d) => sum + d.amount, 0);
+  const completedDonations = filteredDonations.filter(d => d.status === "Completada").length;
+  const pendingDonations = filteredDonations.filter(d => d.status === "En Proceso").length;
+  const cancelledDonations = filteredDonations.filter(d => d.status === "Cancelada").length;
+
+  if (loading) {
+    return (
+      <Box sx={{ 
+        display: "flex", 
+        minHeight: "100vh",
+        alignItems: "center",
+        justifyContent: "center"
+      }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ 
@@ -257,8 +306,8 @@ export default function DonationHistoryPage() {
                       onClear={clearFilters}
                     />
 
-                    {donations.length ? (
-                      <DonationTable donations={donations} />
+                    {filteredDonations.length ? (
+                      <DonationTable donations={filteredDonations} />
                     ) : (
                       <EmptyState />
                     )}
@@ -312,10 +361,12 @@ export default function DonationHistoryPage() {
                           <Button variant="outlined" fullWidth onClick={exportCSV}>
                             Exportar a CSV
                           </Button>
-                          <Button variant="outlined" fullWidth>
-                            Ver Certificados
-                          </Button>
-                          <Button variant="contained" fullWidth sx={{ bgcolor: "#DC2626" }}>
+                          <Button 
+                            variant="contained" 
+                            fullWidth 
+                            sx={{ bgcolor: "#DC2626" }}
+                            onClick={() => navigate('/explore-projects')}
+                          >
                             Nueva Donación
                           </Button>
                         </Box>

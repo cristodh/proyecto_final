@@ -10,7 +10,6 @@ import {
   Avatar,
 } from "@mui/material";
 import LinkOffIcon from '@mui/icons-material/LinkOff';
-import logoFundify from "../../imgs/LogoFundifyClose.png";
 
 export default function FundifyNotFoundPage() {
   return (
@@ -36,7 +35,7 @@ export default function FundifyNotFoundPage() {
       >
         <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <img 
-            src={logoFundify} 
+            src="/imgs/JustLogo.png" 
             alt="Fundify logo" 
             style={{ 
               width: "auto", 

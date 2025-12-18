@@ -11,7 +11,8 @@ import {
   Chip, 
   LinearProgress, 
   Divider,
-  IconButton
+  IconButton,
+  CircularProgress
 } from "@mui/material";
 import {
   Settings as SettingsIcon,
@@ -29,41 +30,67 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 
 import Header from "../../components/HeaderUser/HeaderUser.jsx";
 import Sidebar from "../../components/SideBar/Sidebar";
-import ProfileSummary from "../../components/DonorConfigPage/ProfileSummary.jsx";
 import ProfileForm from "../../components/DonorConfigPage/ProfileForm";
 import SecurityForm from "../../components/DonorConfigPage/SecurityForm";
-import NotificationPreferences from "../../components/DonorConfigPage/NotificationPreferences";
-import { useEffect,useState } from "react";
-import { getData, tokenGetData } from "../../../services/fetch";
+import { useEffect, useState } from "react";
+import { getUserData, getUserInitials, getAvatarColor } from "../../../services/userService";
+import { changePassword } from "../../../services/authService";
 
 export const DonorConfig = () => {
-  const [sidebarOpen, setSidebarOpen] = React.useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const theme = useTheme();
   const mdUp = useMediaQuery(theme.breakpoints.up("md"));
+  const [userLogged, setUserLogged] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState(0);
 
   const toggleSidebar = () => setSidebarOpen((s) => !s);
-
-   const [userLogged,setUserLogged]= useState([]) // aqui guardamos la info del usuario loggeado
   
   useEffect(() => { 
     async function getUser() { 
       try {
-        const response = await tokenGetData(`user/user_id/${localStorage.getItem('id')}/`);
-        setUserLogged(response[0]);
+        setLoading(true);
+        const userId = localStorage.getItem('id');
+        const userData = await getUserData(userId);
+        if (userData) {
+          setUserLogged(userData);
+        }
       } catch (error) {
         console.error('Error loading user data:', error);
-        // Fallback user data for demonstration
-        setUserLogged({
-          id: 1,
-          nombre: "Usuario Demo",
-          apellido: "Demostración",
-          email: "usuario@demo.com",
-          avatar: "/api/placeholder/100/100"
-        });
+      } finally {
+        setLoading(false);
       }
     }
     getUser();
   }, []);
+
+  const handleUserUpdate = async () => {
+    try {
+      const userId = localStorage.getItem('id');
+      const userData = await getUserData(userId);
+      if (userData) {
+        setUserLogged(userData);
+      }
+    } catch (error) {
+      console.error('Error reloading user data:', error);
+    }
+  };
+
+  if (loading) {
+    return (
+      <Box sx={{ 
+        display: "flex", 
+        minHeight: "100vh",
+        alignItems: "center",
+        justifyContent: "center"
+      }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  const userInitials = getUserInitials(userLogged?.first_name || "", userLogged?.last_name || "");
+  const avatarColor = getAvatarColor(userLogged?.username || "");
 
   return (
     <Box sx={{ 
@@ -128,103 +155,8 @@ export const DonorConfig = () => {
           
           <Container maxWidth="lg" sx={{ py: 3 }}>
             <Grid container spacing={3}>
-              {/* Resumen del perfil mejorado */}
-              <Grid item xs={12}>
-                <Card>
-                  <CardContent>
-                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 3 }}>
-                      <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-                        Tu Perfil
-                      </Typography>
-                      <Button 
-                        variant="outlined" 
-                        startIcon={<EditIcon />}
-                        size="small"
-                      >
-                        Editar
-                      </Button>
-                    </Box>
-                    
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 3, mb: 3 }}>
-                      <Avatar 
-                        sx={{ width: 80, height: 80 }}
-                        src={userLogged?.avatar}
-                      >
-                        {userLogged?.nombre?.[0]}
-                      </Avatar>
-                      
-                      <Box sx={{ flex: 1 }}>
-                        <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                          {userLogged?.nombre} {userLogged?.apellido}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                          {userLogged?.email}
-                        </Typography>
-                        <Box sx={{ display: "flex", gap: 1 }}>
-                          <Chip 
-                            icon={<VerifiedIcon />}
-                            label="Verificado" 
-                            color="success" 
-                            size="small" 
-                          />
-                          <Chip 
-                            icon={<StarIcon />}
-                            label="Donante Activo" 
-                            color="primary" 
-                            size="small" 
-                          />
-                        </Box>
-                      </Box>
-                    </Box>
-
-                    <Grid container spacing={2}>
-                      <Grid item xs={6} sm={3}>
-                        <Box sx={{ textAlign: "center", p: 2, bgcolor: "#f8fafc", borderRadius: 1 }}>
-                          <Typography variant="h6" sx={{ color: "#7C3AED", fontWeight: "bold" }}>
-                            15
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            Donaciones
-                          </Typography>
-                        </Box>
-                      </Grid>
-                      <Grid item xs={6} sm={3}>
-                        <Box sx={{ textAlign: "center", p: 2, bgcolor: "#f8fafc", borderRadius: 1 }}>
-                          <Typography variant="h6" sx={{ color: "#059669", fontWeight: "bold" }}>
-                            8
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            Proyectos
-                          </Typography>
-                        </Box>
-                      </Grid>
-                      <Grid item xs={6} sm={3}>
-                        <Box sx={{ textAlign: "center", p: 2, bgcolor: "#f8fafc", borderRadius: 1 }}>
-                          <Typography variant="h6" sx={{ color: "#DC2626", fontWeight: "bold" }}>
-                            2.3k
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            Impacto
-                          </Typography>
-                        </Box>
-                      </Grid>
-                      <Grid item xs={6} sm={3}>
-                        <Box sx={{ textAlign: "center", p: 2, bgcolor: "#f8fafc", borderRadius: 1 }}>
-                          <Typography variant="h6" sx={{ color: "#F59E0B", fontWeight: "bold" }}>
-                            92%
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            Confiabilidad
-                          </Typography>
-                        </Box>
-                      </Grid>
-                    </Grid>
-                  </CardContent>
-                </Card>
-              </Grid>
-
               {/* Secciones de configuración */}
-              <Grid item xs={12} md={8}>
+              <Grid item xs={12}>
                 <Grid container spacing={3}>
                   {/* Información Personal */}
                   <Grid item xs={12}>
@@ -243,7 +175,7 @@ export const DonorConfig = () => {
                             </Typography>
                           </Box>
                         </Box>
-                        <ProfileForm />
+                        <ProfileForm user={userLogged} onUpdate={handleUserUpdate} />
                       </CardContent>
                     </Card>
                   </Grid>
@@ -266,115 +198,6 @@ export const DonorConfig = () => {
                           </Box>
                         </Box>
                         <SecurityForm />
-                      </CardContent>
-                    </Card>
-                  </Grid>
-
-                  {/* Notificaciones */}
-                  <Grid item xs={12}>
-                    <Card>
-                      <CardContent>
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
-                          <Avatar sx={{ bgcolor: "#059669" }}>
-                            <NotificationsIcon />
-                          </Avatar>
-                          <Box>
-                            <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                              Preferencias de Notificaciones
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                              Controla cómo y cuándo recibes notificaciones
-                            </Typography>
-                          </Box>
-                        </Box>
-                        <NotificationPreferences />
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                </Grid>
-              </Grid>
-
-              {/* Panel lateral */}
-              <Grid item xs={12} md={4}>
-                <Grid container spacing={2}>
-                  {/* Progreso del perfil */}
-                  <Grid item xs={12}>
-                    <Card>
-                      <CardContent>
-                        <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
-                          Completar Perfil
-                        </Typography>
-                        <Box sx={{ mb: 2 }}>
-                          <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
-                            <Typography variant="body2">Progreso</Typography>
-                            <Typography variant="body2">85%</Typography>
-                          </Box>
-                          <LinearProgress variant="determinate" value={85} sx={{ height: 8, borderRadius: 1 }} />
-                        </Box>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                          Completa tu perfil para una mejor experiencia
-                        </Typography>
-                        <Button variant="outlined" size="small" fullWidth>
-                          Completar Perfil
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-
-                  {/* Configuración rápida */}
-                  <Grid item xs={12}>
-                    <Card>
-                      <CardContent>
-                        <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
-                          Configuración Rápida
-                        </Typography>
-                        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: 2, bgcolor: "#f8fafc", borderRadius: 1 }}>
-                            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                              <ShieldIcon fontSize="small" color="primary" />
-                              <Typography variant="body2">2FA Activado</Typography>
-                            </Box>
-                            <Chip label="Activo" color="success" size="small" />
-                          </Box>
-                          
-                          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: 2, bgcolor: "#f8fafc", borderRadius: 1 }}>
-                            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                              <NotificationsIcon fontSize="small" color="primary" />
-                              <Typography variant="body2">Notificaciones</Typography>
-                            </Box>
-                            <Chip label="Habilitadas" color="primary" size="small" />
-                          </Box>
-
-                          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: 2, bgcolor: "#f8fafc", borderRadius: 1 }}>
-                            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                              <TrendingUpIcon fontSize="small" color="primary" />
-                              <Typography variant="body2">Analíticas</Typography>
-                            </Box>
-                            <Chip label="Privadas" color="default" size="small" />
-                          </Box>
-                        </Box>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-
-                  {/* Acciones rápidas */}
-                  <Grid item xs={12}>
-                    <Card>
-                      <CardContent>
-                        <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
-                          Acciones Rápidas
-                        </Typography>
-                        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                          <Button variant="outlined" fullWidth size="small">
-                            Exportar Datos
-                          </Button>
-                          <Button variant="outlined" fullWidth size="small">
-                            Descargar Certificados
-                          </Button>
-                          <Button variant="contained" fullWidth size="small" sx={{ bgcolor: "#7C3AED" }}>
-                            Ver Tutorial
-                          </Button>
-                        </Box>
                       </CardContent>
                     </Card>
                   </Grid>
